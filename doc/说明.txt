@@ -1,0 +1,87 @@
+cmsis-dap:用以根据上位机下发的命令来进行调试和编译动作。底层只实现SWD跟目标芯片进行通信。
+swd-host:底层通信跟cmsis-dap 一样，烧录仿真所需要的接口在底层实现了。
+
+isp、bootisp、swd、rtc的联机调试都是在底层实现“擦除”“查空”“编程”等动作，
+
+
+
+
+
+
+/* ****************************************************************************
+ * NOTICE
+ * ****************************************************************************/
+1、系统时钟修改后，需要修改：
+	File_Config.c中的 #define CPU_CLK     60000000	#define __FPCLK   	72000000
+    RTX_Config.c中的  #define OS_CLOCK   	72000000
+    DAP_Config.h中的  #define CPU_CLOCK     45750000U 
+2、SPI Flash的格式化较慢，整片擦除大概需要50s左右，首次使用务必先格式化。
+/* ****************************************************************************
+ * TODO
+ * ****************************************************************************/
+## TODOList:
+1、错误类型的规范，ISP操作函数中的错误类型恢复需要规范
+增加错误类型：1）读写flash错误
+			  2） 读芯片数据失败
+2、util_assert 函数相关的部分程序需要修改。
+3、uint32_t_uint8_t 定义的数组需要修改
+
+4、USB bulk 协议需要修改。
+
+
+/* ****************************************************************************
+ * 改动
+ * ****************************************************************************/
+target_reset.h---> swd_target_reset.h
+
+
+
+/* ****************************************************************************
+ * 移植
+ * ****************************************************************************/
+RL_Flash移植
+文件说明：
+参考：Keil 4.74的帮助文档， keil 4.74\ARM\Hlp\rlarm.chm
+
+文件RTX_Lib.c在MDK安装目录中的路径Keil_v474\ARM\RV31\INC 
+文件说明
+
+1、 RL-FlashFS include files in \ARM\RV31\INC:
+absacc.h：
+File_Config.h  ：
+File_lib.c：
+
+
+2、 fs的工程文件以库的形式提供 文件位置：keil 4.74\ARM\RV31\LIB 
+FS_CM3.lib  ：支持长文件名
+FSN_CM3.lib  ：不支持长文件名
+本工程选择   FSN_CM3.lib
+
+3、  RL-FlashFS interface files in \ARM\RL\FlashFS\Drivers:
+
+
+
+4、RL-FlashFS configuration files in \ARM\RL\FlashFS\Config：
+File_Config.c ： 配置文件
+Retarget.c       重定向文件
+
+移植：
+1、在File_config.c中选择spi flash driver
+
+注意：
+1、FlashFS不支持 ： MicroLIB
+
+
+
+/* ****************************************************************************
+ * 参考
+ * ****************************************************************************/
+参考：
+CMSIS-DAP 接口：
+file:///C:/Keil_v5/ARM/Pack/ARM/CMSIS/5.0.1/CMSIS/Documentation/DAP/html/group__DAP__ConfigUSB__gr.html
+
+
+
+
+
+1、winUSB的驱动在“注册表的卸载”  卸载方式  regedit--->SYSTEM-->CurrentControlSet--->Control--->usbflags

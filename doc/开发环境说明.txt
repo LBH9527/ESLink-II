@@ -1,0 +1,20 @@
+【1】开发环境
+┏
+┃
+┃
+┃
+
+【2】工程源代码分组说明
+
+
+【3】外部器件
+1、SPI Flash	IC:	MX25L6406	
+	容量：64Mb=8Mbyte ,   Addr Ranger  0x000000---0x7FFFFF
+	8M容量分为128个块（Block） block = 64K	
+	每个Block 有 16个扇区（sector） sector = 4K
+	8M = 128 * 64K = 128 * 16 * 4K
+					
+			
+
+
+【5】GPIO分配表
