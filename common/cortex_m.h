@@ -2,9 +2,7 @@
 #ifndef CORTEX_M_H
 #define CORTEX_M_H
 
-#include "MK22F12810.h"
-#include "es_common.h"
-
+#include "MK22F12810.h"   
 #include "stdbool.h"
 /*
 *   开关全局中断

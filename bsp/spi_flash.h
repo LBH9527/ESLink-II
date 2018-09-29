@@ -49,13 +49,13 @@ typedef struct
 	uint32_t block_end;			/* The end of available block */
 }SPI_FLASH_t;
 
-extern SPI_FLASH_t g_flash;
+//extern SPI_FLASH_t g_flash;
 
 /*******************************************************************************
   函数声明
 ********************************************************************************/
 void spi_flash_init(void);
-//void sf_read_info(void);
+int sf_read_info(void);
 sf_err sf_erase_chip(void);
 sf_err sf_erase_sector(uint32_t offset, uint32_t length);
 sf_err sf_erase_block(uint32_t offset, uint32_t length);
@@ -64,4 +64,5 @@ sf_err spi_flash_write( uint32_t _uiWriteAddr, const uint8_t* _pBuf, uint32_t _u
 sf_err sf_page_write(uint32_t addr,const uint8_t * _pBuf, uint32_t _usSize);
 
 uint8_t sf_CmpData(uint32_t _uiSrcAddr, const uint8_t *_ucpTar, uint32_t _uiSize);
+//int spiflash_test(uint32_t begin, uint32_t end);
 #endif

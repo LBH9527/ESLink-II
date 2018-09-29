@@ -41,7 +41,6 @@ processor_version: 3.0.1
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
 /* clang-format on */
 
-#include "fsl_smc.h"
 #include "clock_config.h"
 
 /*******************************************************************************
@@ -105,7 +104,6 @@ outputs:
 - {id: USB48MCLK.outFreq, value: 48 MHz}
 settings:
 - {id: MCGMode, value: FEE}
-- {id: powerMode, value: HSRUN}
 - {id: MCG.FCRDIV.scale, value: '1', locked: true}
 - {id: MCG.FLL_mul.scale, value: '1920', locked: true}
 - {id: MCG.FRDIV.scale, value: '256', locked: true}
@@ -168,12 +166,6 @@ const osc_config_t oscConfig_BOARD_BootClockRUN =
  ******************************************************************************/
 void BOARD_BootClockRUN(void)
 {
-    /* Set HSRUN power mode */
-    SMC_SetPowerModeProtection(SMC, kSMC_AllowPowerModeAll);
-    SMC_SetPowerModeHsrun(SMC);
-    while (SMC_GetPowerModeState(SMC) != kSMC_PowerStateHsrun)
-    {
-    }
     /* Set the system clock dividers in SIM to safe value. */
     CLOCK_SetSimSafeDivs();
     /* Initializes OSC0 according to board configuration. */

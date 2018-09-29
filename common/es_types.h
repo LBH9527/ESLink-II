@@ -59,11 +59,11 @@ extern "C" {
 //} bool_t;
 
 #ifndef TRUE
-	#define TRUE            1
+	#define TRUE            0
 #endif
 
 #ifndef FALSE
-	#define FALSE           0
+	#define FALSE           1
 #endif
 
 #ifndef DISABLE

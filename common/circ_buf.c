@@ -22,7 +22,7 @@
 #include "circ_buf.h"
 
 #include "cortex_m.h"
-//#include "macro.h"
+#include "es_common.h"
 //#include "util.h"
 
 void circ_buf_init(circ_buf_t *circ_buf, uint8_t *buffer, uint32_t size)

@@ -34,27 +34,27 @@
 
 //OLED Port I/O Pins 
 /******************************************************************************/
-// OLED_CS  PTC3
-#define PIN_OLED_CS_PORT        PORTC
-#define PIN_OLED_CS_GPIO        PTC
-#define PIN_OLED_CS_BIT         (3)
+
+// OLED_CS  PTB19
+#define PIN_OLED_CS_PORT        PORTB
+#define PIN_OLED_CS_GPIO        PTB
+#define PIN_OLED_CS_BIT         (19)
 #define PIN_OLED_CS             (1<<PIN_OLED_CS_BIT)
-// OLED_RST  PTC2
-#define PIN_OLED_RST_PORT       PORTC
-#define PIN_OLED_RST_GPIO       PTC
-#define PIN_OLED_RST_BIT        (2)
+// OLED_RST  PTB18
+#define PIN_OLED_RST_PORT       PORTB
+#define PIN_OLED_RST_GPIO       PTB
+#define PIN_OLED_RST_BIT        (18)
 #define PIN_OLED_RST            (1<<PIN_OLED_RST_BIT)
-        
-// OLED_SCK  PTB18
-#define PIN_OLED_SCK_PORT       PORTB
-#define PIN_OLED_SCK_GPIO       PTB
-#define PIN_OLED_SCK_BIT        (18)
+// OLED_SCK  PTC2
+#define PIN_OLED_SCK_PORT       PORTC
+#define PIN_OLED_SCK_GPIO       PTC
+#define PIN_OLED_SCK_BIT        (2)
 #define PIN_OLED_SCK            (1<<PIN_OLED_SCK_BIT)
-// OLED_SDA  PTB19
-#define PIN_OLED_SDA_PORT       PORTB
-#define PIN_OLED_SDA_GPIO       PTB
-#define PIN_OLED_SDA_BIT        (19)
-#define PIN_OLED_SDA            (1<<PIN_OLED_SDA_BIT)
+// OLED_SDA  PTC3
+#define PIN_OLED_SDA_PORT       PORTC
+#define PIN_OLED_SDA_GPIO       PTC
+#define PIN_OLED_SDA_BIT        (3)
+#define PIN_OLED_SDA            (1<<PIN_OLED_SDA_BIT)  
 
 // Debug Port I/O Pins
 /******************************************************************************/

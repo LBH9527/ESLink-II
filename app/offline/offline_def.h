@@ -3,7 +3,8 @@
 
 #include "stdio.h" 
 #include "stdint.h" 
-#include "error.h"
+#include "errno.h"
+#include "eslink_addr.h"
 
 /*          flie 数据分区信息
  * |----------------------------|   Storage Size
@@ -23,28 +24,55 @@
 */
 
 
-
-//分区信息长度
-#define PART_AREA_SIZE         64     
-#define PRJ_START_ADDR         64      //保存文件的起始地址
-//每个分区信息数据的长度
-#define PART_SECTOR_LEN      16          
+//支持的方案最大数
+#define MAX_PAJ_NUM                         10
+//方案名最大长度
+#define OFL_FILE_NAME_MAX_LEN               16
+//分区信息长度   
+#define OFL_PRJ_INFO_ADDR                  	0x00                //保存文件的起始地址
+#define OFL_PRJ_INFO_LEN                    0x80                //规定文件信息定长  
+#define OFL_PRJ_TIMING_ADDR             	(OFL_PRJ_INFO_ADDR + OFL_PRJ_INFO_LEN)      //时序起始地址
+#define OFL_PRJ_TIMING_LEN              	(ESLINK_ROM_LINK_SIZE)                        //时序长度 
+#define OFL_PRJ_CHIP_INFO_ADDR              (OFL_PRJ_TIMING_ADDR + OFL_PRJ_TIMING_LEN)  //芯片信息地址
 
 
 //支持的方案最大数
-#define MAX_PAJ_NUM         10
-//方案名长度
-#define PRJ_NAME_LEN        60
-//每次读方案数据长度
-#define PRJ_READ_MIN_SIZE      0x200
+#define MAX_PAJ_NUM                         10 
+//方案名最大长度
+#define OFL_FILE_NAME_MAX_LEN               16
+ 
+//方案分区信息
+#define UNKNOWN_PART                    0x00
+#define OFL_INFO_PART                   0x01           //基本信息
+#define OFL_TIMING_PART                 0x02           //时序信息
+#define OFL_TIMING_INFO_PART              0x03           //芯片信息
+#define OFL_HEX_PART                    0x04           //用户Hex 
+#define OFL_CONFIG_PART                 0x05           //配置字
+ 
+//分区信息索引
+struct  partition
+{
+//    uint32_t type;                  /* partition type */
+    uint32_t start;                 /* partition start offset */
+    uint32_t size;                  /* partition size */
+    uint32_t data;                  //各种类型的私有数据。（校验和等数据）
+};
 
+struct ofl_file_partition{      
+//    char prj_name[PRJ_NAME_LEN];            //方案名，用于查找方案
+    struct partition prj_info;				//方案信息
+	struct partition timing;				//时序信息
+	struct partition chip_info;            //芯片信息
+	struct partition image;				//用户HEX
+	struct partition cfg_word;				//用户配置字
+};
 
 
 //总方案表
- struct prj_tbl{
-    uint8_t prj_cnt;            //方案总数
+ struct ofl_file_tbl{
+    uint8_t count;                  //方案总数
     uint8_t cur_id;             //当前方案编号
-    char name_tbl[10][PRJ_NAME_LEN];    //方案名表  
+    char path[MAX_PAJ_NUM][OFL_FILE_NAME_MAX_LEN];    //方案名表  
 }; 
 
 //脱机最大步骤数
@@ -61,95 +89,22 @@ struct ofl_step_mode{
 #define OFL_TYPE_SWD        0x02
 #define OFL_TYPE_BOOTISP    0x03
 
-//方案分区信息
-#define UNKNOWN_PART             0x0000
-#define INFIO_PART               0x0100           //基本信息
-#define TIMING_INFO_PART         0x0200           //时序信息
-//#define ISP_TIMING_INFO          0x0200           
-//#define SWD_TIMING_INFO          0x0201
-//#define BOOTISP_TIMING_INFO      0x0202
-#define TIMING_PART              0x0300           //时序
-#define CONFIG_PART              0x0400           //配置字
-#define HEX_PART                 0x0500           //用户Hex    
-/* file system partition  */
-//分区信息索引
-struct  prj_partition
-{
-    uint32_t type;                  /* partition type */
-    uint32_t start;                 /* partition start offset */
-    uint32_t size;                  /* partition size */
-    uint32_t data;                  //各种类型的私有数据。（校验和等数据）
-};
-//extern struct prj_partition prj_part;
 
-//方案控制块
-struct prj_ctl_block{      
-    char name[PRJ_NAME_LEN];
-    FILE * pFile; 
-    uint8_t  part_addr;     //文件索引分区的读写地址
-                            
-    
-    uint32_t pos;           /* Current file position */
-    uint32_t size;           /* Size in bytes */
-     struct ofl_step_mode mode;     // 脱机操作
-    struct  prj_partition  part;    //文件分区信息
-    
-};  
-typedef struct prj_ctl_block  *ofl_prj_data_t  ;
-//extern  struct prj_ctl_block ofl_pcb ;
-
-
-
-
-
-
-
-
-
-
-
-//脱机方案中的数据类型
-//typedef enum{
+////方案控制块
+//struct prj_ctl_block{      
+//    char name[OFL_FILE_NAME_MAX_LEN];
+//    FILE * pFile; 
+//    uint8_t  part_addr;     //文件索引分区的读写地址
+//                            
 //    
-//    INFIO_PART          = 0x0100,           //基本信息
-//    TIMING_INFO_PART    = 0x2000,
-////    ISP_TIMING_INFO     = 0x0200,           //时序信息
-////    SWD_TIMING_INFO     = 0x0201,
-////    BOOTISP_TIMING_INFO = 0x0202,
-//    TIMING_PART         = 0x0300,           //时序
-//    CONFIG_PART         = 0x0400,           //配置字
-//    IMAGE_PART          = 0x0500,           //用户Hex    
-//}partition_type;
-
-// partition
-
-
-
-
-
-////timing 状态
-// typedef enum {
-//    TIMING_STATE_CLOSED,
-//    TIMING_STATE_OPEN,
-//    TIMING_STATE_DONE,
-//    TIMING_STATE_ERROR 
-//} timing_state_t;
- 
-// struct prj_partition{ 
+//    uint32_t pos;           /* Current file position */
+//    uint32_t size;           /* Size in bytes */
+//     struct ofl_step_mode mode;     // 脱机操作
+////    struct  ofl_file_partition  part;    //文件分区信息
 //    
-//    char prj_name[PRJ_NAME_LEN];            //方案名，用于查找方案
-////    struct prj_partition_sector sector;
-//    uint32_t info_start;            //基本信息   
-//    uint32_t info_end;  
-//    uint32_t timing_info_start;
-//    uint32_t timing_info_size;
-//    uint32_t timing_start;          //时序
-//    uint32_t timing_size;  
-//    uint32_t image_start;           //用户程序
-//    uint32_t image_end;  
-//    uint32_t config_start;          //配置字
-//    uint32_t config_end;     
-//};
+//};  
+//typedef struct prj_ctl_block  *ofl_prj_data_t  ;
+
 
 
 #endif

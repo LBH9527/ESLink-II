@@ -22,8 +22,10 @@ y
 #include "es_common.h"
 #include "fonts.h"
 
+void OLED_PutPixel(uint16_t _usX, uint16_t _usY, uint8_t _ucColor);  
+
 static void oled_delay_ms(uint32_t delay) 
-{      
+{   
     delay *= ((SystemCoreClock/1000U) + (4-1U)) / 4;
     while (--delay);
 }
@@ -65,25 +67,6 @@ void OLED_DispOff(void)
 	oled_write_cmd(0xAE);	/* 打开OLED面板 */
 }
 
-/*******************************************************************************
-*	函 数 名: OLED_SetDir
-*	功能说明: 设置显示方向
-*	形    参: _ucDir = 0 表示正常方向，1表示翻转180度
-*	返 回 值: 无
-*******************************************************************************/
-void OLED_SetDir(uint8_t _ucDir)
-{
-	if (_ucDir == 0)
-	{
-       	oled_write_cmd(0xA0);	/* A0 ：列地址0映射到SEG0; A1 ：列地址127映射到SEG0 */
-		oled_write_cmd(0xC0);	/* C0 ：正常扫描,从COM0到COM63;  C8 : 反向扫描, 从 COM63至 COM0 */
-	}
-	else
-	{
-		oled_write_cmd(0xA1);	/* A0 ：列地址0映射到SEG0; A1 ：列地址127映射到SEG0 */
-		oled_write_cmd(0xC8);	/* C0 ：正常扫描,从COM0到COM63;  C8 : 反向扫描, 从 COM63至 COM0 */
-	}
-}
 
 /*******************************************************************************
 *	函 数 名: OLED_SetContrast
@@ -121,12 +104,12 @@ void OLED_EndDraw(void)
 }
 
 /*******************************************************************************
-*	函 数 名: OLED_ClrScr
+*	函 数 名: oled_clr_scr
 *	功能说明: 清屏
 *	形    参:  _ucMode : 0 表示全黑； 0xFF表示全亮
 *	返 回 值: 无
 *******************************************************************************/
-void OLED_ClrScr(uint8_t _ucMode)
+void oled_clr_scr(uint8_t _ucMode)
 {
 	uint8_t i,j;
 
@@ -167,8 +150,40 @@ static void OLED_BufToPanel(void)
 	}
 }
 
+void oled_display_log(uint16_t x, uint16_t y, uint8_t num)
+{
+	uint8_t m;
+    uint8_t i;
+    uint8_t x0 ;
+	uint8_t y0 = y;
+//	uint8_t buf[48] ;
+    
+	OLED_StartDraw();	 
+
+    for (m = 0; m < 24; m++)	/* 字符高度 */  
+    {
+        x0 = x;
+        for (i = 0; i < 8; i++)	/* 字符宽度 */
+        {
+            if ((log_Ascii24[num][m * + i / 8] & (0x80 >> (i % 8 ))) != 0x00)
+            {
+                OLED_PutPixel(x0, y0, 1);	/* 设置像素颜色为文字色 */
+                
+            }
+            else
+            {
+                OLED_PutPixel(x0, y0, 0);	/* 设置像素颜色为文字背景色 */
+            }
+
+            x0++;
+        }
+        y0++;  
+    }    
+    OLED_EndDraw();   
+}
+
 /*******************************************************************************
-*	函 数 名: OLED_DispStr
+*	函 数 名: oled_display_str
 *	功能说明: 在屏幕指定坐标（左上角为0，0）显示一个字符串
 *	形    参:
 *		_usX : X坐标，对于12864屏，范围为【0 - 127】
@@ -177,7 +192,7 @@ static void OLED_BufToPanel(void)
 *		_tFont : 字体结构体，包含颜色、背景色(支持透明)、字体代码、文字间距等参数
 *	返 回 值: 无
 *******************************************************************************/
-void OLED_DispStr(uint16_t _usX, uint16_t _usY, char *_ptr, FONT_T *_tFont)
+void oled_display_str(uint16_t _usX, uint16_t _usY, char *_ptr, FONT_T *_tFont)
 {
 	uint32_t i;
 	uint8_t code1;
@@ -191,14 +206,14 @@ void OLED_DispStr(uint16_t _usX, uint16_t _usY, char *_ptr, FONT_T *_tFont)
 	const uint8_t *pHzDot;
 
     OLED_StartDraw();
-//	/* 如果字体结构为空指针，则缺省按16点阵 */
-//	if (_tFont->FontCode == FC_ST_12)
+
+//	if (_tFont->FontCode == FC_ST_24)
 //	{
-//		font_height = 12;
-//		font_width = 12;
-//		font_bytes = 24;
-//		pAscDot = g_Ascii12;	
-//		pHzDot = g_Hz12;
+//		font_height = 24;
+//		font_width = 24;
+//		font_bytes = 48;
+//		pAscDot = log_Ascii24;	
+//		pHzDot = 0;
 //		
 //	}
 //	else
@@ -295,8 +310,7 @@ void OLED_DispStr(uint16_t _usX, uint16_t _usY, char *_ptr, FONT_T *_tFont)
 *			_ucColor  ：像素颜色
 *	返 回 值: 无
 *******************************************************************************/
-void OLED_PutPixel(uint16_t _usX, uint16_t _usY, uint8_t _ucColor)
-
+void OLED_PutPixel(uint16_t _usX, uint16_t _usY, uint8_t _ucColor)  
 {
 	uint8_t ucValue;
 	uint8_t ucPageAddr;
@@ -327,74 +341,6 @@ void OLED_PutPixel(uint16_t _usX, uint16_t _usY, uint8_t _ucColor)
 		oled_write_data(ucValue);
 	}
 }
-
-/**
-* @brief 设置坐标点
-* @param x:x坐标
-* @param y:y坐标
-*/
-
-static void oled_set_pos(uint8_t x,uint8_t y) 
-{ 
-    oled_write_cmd(0xb0 + (7 - y / 8));
-    oled_write_cmd(((x & 0xf0) >> 4) | 0x10);
-    oled_write_cmd((x & 0x0f)); 
-} 
-
-static void oled_refresh_gram(void)
-{
-	uint8_t i,j;
-
-	for (i = 0 ; i< 8; i++)
-	{
-		oled_write_cmd (0xB0 + i);	/* 设置页地址（0~7） */
-		oled_write_cmd (0x00);		/* 设置列地址的低地址 */
-		oled_write_cmd (0x10);		/* 设置列地址的高地址 */
-
-		for (j = 0 ; j < 128; j++)
-		{
-			oled_write_data(OLED_Gram[i][j]);
-		}
-	}
-}
-/**
-* @brief 画点
-* @param x:x坐标
-* @param y:y坐标
-* @param show:0:不显示,1:显示
-*/
-void oled_draw_pixel(uint8_t x,uint8_t y,uint8_t show)
-{
-    uint8_t pos = 0;
-    uint8_t bx = 0;
-    uint8_t temp = 0;
-
-    //设置坐标点
-    oled_set_pos(x,y);
-    //p岸段是否超出范围
-    if (x > 127 || y > 64)
-    {
-        return;
-    }
-
-    pos = 7 - y / 8;
-    bx = y % 8;
-    temp = 1 << (7 - bx);
-    if (show)
-    {
-        OLED_Gram[x][pos] |= temp;
-    }
-    else
-    {
-        OLED_Gram[x][pos] &= ~temp;
-    }       
-
-    //设置显示位置—列高地址   
-    oled_write_data(OLED_Gram[x][pos]);     
-    
-}
-
-
 
 /*******************************************************************************
 *	函 数 名: OLED_DrawLine
@@ -622,12 +568,12 @@ static void oled_write_data(uint8_t data)
 }
 
 /*******************************************************************************
-*	函 数 名: OLED_InitHard
+*	函 数 名: oled_init
 *	功能说明: 初始化OLED屏
 *	形    参:  无
 *	返 回 值: 无
 *******************************************************************************/
-void OLED_InitHard(void)
+void oled_init(void)
 {
 	/* 上电延迟 */
     OLED_RST_Set();
@@ -665,5 +611,5 @@ void OLED_InitHard(void)
 	oled_write_cmd(0xA4);    // Disable Entire Display On (0xa4/0xa5)
 	oled_write_cmd(0xA6);    // Disable Inverse Display On (0xa6/a7) 
 	oled_write_cmd(0xAF);	/* 打开OLED面板 */  
-    OLED_ClrScr(0x00);
+    oled_clr_scr(0x00);
 }

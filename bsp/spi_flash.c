@@ -28,7 +28,7 @@ enum
 
 #define SF_STATUS_BUSY = (1 << 0),                  /**< busing  wip*/
 #define SF_STATUS_WEL = (1 << 1),                   /**< write enable latch */
-#define SPI_TIMEOUT     0xFFFF
+
 
 /* command list */
 #define CMD_WRSR                    (0x01)  /* Write Status Register */
@@ -55,15 +55,15 @@ enum
 
 SPI_FLASH_t g_flash;
 
-void sf_read_info(void);
+int sf_read_info(void);
 static void sf_write_enable(void);
-static void sf_write_status(uint8_t _ucValue);
-static void sf_WaitForWriteEnd(void);
-//static uint8_t sf_need_erase(uint8_t * _ucpOldBuf, uint8_t *_ucpNewBuf, uint16_t _uiLen);
-//static uint8_t sf_CmpData(uint32_t _uiSrcAddr, uint8_t *_ucpTar, uint32_t _uiSize);
-//static uint8_t sf_AutoWritePage( uint32_t _uiWrAddr, uint16_t _usWrLen, uint8_t *_ucpSrc);
-//static uint8_t s_spiBuf[4*1024];	/* 用于写函数，先读出整个page，修改缓冲区后，再整个page回写 */
+//static void sf_write_status(uint8_t _ucValue);
 
+static void spi_delay_ms(uint32_t delay) 
+{   
+    delay *= ((SystemCoreClock/1000U) + (4-1U)) / 4;
+    while (--delay);
+}
 
 static void sf_set_cs(uint8_t _level)
 {
@@ -108,7 +108,7 @@ void spi_falsh_hw_init(void)
 
  uint8_t flash_send_byte(uint8_t byte)
 {    
-    uint32_t SPITimeout = SPI_TIMEOUT;
+    uint32_t SPITimeout = 0xFFFF;
      uint8_t data;
     
     SPI1->PUSHR =  SPI_PUSHR_TXDATA(byte);
@@ -145,46 +145,56 @@ void spi_falsh_hw_init(void)
     return data;   
 }
 
-static uint8_t sf_read_status(void)
-{
-    uint8_t status;
-    
-	sf_set_cs(0);									/* 使能片选 */
-	flash_send_byte(CMD_RDSR);						/* 发送命令， 读状态寄存器 */  
-    status = flash_send_byte(0xff);       
-	sf_set_cs(1);									/* 禁能片选 */   
-    return status;   
-    
-}
+//static uint8_t sf_read_status(void)
+//{
+//    uint8_t status;
+//    
+//	sf_set_cs(0);									/* 使能片选 */
+//	flash_send_byte(CMD_RDSR);						/* 发送命令， 读状态寄存器 */  
+//    status = flash_send_byte(0xff);       
+//	sf_set_cs(1);									/* 禁能片选 */   
+//    return status;   
+//    
+//}
 
-static void sf_delay(void)
-{
-    __nop();
-    __nop();
-    __nop();
-}
 static void sf_wait_busy(void)
 {
+    #if 1
     uint8_t status;
-    uint8_t retry = 3;
+    uint32_t retry = 1000;   //全擦耗时60s
     uint32_t SPITimeout;
     
     
     while(retry--)
     {
         sf_set_cs(0);									/* 使能片选 */
-        SPITimeout =  SPI_TIMEOUT;
+        SPITimeout =  50;
         flash_send_byte(CMD_RDSR);						/* 发送命令， 读状态寄存器 */
         do{
             status = flash_send_byte(0xff);            
-            sf_delay();
+            spi_delay_ms(2);
         }while( ((status & 0x01) == 1) && SPITimeout-- );  
         
         sf_set_cs(1);	
         if((status & 0x01) != 1)
             break;
     }
-	
+    if(!retry)
+        while(1);
+    #else
+        uint8_t status;
+    uint32_t SPITimeout = SPI_TIMEOUT;
+    
+	sf_set_cs(0);									/* 使能片选 */
+	flash_send_byte(CMD_RDSR);						/* 发送命令， 读状态寄存器 */
+    do{
+        status = flash_send_byte(0xff);
+        spi_delay_ms(2);
+        
+    }while( (status & 0x01) == 1);
+    
+	sf_set_cs(1);									/* 禁能片选 */
+	#endif
 }
 
 static void sf_write_enable(void)
@@ -391,7 +401,7 @@ void spi_flash_init(void)
 
 //    sf_erase_chip();
 //	sf_write_status(0);			/* 解除所有BLOCK的写保护 */
-    sf_read_info();				/* 自动识别芯片型号 */
+//    sf_read_info();				/* 自动识别芯片型号 */
 }
 
 ///*
@@ -444,61 +454,17 @@ void spi_flash_init(void)
 */
 sf_err sf_erase_chip(void)
 {
-	sf_set_cs(0);		
-    sf_wait_busy();			    
-	sf_write_enable();
+	sf_write_enable();	
+    sf_set_cs(0);				    
+
 	flash_send_byte(CMD_ERASE_full);							/* 发送整片擦除命令 */ 
+
+    sf_set_cs(1);
     sf_wait_busy();		
-    sf_write_disable();
-    sf_set_cs(1);	      
+    sf_write_disable();    
     return SF_SUCCESS    ;
 }
 
-///*
-//********************************************************************************
-//*	函 数 名: sf_page_write
-//*	功能说明: 向一个page内写入若干字节。字节个数不能超出页面大小（4K)
-//*	形    参:  	_pBuf : 数据源缓冲区；
-//*				_uiWriteAddr ：目标区域首地址
-//*				_usSize ：数据个数，不能超过页面大小
-//*	返 回 值: 无
-//********************************************************************************
-//*/
-//sf_err sf_page_write(uint32_t _uiWriteAddr,const uint8_t * _pBuf, uint32_t _usSize)
-//{
-//	uint32_t i, j;
-//    
-//    sf_WaitForWriteEnd();							/* 等待串行Flash内部写操作完成 */
-//    for (j = 0; j < _usSize / 256; j++)
-//    {
-//        sf_write_enable();								/* 发送写使能命令 */
-
-//        sf_set_cs(0);									/* 使能片选 */
-//        flash_send_byte(0x02);								/* 发送CP命令(地址自动增加编程) */
-//        flash_send_byte((_uiWriteAddr & 0xFF0000) >> 16);	/* 发送扇区地址的高8bit */
-//        flash_send_byte((_uiWriteAddr & 0xFF00) >> 8);		/* 发送扇区地址中间8bit */
-//        flash_send_byte(_uiWriteAddr & 0xFF);				/* 发送扇区地址低8bit */
-
-//        for (i = 0; i < 256; i++)
-//        {
-//            flash_send_byte(*_pBuf++);					/* 发送数据 */
-//        }
-
-//        sf_set_cs(1);								/* 禁止片选 */
-
-//        sf_WaitForWriteEnd();						/* 等待串行Flash内部写操作完成 */
-
-//        _uiWriteAddr += 256;
-//    }
-
-//    /* 进入写保护状态 */
-////    sf_set_cs(0);
-////    flash_send_byte(CMD_WRDI);
-////    sf_set_cs(1);
-
-//    sf_WaitForWriteEnd();							/* 等待串行Flash内部写操作完成 */
-//    return SF_SUCCESS;
-//}
 
 ///*
 //*********************************************************************************************************
@@ -870,83 +836,62 @@ static uint32_t sf_read_id(void)
 *	返 回 值: 无
 ********************************************************************************
 */
-void sf_read_info(void)
+int sf_read_info(void)
 {
+    uint32_t chip_id;
 	/* 自动识别串行Flash型号 */
-    g_flash.chip_id = sf_read_id();	        /* 芯片ID */
+    chip_id = sf_read_id();	        /* 芯片ID */
 //    g_flash.total_size = 4 * 1024 * 1024;	/* 总容量 = 4M */
 //    g_flash.sector_size = 4 * 1024;			/* 扇区大小 = 4K */
 //    g_flash.page_size = 256;			/* 页大小 = 256*/
-    
+
+    g_flash.chip_id =  chip_id;
     g_flash.block_start = 0;
     g_flash.block_size = FLASH_BLOCK_SIZE;
     g_flash.block_end = 2048;
     g_flash.capacity = g_flash.block_size * g_flash.block_end ;
+    if( chip_id == MX25L64_ID)
+        return 0;
+    return -1;
 }
 
-///*
-//********************************************************************************
-//*	函 数 名: sf_write_enable
-//*	功能说明: 向器件发送写使能命令
-//*	形    参:  无
-//*	返 回 值: 无
-//********************************************************************************
-//*/
-//static void sf_write_enable(void)
-//{
-//	sf_set_cs(0);									/* 使能片选 */
-//	flash_send_byte(CMD_WREN);								/* 发送命令 */
-//	sf_set_cs(1);									/* 禁能片选 */
-//}
 
-///*
-//********************************************************************************
-//*	函 数 名: sf_write_status
-//*	功能说明: 写状态寄存器
-//*	形    参:  _ucValue : 状态寄存器的值
-//*	返 回 值: 无
-//********************************************************************************
-//*/
-//static void sf_write_status(uint8_t _ucValue)
+//int spiflash_test(uint32_t begin, uint32_t end)
 //{
-//    sf_set_cs(0);									/* 使能片选 */
-//    flash_send_byte(CMD_WRSR);							/* 发送命令， 写状态寄存器 */
-//    flash_send_byte(_ucValue);							/* 发送数据：状态寄存器的值 */
-//    sf_set_cs(1);									/* 禁能片选 */
-//	
-//}
-
-///*
-//********************************************************************************
-//*	函 数 名: sf_WaitForWriteEnd
-//*	功能说明: 采用循环查询的方式等待器件内部写操作完成
-//*	形    参:  无
-//*	返 回 值: 无
-//********************************************************************************
-//*/
-static void sf_WaitForWriteEnd(void)
-{
-    uint8_t status;
-    uint32_t SPITimeout = SPI_TIMEOUT;
-    
-	sf_set_cs(0);									/* 使能片选 */
-	flash_send_byte(CMD_RDSR);						/* 发送命令， 读状态寄存器 */
-//	while((flash_send_byte(0xff) & WIP_FLAG) == 1)	/* 判断状态寄存器的忙标志位 */
+//    uint32_t i, total_sector, j;
+//    static uint8_t buf[FLASH_BLOCK_SIZE];
+//    
+////    printf("spi flash id:0x%X\r\n", w25qxx_get_id());
+//    
+//    total_sector = (end - begin)/FLASH_BLOCK_SIZE;
+//    
+//    /* erase chip */
+////    printf("erase all chips...\r\n");
+//    sf_erase_chip();
+////    printf("erase complete\r\n");
+//    spi_flash_read(0, buf, FLASH_BLOCK_SIZE);
+//    for(i=begin/FLASH_BLOCK_SIZE; i<total_sector; i++)
 //    {
-//        if ((SPITimeout--) == 0) {
-//            sf_set_cs(1);									/* 禁能片选 */
-//            return ;
-//        }            
+////        printf("verify addr:0x%X(%d)...\r\n", i*FLASH_BLOCK_SIZE, i);
+//        for(j=0;j<sizeof(buf);j++)
+//        {
+//            buf[j] = j % 0xFF;
+//        }
+//        spi_flash_write(i*FLASH_BLOCK_SIZE, buf, FLASH_BLOCK_SIZE);
+//        memset(buf, 0, FLASH_BLOCK_SIZE);
+//        spi_flash_read(i*FLASH_BLOCK_SIZE, buf, FLASH_BLOCK_SIZE);
+//        
+//        /* varify */
+//        for(j=0;j<sizeof(buf);j++)
+//        {
+//            if(buf[j] != (j%0xFF))
+//            {
+////                printf("%d error\r\n", j);
+//                while(1);
+//            }
+//        }
 //    }
-    do{
-        status = flash_send_byte(0xff);
-        
-    }while( (status & 0x01) == 1);
-    
-	sf_set_cs(1);									/* 禁能片选 */
-    
-    
-
-}
+//    return 0;
+//}
 
 

@@ -18,3 +18,14 @@
 
 
 【5】GPIO分配表
+
+
+
+
+
+【6】FatFs移植记录
+版本：ff13B
+1、FF_USE_MKFS = 1
+2、扇区大小	
+	#define FF_MIN_SS		4096
+	#define FF_MAX_SS		4096

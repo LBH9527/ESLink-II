@@ -24,6 +24,6 @@
 
 #include "stdint.h"
 
-uint32_t usb_buffer[512 / 4];
+//uint32_t usb_buffer[512 / 4];
 
 #endif

@@ -29,7 +29,7 @@
 #include "swd_host.h"
 #include "swd_flash_intf.h"
 //#include "util.h"
-#include "settings.h"
+#include "es_target_set.h"
 #include "es_common.h"
 
 static error_t target_flash_init(void);

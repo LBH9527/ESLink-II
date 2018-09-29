@@ -52,20 +52,8 @@ static void Key_InitVar(void)
     key_param[KID_K0].key_up_value = KEY0_UP;
     key_param[KID_K0].key_long_value = KEY0_LONG;
 
-    key_param[KID_K1].key_down_value = KEY1_DOWN;
-    key_param[KID_K1].key_up_value = KEY1_UP;
-    key_param[KID_K1].key_long_value = KEY1_LONG;
-
-    key_param[KID_K2].key_down_value = KEY2_DOWN;
-    key_param[KID_K2].key_up_value = KEY2_UP;
-    key_param[KID_K2].key_long_value = KEY2_LONG;
-
     /* 判断按键按下的函数 */
-    key_param[KID_K0].IsKeyDownFunc = gpio_key0_down;
-    key_param[KID_K1].IsKeyDownFunc = gpio_key1_down;
-    key_param[KID_K2].IsKeyDownFunc = gpio_key2_down;
-
-	
+    key_param[KID_K0].IsKeyDownFunc = gpio_key0_down;  	
 }
 void key_clear_buffers(void)
 {
@@ -81,6 +69,12 @@ uint8_t key_write_data(uint8_t *key_value)
     return cnt;
 }
 
+/*******************************************************************************
+*	函 数 名: key_read_data
+*	功能说明: 读按键值
+*	形    参: 按键值指针
+*	返 回 值: 0：没有按键值 1 有按键值
+*******************************************************************************/
 uint8_t key_read_data(uint8_t *key_value)
 {
     return circ_buf_read(&key_buffer, key_value, 1);
@@ -197,8 +191,6 @@ static void bsp_detect_key(uint8_t i)
             }
             break;
         case STATE_KEY_RELEASE:
-            /* 发送按钮弹起的消息 */
-//            key_write_data(&(key->key_up_value));
             key->state = STATE_KEY_UP;
             break;
         default:

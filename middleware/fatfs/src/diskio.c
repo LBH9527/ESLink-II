@@ -1,194 +1,78 @@
-/*
- * The Clear BSD License
- * Copyright (c) 2015, Freescale Semiconductor, Inc.
- * Copyright 2016 NXP
- * All rights reserved.
- *
- *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted (subject to the limitations in the disclaimer below) provided
- * that the following conditions are met:
- *
- * o Redistributions of source code must retain the above copyright notice, this list
- *   of conditions and the following disclaimer.
- *
- * o Redistributions in binary form must reproduce the above copyright notice, this
- *   list of conditions and the following disclaimer in the documentation and/or
- *   other materials provided with the distribution.
- *
- * o Neither the name of the copyright holder nor the names of its
- *   contributors may be used to endorse or promote products derived from this
- *   software without specific prior written permission.
- *
- * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
 /*-----------------------------------------------------------------------*/
-/* Low level disk I/O module skeleton for FatFs  (C)ChaN, 2016  */
+/* Low level disk I/O module skeleton for FatFs     (C)ChaN, 2013        */
 /*-----------------------------------------------------------------------*/
-#include "ffconf.h"     /* FatFs configuration options */
-#include "diskio.h"     /* FatFs lower layer API */
-#ifdef RAM_DISK_ENABLE
-#include "fsl_ram_disk.h"
-#endif
-
-#ifdef USB_DISK_ENABLE
-#include "fsl_usb_disk.h"
-#endif
-
-#ifdef SD_DISK_ENABLE
-#include "fsl_sd_disk.h"
-#endif
-
-#ifdef MMC_DISK_ENABLE
-#include "fsl_mmc_disk.h"
-#endif
-
-#ifdef SDSPI_DISK_ENABLE
-#include "fsl_sdspi_disk.h"
-#endif
-
-/*-----------------------------------------------------------------------*/
-/* Get Drive Status                                                      */
+/* If a working storage control module is available, it should be        */
+/* attached to the FatFs via a glue function rather than modifying it.   */
+/* This is an example of glue functions to attach various exsisting      */
+/* storage control module to the FatFs module with a defined API.        */
 /*-----------------------------------------------------------------------*/
 
-DSTATUS disk_status (
-	BYTE pdrv		/* Physical drive nmuber to identify the drive */
-)
-{
-	DSTATUS stat;
-    switch (pdrv)
-    {
-#ifdef RAM_DISK_ENABLE
-        case RAMDISK:
-            stat = ram_disk_status(pdrv);
-            return stat;
-#endif
-#ifdef USB_DISK_ENABLE
-        case USBDISK:
-            stat = USB_HostMsdGetDiskStatus(pdrv);
-            return stat;
-#endif
-#ifdef SD_DISK_ENABLE
-        case SDDISK:
-            stat = sd_disk_status(pdrv);
-            return stat;
-#endif
-#ifdef MMC_DISK_ENABLE
-        case MMCDISK:
-            stat = mmc_disk_status(pdrv);
-            return stat;
-#endif
-#ifdef SDSPI_DISK_ENABLE
-        case SDSPIDISK:
-            stat = sdspi_disk_status(pdrv);
-            return stat;
-#endif
-        default:
-            break;
-    }
-    return STA_NOINIT;
-}
+#include "diskio.h"			/* FatFs lower layer API */
+#include "spi_flash.h"      
 
-
+/* Definitions of physical drive number for each media */
+#define FS_SPI_FLASH  0
 
 /*-----------------------------------------------------------------------*/
 /* Inidialize a Drive                                                    */
 /*-----------------------------------------------------------------------*/
-
 DSTATUS disk_initialize (
-	BYTE pdrv				/* Physical drive nmuber to identify the drive */
+	BYTE pdrv				/* Physical drive nmuber (0..) */
+)
+{
+    DSTATUS stat;
+	switch (pdrv) {
+
+		case FS_SPI_FLASH :
+            if( sf_read_info() != 0)
+                return STA_NOINIT;
+
+            // translate the reslut code here
+
+			return RES_OK;
+	}
+	return STA_NOINIT;
+}
+
+/*-----------------------------------------------------------------------*/
+/* Get Disk Status                                                       */
+/*-----------------------------------------------------------------------*/
+DSTATUS disk_status (
+	BYTE pdrv		/* Physical drive nmuber (0..) */
 )
 {
 	DSTATUS stat;
-    switch (pdrv)
-    {
-#ifdef RAM_DISK_ENABLE
-        case RAMDISK:
-            stat = ram_disk_initialize(pdrv);
-            return stat;
-#endif
-#ifdef USB_DISK_ENABLE
-        case USBDISK:
-            stat = USB_HostMsdInitializeDisk(pdrv);
-            return stat;
-#endif
-#ifdef SD_DISK_ENABLE
-        case SDDISK:
-            stat = sd_disk_initialize(pdrv);
-            return stat;
-#endif
-#ifdef MMC_DISK_ENABLE
-        case MMCDISK:
-            stat = mmc_disk_initialize(pdrv);
-            return stat;
-#endif
-#ifdef SDSPI_DISK_ENABLE
-        case SDSPIDISK:
-            stat = sdspi_disk_initialize(pdrv);
-            return stat;
-#endif
-        default:
-            break;
-    }
-    return STA_NOINIT;
+
+	switch (pdrv)
+	{
+		case FS_SPI_FLASH :
+			stat = 0;
+			return stat;
+	}
+	return STA_NOINIT;
 }
-
-
 
 /*-----------------------------------------------------------------------*/
 /* Read Sector(s)                                                        */
 /*-----------------------------------------------------------------------*/
 
 DRESULT disk_read (
-	BYTE pdrv,		/* Physical drive nmuber to identify the drive */
+	BYTE pdrv,		/* Physical drive nmuber (0..) */
 	BYTE *buff,		/* Data buffer to store read data */
-	DWORD sector,	/* Start sector in LBA */
-	UINT count		/* Number of sectors to read */
+	DWORD sector,	/* Sector address (LBA) */
+	BYTE count		/* Number of sectors to read (1..128) */
 )
 {
-	DRESULT res;
-    switch (pdrv)
-    {
-#ifdef RAM_DISK_ENABLE
-        case RAMDISK:
-            res = ram_disk_read(pdrv, buff, sector, count);
-            return res;
-#endif
-#ifdef USB_DISK_ENABLE
-        case USBDISK:
-            res = USB_HostMsdReadDisk(pdrv, buff, sector, count);
-            return res;
-#endif
-#ifdef SD_DISK_ENABLE
-        case SDDISK:
-            res = sd_disk_read(pdrv, buff, sector, count);
-            return res;
-#endif
-#ifdef MMC_DISK_ENABLE
-        case MMCDISK:
-            res = mmc_disk_read(pdrv, buff, sector, count);
-            return res;
-#endif
-#ifdef SDSPI_DISK_ENABLE
-        case SDSPIDISK:
-            res = sdspi_disk_read(pdrv, buff, sector, count);
-            return res;
-#endif
-        default:
-            break;
-    }
 
+	switch (pdrv) {
+
+		case FS_SPI_FLASH :
+             /* 扇区偏移2MB，外部Flash文件系统空间放在SPI Flash后面6MB空间 */ 
+            sector += 512;
+			spi_flash_read(sector<<12, buff, count <<12);
+			return RES_OK;
+
+	}
 	return RES_PARERR;
 }
 
@@ -197,47 +81,33 @@ DRESULT disk_read (
 /*-----------------------------------------------------------------------*/
 /* Write Sector(s)                                                       */
 /*-----------------------------------------------------------------------*/
-
+#if _USE_WRITE
 DRESULT disk_write (
-	BYTE pdrv,			/* Physical drive nmuber to identify the drive */
+	BYTE pdrv,			/* Physical drive nmuber (0..) */
 	const BYTE *buff,	/* Data to be written */
-	DWORD sector,		/* Start sector in LBA */
-	UINT count			/* Number of sectors to write */
+	DWORD sector,		/* Sector address (LBA) */
+	BYTE count			/* Number of sectors to write (1..128) */
 )
 {
-	DRESULT res;
-    switch (pdrv)
-    {
-#ifdef RAM_DISK_ENABLE
-        case RAMDISK:
-            res = ram_disk_write(pdrv, buff, sector, count);
-            return res;
-#endif
-#ifdef USB_DISK_ENABLE
-        case USBDISK:
-            res = USB_HostMsdWriteDisk(pdrv, buff, sector, count);
-            return res;
-#endif
-#ifdef SD_DISK_ENABLE
-        case SDDISK:
-            res = sd_disk_write(pdrv, buff, sector, count);
-            return res;
-#endif
-#ifdef MMC_DISK_ENABLE
-        case MMCDISK:
-            res = mmc_disk_write(pdrv, buff, sector, count);
-            return res;
-#endif
-#ifdef SDSPI_DISK_ENABLE
-        case SDSPIDISK:
-            res = sdspi_disk_write(pdrv, buff, sector, count);
-            return res;
-#endif
-        default:
-            break;
-    }
-    return RES_PARERR;
+
+	switch (pdrv) {
+		
+		case FS_SPI_FLASH :
+			{
+                /* 扇区偏移2MB，外部Flash文件系统空间放在SPI Flash后面6MB空间 */ 
+                sector += 512;
+                sf_erase_sector(sector<<12, 4096);
+                spi_flash_write(sector<<12, buff, count<<12 );
+                // translate the reslut code here
+
+				return RES_OK;
+			}
+	
+	}
+	
+	return RES_PARERR;
 }
+#endif
 
 
 /*-----------------------------------------------------------------------*/
@@ -251,36 +121,38 @@ DRESULT disk_ioctl (
 )
 {
 	DRESULT res;
-    switch (pdrv)
-    {
-#ifdef RAM_DISK_ENABLE
-        case RAMDISK:
-            res = ram_disk_ioctl(pdrv, cmd, buff);
-            return res;
-#endif
-#ifdef USB_DISK_ENABLE
-        case USBDISK:
-            res = USB_HostMsdIoctlDisk(pdrv, cmd, buff);
-            return res;
-#endif
-#ifdef SD_DISK_ENABLE
-        case SDDISK:
-            res = sd_disk_ioctl(pdrv, cmd, buff);
-            return res;
-#endif
-#ifdef MMC_DISK_ENABLE
-        case MMCDISK:
-            res = mmc_disk_ioctl(pdrv, cmd, buff);
-            return res;
-#endif
-#ifdef SDSPI_DISK_ENABLE
-        case SDSPIDISK:
-            res = sdspi_disk_ioctl(pdrv, cmd, buff);
-            return res;
-#endif
-        default:
-            break;
-    }
-    return RES_PARERR;
-}
+	int result;
 
+	switch (pdrv) {
+	case FS_SPI_FLASH :
+
+            // Process of the command for the RAM drive
+                switch (cmd) {
+            case GET_SECTOR_COUNT:
+                *(DWORD * )buff = 1536;		//sector˽   1536*4096/1024/1024=6(MB)
+            break;
+            case GET_SECTOR_SIZE :     // Get R/W sector size (WORD)
+
+                *(WORD * )buff = 4096;		//flash扇区大小
+            break;
+            case GET_BLOCK_SIZE :      // Get erase block size in unit of sector (DWORD)
+                *(DWORD * )buff = 1;		//flashӔ1ٶsectorΪخСӁԽեλ
+            break;
+        }
+        res =  RES_OK;
+		return res;
+	}
+
+	return RES_PARERR;
+}
+DWORD get_fattime (void)
+{
+	
+	return	  ((DWORD)(2013 - 1980) << 25)	/* Year = 2013 */
+			| ((DWORD)1 << 21)				/* Month = 1 */
+			| ((DWORD)1 << 16)				/* Day_m = 1*/
+			| ((DWORD)0 << 11)				/* Hour = 0 */
+			| ((DWORD)0 << 5)				/* Min = 0 */
+			| ((DWORD)0 >> 1);				/* Sec = 0 */
+//    return 0;
+}

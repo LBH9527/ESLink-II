@@ -1,30 +1,9 @@
-/*******************************************************************************
-*                                 AMetal
-*                       ----------------------------
-*                       innovating embedded platform
-*
-* Copyright (c) 2001-2015 Guangzhou ZHIYUAN Electronics Stock Co., Ltd.
-* All rights reserved.
-*
-* Contact information:
-* web site:    http://www.zlg.cn/
-* e-mail:      ametal.support@zlg.cn
-*******************************************************************************/
+
 
 /**
  * \file
  * \brief 通用工具宏定义头文件
  *
- * 本文件提供常用的工具宏，例如： min(), max(), offsetof()。更多内容
- * 请参考： \ref am_if_common 。
- *
- * \internal
- * \par Modification history:
- * - 1.03 14-12-15  fft, comment format and translate to english version
- * - 1.02 13-01-15  orz, move some defines to separate files.
- * - 1.01 12-09-05  orz, fix some defines.
- * - 1.00 12-08-23  zen, first implementation.
- * \endinternal
  */
 
 #ifndef __ES_COMMON_H
@@ -41,7 +20,6 @@ extern "C" {
  * \name 通用常量定义
  * @{
  */
-
 #define ES_OK               0         /**< \brief OK               */
 #define ES_ERROR          (-1)        /**< \brief 一般错误         */
 
@@ -273,8 +251,21 @@ typedef enum {DISABLE = 0, ENABLE = !DISABLE} FunctionalState;
 
 #define ROUND_DOWN(value, boundary)     ((value) - ((value) % (boundary)))
 
+#if defined(LIB_DEBUG)
+  #define assert_param(expr) ((expr) ? (void)0 : assert_failed((char *)__FILE__, __LINE__))
+/* Exported functions ------------------------------------------------------- */
+  void assert_failed(char * file, uint32_t line);
+#else
+  #define assert_param(expr) ((void)0)
+#endif
+  
+#if defined(LIB_DEBUG)
+    #include <stdio.h>
+    #define LIB_TRACE	printf
+#else
+    #define LIB_TRACE(...)
+#endif                
 
-#define U8_TO_U32(a,b)                  (                   
 
 
 /** @} */

@@ -1,7 +1,7 @@
 #include "string.h"
 #include "stdbool.h"
 #include "eslink.h"
-#include "error.h"
+#include "errno.h"
 
 #include "bootisp_prg_intf.h"
 #include "bootisp_target_flash.h"
@@ -101,7 +101,7 @@ error_t bootisp_erase_chip(uint8_t erase_mode)
     
 }
 //编程
-error_t bootisp_program(uint32_t addr,  uint8_t *data, uint32_t size)
+error_t bootisp_flash_program(uint32_t addr,  uint8_t *data, uint32_t size)
 {
     uint32_t copy_size;
     error_t status = ERROR_SUCCESS;
@@ -109,7 +109,7 @@ error_t bootisp_program(uint32_t addr,  uint8_t *data, uint32_t size)
     //编程前默认先擦除
     if (state != STATE_OPEN) {
 //        util_assert(0);
-        return ERROR_INTERNAL;
+//        return ERROR_INTERNAL;
     }
     while (true) 
     {

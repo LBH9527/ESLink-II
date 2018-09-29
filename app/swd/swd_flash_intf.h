@@ -24,7 +24,7 @@
 
 #include "stdint.h"
 
-#include "error.h"
+#include "errno.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -34,7 +34,7 @@
 
 #include <stdint.h>
 #include "fsl_common.h"
-#include "fsl_debug_console.h"
+//#include "fsl_debug_console.h"
 #include "board.h"
 
 /* Initialize debug console. */

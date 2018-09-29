@@ -4,12 +4,11 @@
 
 #include "MK22f12810.h"             // Debug Unit Cortex-M Processor Header File
 #include "es_common.h"
-#include "error.h"
-#include "spi_flash.h"
+#include "errno.h"  
 #include "gpio.h"
 #include "eslink_config.h"
 #include "eslink_def.h"
-#include "eslink_spi_flash_addr.h"
+
 
 #define ES_DEBUG   0
 
@@ -20,19 +19,9 @@
 #define printf(...)
 #endif
 
-//包含es_link isp和icd中用到的数据结构，芯片内部flash中信息地址。spi_flash中信息地址
-
 #ifdef __cplusplus
 extern "C" {
 #endif
-    
-  
-    
-
-//******************************************************************************  
-
-
-
 //******************************************************************************  
 //es_link 调用函数    
 
@@ -65,21 +54,12 @@ static __forceinline void ES_DELAY_FAST (void) {
 #if (ES_DELAY_FAST_CYCLES >= 3U)
   __nop();
 #endif
-}
-
+}    
 
 void es_delay_us(uint32_t delay);
-void es_delay_ms(uint32_t delay);
-
-
-//void es_flash_write(uint32_t addr, uint32_t size, uint32_t *buf);
-//void es_flash_read(uint32_t addr, uint32_t size, uint8_t *buf);
-
-
-
-
-uint32_t es_process_command(uint8_t *request, uint8_t *response);
-    
+void es_delay_ms(uint32_t delay);  
+uint32_t prog_process_command(uint8_t *request, uint8_t *response);
+void eslink_init(void);    
 #ifdef __cplusplus
 }
 #endif

@@ -46,15 +46,15 @@
 **
 ** ###################################################################
 */
-
-#define m_interrupts_start             0x00000000
+ #include "eslink_addr.h"
+#define m_interrupts_start             ESLINK_ROM_LINK_START
 #define m_interrupts_size              0x00000400
 
-#define m_flash_config_start           0x00000400
+#define m_flash_config_start           (ESLINK_ROM_LINK_START + 0x00000400)
 #define m_flash_config_size            0x00000010
 
-#define m_text_start                   0x00000410
-#define m_text_size                    0x0001FBF0
+#define m_text_start                   (ESLINK_ROM_LINK_START+ 0x00000410)
+#define m_text_size                    (ESLINK_ROM_LINK_SIZE - 0x00000410)
 
 #define m_data_start                   0x1FFFE000
 #define m_data_size                    0x00002000
@@ -96,6 +96,12 @@ LR_m_text m_interrupts_start m_text_start+m_text_size-m_interrupts_start { ; loa
   ARM_LIB_HEAP ((ImageLimit(RW_m_data_2) == m_data_2_start) ? m_data_2_start : +0) EMPTY Heap_Size { ; Heap region growing up
   }
   ARM_LIB_STACK m_data_2_start+m_data_2_size EMPTY -Stack_Size { ; Stack region growing down
+  }
+}
+
+LR_CONFIG ESLINK_ROM_UPDATE_START ESLINK_ROM_UPDATE_SIZE { ; reserve last sector for config data
+  ER_CONFIG ESLINK_ROM_UPDATE_START UNINIT ESLINK_ROM_UPDATE_SIZE {
+    .ANY (cfgrom)
   }
 }
 

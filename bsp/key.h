@@ -17,17 +17,17 @@
 /* 
     根据应用程序的功能重命名按键宏,用在其他函数调用
 */
-#define KEY_DOWN_K0		KEY0_DOWN
-#define KEY_LONG_K0		KEY0_LONG
+#define KEY_DOWN		KEY0_DOWN
+#define KEY_ENTER		KEY0_LONG
 
-#define KEY_DOWN_K1		KEY1_DOWN
-#define KEY_LONG_K1		KEY1_LONG
+//#define KEY_DOWN_K1		KEY1_DOWN
+//#define KEY_LONG_K1		KEY1_LONG
 
-#define KEY_DOWN_K2		KEY2_DOWN
-#define KEY_LONG_K2		KEY2_LONG
+//#define KEY_DOWN_K2		KEY2_DOWN
+//#define KEY_LONG_K2		KEY2_LONG
 
 /******************************************************************************/
-#define KEY_COUNT   3               //按键个数(有组合按键也要添加)
+#define KEY_COUNT   1               //按键个数(有组合按键也要添加)
 /*
 	按键滤波时间100ms, 单位10ms。
 	只有连续检测到100ms状态不变才认为有效，包括弹起和按下两种事件	
@@ -41,8 +41,8 @@
 typedef enum
 {    
     KID_K0,
-	KID_K1,
-	KID_K2,
+//	KID_K1,
+//	KID_K2,
 }KEY_ID_E;
 /* 
     按键状态
@@ -69,13 +69,13 @@ enum
     KEY0_UP,        /* 0键弹起 */
     KEY0_LONG,      /* 0键长按 */
 
-    KEY1_DOWN,      /* 1键按下 */
-    KEY1_UP,        /* 1键弹起 */
-    KEY1_LONG,      /* 1键长按 */
+//    KEY1_DOWN,      /* 1键按下 */
+//    KEY1_UP,        /* 1键弹起 */
+//    KEY1_LONG,      /* 1键长按 */
 
-    KEY2_DOWN,      /* 2键按下 */
-    KEY2_UP,        /* 2键弹起 */
-    KEY2_LONG,      /* 2键长按 */      
+//    KEY2_DOWN,      /* 2键按下 */
+//    KEY2_UP,        /* 2键弹起 */
+//    KEY2_LONG,      /* 2键长按 */      
 };
 
 /*

@@ -1,502 +1,213 @@
-/**
- * @file    iap_flash_intf.c
- * @brief   Implementation of flash_intf.h
- *
- * DAPLink Interface Firmware
- * Copyright (c) 2009-2016, ARM Limited, All Rights Reserved
- * SPDX-License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+
+#include "es_common.h" 
+#include "cortex_m.h"
+#include "fsl_flash.h"
+#include "iap_flash_intf.h"
+#include "eslink_addr.h" 
+#include "update.h"
+
+
+flash_config_t iap_flash; //!< Storage for flash driver.
+
+/*
+ *  iap init
+ *    Return Value:   0 - OK,  1 - Failed
  */
-#include "stdbool.h"
-#include "string.h"
-#include "eslink_addr.h"
-#include "swd_flash_intf.h"
-
-#include "flash_hal.h"
-#include "FlashPrg.h"
-#include "error.h"
-#include "eslink_debug.h"
-#include "es_common.h"
-//#include "compiler.h"
-//#include "crc.h"
-//#include "info.h"
-//#include "macro.h"
-
-//// Application start must be aligned to page write
-//COMPILER_ASSERT(DAPLINK_ROM_APP_START % DAPLINK_MIN_WRITE_SIZE == 0);
-//// Application size must be a multiple of write size
-//COMPILER_ASSERT(DAPLINK_ROM_APP_SIZE % DAPLINK_MIN_WRITE_SIZE == 0);
-//// Sector size must be a multiple of write size
-//COMPILER_ASSERT(DAPLINK_SECTOR_SIZE % DAPLINK_MIN_WRITE_SIZE == 0);
-//// Application start must be aligned to a sector erase
-//COMPILER_ASSERT(DAPLINK_ROM_APP_START % DAPLINK_SECTOR_SIZE == 0);
-//// Update start must be aligned to sector write
-//COMPILER_ASSERT(DAPLINK_ROM_UPDATE_START % DAPLINK_SECTOR_SIZE == 0);
-//// Update size must be a multiple of sector size
-//COMPILER_ASSERT(DAPLINK_ROM_UPDATE_SIZE % DAPLINK_SECTOR_SIZE == 0);
-
-typedef enum {
-    STATE_CLOSED,
-    STATE_OPEN,
-    STATE_ERROR
-} state_t;
-
-static error_t init(void);
-static error_t uninit(void);
-static error_t program_page(uint32_t addr, const uint8_t *buf, uint32_t size);
-static error_t erase_sector(uint32_t addr);
-static error_t erase_chip(void);
-static uint32_t program_page_min_size(uint32_t addr);
-static uint32_t erase_sector_size(uint32_t addr);
-
-static bool page_program_allowed(uint32_t addr, uint32_t size);
-static bool sector_erase_allowed(uint32_t addr);
-static error_t intercept_page_write(uint32_t addr, const uint8_t *buf, uint32_t size);
-static error_t intercept_sector_erase(uint32_t addr);
-static error_t critical_erase_and_program(uint32_t addr, const uint8_t *data, uint32_t size);
-
-static const flash_intf_t flash_intf = {
-    init,
-    uninit,
-    program_page,
-    erase_sector,
-    erase_chip,
-    program_page_min_size,
-    erase_sector_size,
-};
-
-const flash_intf_t *const flash_intf_iap_protected = &flash_intf;
-
-static state_t state = STATE_CLOSED;
-static bool update_complete;
-static bool mass_erase_performed;
-static bool current_sector_set;
-static uint32_t current_sector;
-static uint32_t current_sector_size;
-static bool current_page_set;
-static uint32_t current_page;
-static uint32_t current_page_write_size;
-static uint32_t crc;
-static uint8_t sector_buf[ESLINK_SECTOR_SIZE];
-
-static error_t init()
+uint32_t iap_Init(void)
 {
-    int iap_status;
-    bool update_supported = ESLINK_UPDATE_SIZE != 0;
+    status_t result;
+    
+    cortex_int_state_t state = cortex_int_get_and_disable();
+#if defined (WDOG)
+    /* Write 0xC520 to the unlock register */
+    WDOG->UNLOCK = 0xC520;
+    /* Followed by 0xD928 to complete the unlock */
+    WDOG->UNLOCK = 0xD928;
+    /* Clear the WDOGEN bit to disable the watchdog */
+    WDOG->STCTRLH &= ~WDOG_STCTRLH_WDOGEN_MASK;
+#else
+    SIM->COPC = 0x00u;
+#endif
+    cortex_int_restore(state);
+    memset(&iap_flash, 0, sizeof(flash_config_t));
 
-    if (state != STATE_CLOSED) {
-//        util_assert(0);
-        return ERROR_INTERNAL;
+    /* Setup flash driver structure for device and initialize variables. */
+    result = FLASH_Init(&iap_flash);
+    if (kStatus_FLASH_Success != result)
+    {
+        return FALSE;
     }
+    return TRUE;
+} 
 
-    if (!update_supported) {
-        return ERROR_INTERNAL;
+/*
+ *  Erase complete Flash Memory
+ *    Return Value:   0 - OK,  1 - Failed
+ */
+static uint32_t EraseChip(void)
+{
+//    cortex_int_state_t state = cortex_int_get_and_disable();
+    int status = FLASH_EraseAll(&iap_flash, kFLASH_ApiEraseKey);
+    if (status == kStatus_Success)
+    {
+        status = FLASH_VerifyEraseAll(&iap_flash, kFLASH_MarginValueNormal);
     }
-
-    iap_status = Init(0, 0, 0);
-
-    if (iap_status != 0) {
-        return ERROR_APP1_INIT;
-    }
-
-    update_complete = false;
-    mass_erase_performed = false;
-    current_sector_set = false;
-    current_sector = 0;
-    current_sector_size = 0;
-    current_page_set = false;
-    current_page = 0;
-    current_page_write_size = 0;
-    crc = 0;
-    memset(sector_buf, 0, sizeof(sector_buf));
-    state = STATE_OPEN;
-    return ERROR_SUCCESS;
+//    cortex_int_restore(state);
+    return status;
 }
 
-static error_t uninit(void)
+/*
+ *  Erase Sector in Flash Memory
+ *    Parameter:      adr:  Sector Address
+ *    Return Value:   0 - OK,  1 - Failed
+ */
+uint32_t iap_erase_sector(uint32_t adr)
 {
-    int iap_status;
-
-    if (STATE_CLOSED == state) {
-//        util_assert(0);
-        return ERROR_INTERNAL;
+    cortex_int_state_t state = cortex_int_get_and_disable();
+    int status = FLASH_Erase(&iap_flash, adr, iap_flash.PFlashSectorSize, kFLASH_ApiEraseKey);
+    if (status == kStatus_Success)
+    {
+        status = FLASH_VerifyErase(&iap_flash, adr, iap_flash.PFlashSectorSize, kFLASH_MarginValueNormal);
     }
-
-    state = STATE_CLOSED;
-    iap_status = UnInit(0);
-
-    if (iap_status != 0) {
-        return ERROR_IAP_UNINIT;
-    }
-
-//    if (!update_complete && !daplink_is_bootloader()) {
-    if (!update_complete ) {
-        // Interface - Error if the bootloader update is not complete
-        // Bootloader - For 3rd party applications the end of the update
-        //              is unknown so it is not an error if the transfer
-        //              ends early.
-        return ERROR_IAP_UPDT_INCOMPLETE;
-    }
-
-    return ERROR_SUCCESS;
+    cortex_int_restore(state);
+    if( status != kStatus_Success)
+        return 1;
+    return TRUE;
 }
 
-static error_t program_page(uint32_t addr, const uint8_t *buf, uint32_t size)
+/*
+ *  Program Page in Flash Memory
+ *    Parameter:      adr:  Page Start Address
+ *                    sz:   Page Size
+ *                    buf:  Page Data
+ *    Return Value:   0 - OK,  1 - Failed
+ */
+uint32_t iap_flash_program(uint32_t adr, uint8_t *buf,  uint32_t sz)
 {
-    uint32_t iap_status;
-    error_t status;
-    uint32_t min_prog_size;
-    uint32_t sector_size;
-    uint32_t updt_end = ESLINK_UPDATE_START + ESLINK_UPDATE_SIZE;
-
-    if (state != STATE_OPEN) {
-        util_assert(0);
-        return ERROR_INTERNAL;
+    if (adr & 0x03)
+        return 1;
+    cortex_int_state_t state = cortex_int_get_and_disable();
+    int status = FLASH_Program(&iap_flash, adr, (uint32_t*)buf, sz);
+    if (status == kStatus_Success)
+    {
+        // Must use kFlashMargin_User, or kFlashMargin_Factory for verify program
+        status = FLASH_VerifyProgram(&iap_flash, adr, sz,
+                              (uint32_t*)buf, kFLASH_MarginValueUser,
+                              NULL, NULL);
+    }
+    cortex_int_restore(state);
+    if( status != kStatus_Success)
+        return 1;
+    return TRUE;
+}
+/*
+ *   erase app chip
+ *    Parameter:      updt_start:  Page Start Address
+ *                    updt_size:   Page Size
+ *    Return Value:   0 - OK,  1 - Failed
+ */
+uint32_t iap_erase_chip(uint32_t updt_start, uint32_t updt_size)
+{
+    uint32_t addr ;
+    for (uint32_t size = 0; size < updt_size; size += ESLINK_SECTOR_SIZE) 
+    {
+        addr = updt_start + size;
+        if( iap_erase_sector(addr))
+            return 1;         
     }
 
-    min_prog_size = program_page_min_size(addr);
-    sector_size = erase_sector_size(addr);
-
-    // Address must be on a write size boundary
-    if (addr % min_prog_size != 0) {
-        util_assert(0);
-        state = STATE_ERROR;
-        return ERROR_INTERNAL;
+    return 0;
+}
+uint32_t iap_flash_checksum( uint32_t addr, uint32_t size)
+{
+    uint32_t data = 0;
+    uint32_t sum = 0;
+     for (uint32_t i = 0; i < size; i+=4)
+    {
+        data = *(volatile uint32_t *)(addr + i );
+        sum += (data & 0xFF) ;
+        sum += (data >> 8) & 0xFF;
+        sum += (data >> 16) & 0xFF;
+        sum += (data >> 24) & 0xFF;
     }
+    return sum;
+    
+}
 
-    // Programming size must be a non-zero multiple of the minimum write size
-    if ((size < min_prog_size) || (size % min_prog_size != 0)) {
-        util_assert(0);
-        state = STATE_ERROR;
-        return ERROR_INTERNAL;
+
+
+
+#if 0
+#define BUFFER_LEN 16
+void flash_test(void )
+{
+    static flash_config_t s_flashDriver;
+    status_t result;
+    flash_security_state_t securityStatus = kFLASH_SecurityStateNotSecure; 
+    uint32_t pflashSectorSize = 0;
+    
+    uint32_t data = 0;
+    uint8_t buffer[BUFFER_LEN];
+    uint8_t s_buffer_rbc[BUFFER_LEN];
+    uint32_t destAdrss =  0x18000;
+    for (uint8_t i = 0; i < BUFFER_LEN; i++)
+    {
+        buffer[i] = i;
     }
+        
+    iap_Init();
+//    result = FLASH_Init(&s_flashDriver);
+//    /* Check security status. */
+//    result = FLASH_GetSecurityState(&s_flashDriver, &securityStatus);
 
-    // Write must not cross a sector boundary
-    if ((addr % sector_size) + size > sector_size) {
-        util_assert(0);
-        state = STATE_ERROR;
-        return ERROR_INTERNAL;
-    }
-
-    // Write must be in an erased sector (current_sector is always erased if it is set)
-    if (!mass_erase_performed) {
-        if (!current_sector_set) {
-            util_assert(0);
-            state = STATE_ERROR;
-            return ERROR_INTERNAL;
-        }
-
-        if ((addr < current_sector) || (addr >= current_sector + current_sector_size)) {
-            util_assert(0);
-            state = STATE_ERROR;
-            return ERROR_INTERNAL;
+//    if (kStatus_FLASH_Success != result)     
+//        while(1);
+//    
+//    if (kFLASH_SecurityStateNotSecure != securityStatus)
+//        while(1);
+//     FLASH_GetProperty(&s_flashDriver, kFLASH_PropertyPflashSectorSize, &pflashSectorSize);
+    iap_erase_sector( destAdrss);
+//    result = FLASH_Erase(&s_flashDriver, destAdrss, pflashSectorSize, kFLASH_ApiEraseKey);
+    for (uint32_t i = 0; i < BUFFER_LEN; i+= 4)
+    {
+    
+        data = *(volatile uint32_t *)(destAdrss + i );
+        s_buffer_rbc[i] = data & 0xff;
+        s_buffer_rbc[i + 1] = (data >> 8) & 0xFF;
+        s_buffer_rbc[i + 2] = (data >> 16) & 0xFF;
+        s_buffer_rbc[i + 3] = (data >> 24) & 0xFF;  
+        
+        if (s_buffer_rbc[i] != 0xff)
+        {
+            while(1);
         }
     }
 
-    // Address must be sequential - no gaps
-    if (current_page_set && (addr != current_page + current_page_write_size)) {
-        util_assert(0);
-        state = STATE_ERROR;
-        return ERROR_INTERNAL;
-    }
+        
+//    result = FLASH_Program(&iap_flash, destAdrss, buffer, sizeof(buffer));
 
-    if (!page_program_allowed(addr, size)) {
-        state = STATE_ERROR;
-        return ERROR_IAP_WRITE;
-    }
-
-    current_page_set = true;
-    current_page = addr;
-    current_page_write_size = size;
-    status = intercept_page_write(addr, buf, size);
-
-    if (status != ERROR_IAP_NO_INTERCEPT) {
-        // The operation has been intercepted so
-        // return the result
-        if (ERROR_SUCCESS != status) {
-            state = STATE_ERROR;
-        }
-
-        return status;
-    }
-
-    iap_status = flash_program_page(addr, size, (uint8_t *)buf);
-
-    if (iap_status != 0) {
-        state = STATE_ERROR;
-        return ERROR_IAP_WRITE;
-    }
-
-    if (addr + size >= updt_end) {
-        // Something has been updated so recompute the crc
-//        info_crc_compute();
-        update_complete = true;
-    }
-
-    return ERROR_SUCCESS;
-}
-
-static error_t erase_sector(uint32_t addr)
-{
-    uint32_t iap_status;
-    error_t status;
-    uint32_t sector_size;
-
-    if (state != STATE_OPEN) {
-        util_assert(0);
-        return ERROR_INTERNAL;
-    }
-
-    // Address must be on a sector boundary
-    sector_size = erase_sector_size(addr);
-
-    if (addr % sector_size != 0) {
-        util_assert(0);
-        state = STATE_ERROR;
-        return ERROR_INTERNAL;
-    }
-
-    // Address must be sequential - no gaps
-    if (current_sector_set && (addr != current_sector + current_sector_size)) {
-//        util_assert(0);
-        state = STATE_ERROR;
-        return ERROR_INTERNAL;
-    }
-
-    if (!sector_erase_allowed(addr)) {
-        state = STATE_ERROR;
-        return ERROR_IAP_ERASE_SECTOR;
-    }
-
-    current_sector_set = true;
-    current_sector = addr;
-    current_sector_size = sector_size;
-    status = intercept_sector_erase(addr);
-
-    if (status != ERROR_IAP_NO_INTERCEPT) {
-        // The operation has been intercepted so
-        // return the result
-        if (ERROR_SUCCESS != status) {
-            state = STATE_ERROR;
-        }
-
-        return status;
-    }
-
-    iap_status = flash_erase_sector(addr);
-
-    if (iap_status != 0) {
-        state = STATE_ERROR;
-        return ERROR_IAP_ERASE_SECTOR;
-    }
-
-    return ERROR_SUCCESS;
-}
-
-static error_t erase_chip(void)
-{
-    uint32_t updt_start = ESLINK_UPDATE_START;
-    uint32_t updt_end = ESLINK_UPDATE_START + ESLINK_UPDATE_SIZE;
-
-    if (state != STATE_OPEN) {
-        util_assert(0);
-        return ERROR_INTERNAL;
-    }
-
-    if (mass_erase_performed) {
-        // Mass erase only allowed once
-        util_assert(0);
-        state = STATE_ERROR;
-        return ERROR_INTERNAL;
-    }
-
-    for (uint32_t addr = updt_start; addr < updt_end; addr += ESLINK_SECTOR_SIZE) {
-        error_t status;
-        status = erase_sector(addr);
-
-        if (status != ERROR_SUCCESS) {
-            state = STATE_ERROR;
-            return ERROR_IAP_ERASE_ALL;
-        }
-    }
-
-    mass_erase_performed = true;
-    return ERROR_SUCCESS;
-}
-
-static uint32_t program_page_min_size(uint32_t addr)
-{
-    return ESLINK_MIN_WRITE_SIZE;
-}
-
-static uint32_t erase_sector_size(uint32_t addr)
-{
-    return ESLINK_SECTOR_SIZE;
-}
-
-static bool page_program_allowed(uint32_t addr, uint32_t size)
-{
-    // Check if any data would overlap with the application region
-    if ((addr < ESLINK_APP_START + ESLINK_APP_SIZE) && (addr + size > ESLINK_APP_START)) {
-        return false;
-    }
-
-    return true;
-}
-
-static bool sector_erase_allowed(uint32_t addr)
-{
-    uint32_t app_start = ESLINK_APP_START;
-    uint32_t app_end = ESLINK_APP_START + ESLINK_APP_SIZE;
-
-    // Check if the sector is part of the application
-    if ((addr >= app_start) && (addr < app_end)) {
-        return false;
-    }
-
-    return true;
-}
-
-static error_t intercept_page_write(uint32_t addr, const uint8_t *buf, uint32_t size)
-{
-    error_t status;
-    uint32_t crc_size;
-    uint32_t updt_start = ESLINK_UPDATE_START;
-    uint32_t updt_end = ESLINK_UPDATE_START + ESLINK_UPDATE_SIZE;
-
-    if (state != STATE_OPEN) {
-        util_assert(0);
-        return ERROR_INTERNAL;
-    }
-
-    if ((addr < updt_start) || (addr >= updt_end)) {
-        return ERROR_IAP_OUT_OF_BOUNDS;
-    }
-
-//    if (!eslink_is_interface()) {
-//        return ERROR_IAP_NO_INTERCEPT;
+//     result = FLASH_VerifyProgram(&iap_flash, destAdrss, sizeof(buffer), buffer, kFLASH_MarginValueUser,
+//                                     NULL, NULL);
+//    if (kStatus_FLASH_Success != result)
+//    {
+//        while(1);
 //    }
-
-    /* Everything below here is interface specific */
-    crc_size = MIN(size, updt_end - addr - 4);
-//    crc = crc32_continue(crc, buf, crc_size);
-
-    // Intercept the data if it is in the first sector
-    if ((addr >= updt_start) && (addr < updt_start + ESLINK_SECTOR_SIZE)) {
-        uint32_t buf_offset = addr - updt_start;
-        memcpy(sector_buf + buf_offset, buf, size);
-        // Intercept was successful
-        return ERROR_SUCCESS;
+    
+    iap_flash_program(destAdrss, buffer,16 );
+    for (uint32_t i = 0; i < BUFFER_LEN; i+= 4)
+    {
+    
+        data = *(volatile uint32_t *)(destAdrss + i );
+        s_buffer_rbc[i] = data & 0xff;
+        s_buffer_rbc[i + 1] = (data >> 8) & 0xFF;
+        s_buffer_rbc[i + 2] = (data >> 16) & 0xFF;
+        s_buffer_rbc[i + 3] = (data >> 24) & 0xFF;  
+        
+//        if (s_buffer_rbc[i] != 0xff)
+//        {
+//            while(1);
+//        }
     }
-
-    // Finalize update if this is the last sector
-    if (updt_end == addr + size) {
-        uint32_t iap_status;
-        uint32_t size_left = updt_end - addr;
-        uint32_t crc_in_image = (buf[size_left - 4] << 0) |
-                                (buf[size_left - 3] << 8) |
-                                (buf[size_left - 2] << 16) |
-                                (buf[size_left - 1] << 24);
-
-        if (crc != crc_in_image) {
-            return ERROR_BL_UPDT_BAD_CRC;
-        }
-
-        // Program the current buffer
-        iap_status = flash_program_page(addr, size, (uint8_t *)buf);
-
-        if (iap_status != 0) {
-            return ERROR_IAP_WRITE;
-        }
-
-        status = critical_erase_and_program(ESLINK_UPDATE_START, sector_buf, ESLINK_SECTOR_SIZE);
-
-        if (ERROR_SUCCESS == status) {
-            status = ERROR_SUCCESS;
-        }
-
-        // The bootloader has been updated so recompute the crc
-//        info_crc_compute();
-        update_complete = true;
-        return status;
-    }
-
-    return ERROR_IAP_NO_INTERCEPT;
 }
+#endif
 
-static error_t intercept_sector_erase(uint32_t addr)
-{
-    error_t status;
-    uint32_t updt_start = ESLINK_UPDATE_START;
-    uint32_t updt_end = ESLINK_UPDATE_START + ESLINK_UPDATE_SIZE;
-
-    if (state != STATE_OPEN) {
-        util_assert(0);
-        return ERROR_INTERNAL;
-    }
-
-    if ((addr < updt_start) || (addr >= updt_end)) {
-        return ERROR_IAP_OUT_OF_BOUNDS;
-    }
-
-//    if (!daplink_is_interface()) {
-//        return ERROR_IAP_NO_INTERCEPT;
-//    }
-
-    /* Everything below here is interface specific */
-
-    if (ESLINK_UPDATE_START == addr) {
-        uint32_t addr = ESLINK_UPDATE_START;
-        status = critical_erase_and_program(addr, (uint8_t *)ESLINK_APP_START, ESLINK_MIN_WRITE_SIZE);
-
-        if (ERROR_SUCCESS == status) {
-            // Intercept was successful
-            status = ERROR_SUCCESS;
-        }
-
-        return status;
-    }
-
-    return ERROR_IAP_NO_INTERCEPT;
-}
-
-static error_t critical_erase_and_program(uint32_t addr, const uint8_t *data, uint32_t size)
-{
-    uint32_t iap_status;
-
-    if (size < ESLINK_MIN_WRITE_SIZE) {
-        util_assert(0);
-        return ERROR_INTERNAL;
-    }
-
-    // CRITICAL SECTION BELOW HERE!
-    // If something goes wrong with either
-    // the erase or write then the device
-    // will no longer be bootable.
-    // Erase the first sector
-    iap_status = flash_erase_sector(addr);
-
-    if (iap_status != 0) {
-        return ERROR_ERASE_ALL;
-    }
-
-    // Program the interface's vector table
-    iap_status = flash_program_page(addr, size, (uint8_t *)data);
-
-    if (iap_status != 0) {
-        return ERROR_IAP_WRITE;
-    }
-
-    return ERROR_SUCCESS;
-}

@@ -40,4 +40,8 @@ typedef struct
 	char  *pCaption;
 }LABEL_T;
 
+void menu_init(void);
+void menu_display_logo(void);
+
+
 #endif

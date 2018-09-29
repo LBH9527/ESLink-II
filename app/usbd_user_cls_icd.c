@@ -2,13 +2,9 @@
 #include "rl_usb.h"
 #include "main.h"
 #include "eslink.h"
-#include "ES_ICD.h"
+//#include "ES_ICD.h"
 
 
-extern ICD_COMM_DATA_t icd_data;
-
-
-#define CMD_HEADER_LEN        8           //协议头长度
 //读数据状态
 
 typedef enum {
@@ -22,8 +18,8 @@ static eslink_state_t cls_state;
 static uint32_t cls_data_ops; 
 static uint32_t cls_wr_cmd_len;                   //主机写命令码数据长度 
 static uint32_t cls_rd_cmd_len;                   //主机读命令码数据长度 
-uint8_t usb_es_write[ICD_COMM_PACKET_LEN]; //写数据buff         
-uint8_t usb_es_read[ICD_COMM_PACKET_LEN];  //读数据buff
+uint8_t usb_es_write[ES_COMM_FRAME_MAX_LEN]; //写数据buff         
+uint8_t usb_es_read[ES_COMM_FRAME_MAX_LEN];  //读数据buff
 
 //函数声明
 uint32_t eslink_process_command(uint8_t *write_buf, uint8_t *read_buf);
@@ -62,7 +58,7 @@ eslink_state_t cls_packet_write(uint8_t *data, uint8_t len)
     cls_data_ops += len;
     cls_wr_cmd_len -= len;  
     
-    if(cls_data_ops >= ICD_COMM_PACKET_LEN)
+    if(cls_data_ops >= ES_COMM_FRAME_MAX_LEN)
         USBD_CLS_Reset_Event();
     if ((cls_wr_cmd_len == 0) && (cls_data_ops != 0) )
     {
@@ -81,17 +77,17 @@ static uint32_t get_cmd_data_len( uint8_t *data)
                 (data[1] << 16) |
                 (data[2] <<  8) |
                 (data[3] <<  0);  
-    if(header == ICD_FRAME_HEAD)  
+    if(header == DEBUG_FRAME_HEAD)  
     {
         cmd_len = (data[4] << 8) | data[5];         
     }  
-    else if(header == 0xbadccdab)
+    else if(header == PROG_FRAME_HEAD)
     {
         if( (data[5] == ID_DL_USERHEX)                  |
-            (data[5] == ID_DL_TIMING)                   | 
+            (data[5] == ID_DL_BOOT_HEX)                 |
+            (data[5] == ID_DL_TIMING_ING)               | 
             (data[5] == ID_READ_FLASH)                  | 
-            (data[5] == ID_DL_OFFLINE_PRJ_TIMING_ING)   | 
-            (data[5] == ID_DL_OFFLINE_PRJ_HEX) )
+            (data[5] == ID_DL_OFFLINE_HEX) )
             cmd_len = 1024;
         else
             cmd_len = 512;          
@@ -116,7 +112,7 @@ uint32_t USBD_CLS_DataOutTransfer( uint8_t *data, uint8_t len)
             if(len < CMD_HEADER_LEN)
                 break;
             cls_wr_cmd_len = get_cmd_data_len(data);  
-            if((cls_wr_cmd_len >= ICD_COMM_PACKET_LEN) | ( cls_wr_cmd_len == 0))    //包长渡错误
+            if((cls_wr_cmd_len >= ES_COMM_FRAME_MAX_LEN) | ( cls_wr_cmd_len == 0))    //包长渡错误
                USBD_CLS_Reset_Event(); 
             cls_state = cls_packet_write(data, len) ;                              
             break;
@@ -144,22 +140,22 @@ uint32_t USBD_CLS_DataOutTransfer( uint8_t *data, uint8_t len)
 uint32_t eslink_process_command(uint8_t *write_buf, uint8_t *read_buf)
 {
     uint32_t header;
-    uint32_t read_len;
+    uint32_t read_len = 0;
     
     header = (write_buf[0] << 24) |
             (write_buf[1] << 16) |
             (write_buf[2] <<  8) |
             (write_buf[3] <<  0);        
-    if(header == ICD_FRAME_HEAD) 
+    if(header == DEBUG_FRAME_HEAD) 
     {
         //调试命令处理
 //        read_len = debug_process_command(write_buf, read_buf);
 //        es_data_access = 1;        
     }   
-    else if(header != ISP_FRAME_HEAD) 
+    else if(header == PROG_FRAME_HEAD) 
     {
         //连接命令处理
-        read_len = es_process_command(write_buf, read_buf);
+        read_len = prog_process_command(write_buf, read_buf);
     }
     else 
     {
@@ -201,7 +197,7 @@ uint32_t eslink_process_command(uint8_t *write_buf, uint8_t *read_buf)
 //            (usb_es_buffer[1] << 16) |
 //            (usb_es_buffer[2] <<  8) |
 //            (usb_es_buffer[3] <<  0);        
-//        if( (header != ICD_FRAME_HEAD) || (header != ISP_FRAME_HEAD) )
+//        if( (header != DEBUG_FRAME_HEAD) || (header != PROG_FRAME_HEAD) )
 //        {
 //           
 //                    
@@ -214,11 +210,11 @@ uint32_t eslink_process_command(uint8_t *write_buf, uint8_t *read_buf)
 //                usb_es_buffer[n+offset] = data[n];
 //            }                 
 //        }    
-//        if(header == ICD_FRAME_HEAD)   
+//        if(header == DEBUG_FRAME_HEAD)   
 //        {
 //            icd_process_command(usb_es_buffer);
 //        }
-//        else if(header == ISP_FRAME_HEAD)
+//        else if(header == PROG_FRAME_HEAD)
 //        {
 //            
 //        }
@@ -245,7 +241,7 @@ uint32_t eslink_process_command(uint8_t *write_buf, uint8_t *read_buf)
 //            (usb_es_buffer[1] << 16) |
 //            (usb_es_buffer[2] <<  8) |
 //            (usb_es_buffer[3] <<  0);        
-//        if( (header != ICD_FRAME_HEAD) || (header != ISP_FRAME_HEAD) )
+//        if( (header != DEBUG_FRAME_HEAD) || (header != PROG_FRAME_HEAD) )
 //        {
 //           
 //                    
@@ -258,11 +254,11 @@ uint32_t eslink_process_command(uint8_t *write_buf, uint8_t *read_buf)
 //                usb_es_buffer[n+offset] = data[n];
 //            }                 
 //        }    
-//        if(header == ICD_FRAME_HEAD)   
+//        if(header == DEBUG_FRAME_HEAD)   
 //        {
 //            icd_process_command(usb_es_buffer);
 //        }
-//        else if(header == ISP_FRAME_HEAD)
+//        else if(header == PROG_FRAME_HEAD)
 //        {
 //            
 //        }

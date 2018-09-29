@@ -13,7 +13,7 @@
 #include <rl_usb.h>
 //#include <MK20D5.h>
 #include "MK22f12810.h"
-
+#include "es_common.h"
 #include "cortex_m.h"
 
 #define __NO_USB_LIB_C
@@ -620,7 +620,8 @@ void USB0_IRQHandler(void)
     UsbSuspended |= suspended ? 1 : 0;
     USB0->ISTAT = istat;
 
-    USBD_SignalHandler();
+//    USBD_SignalHandler();
+    USBD_Handler();
 }
 
 /*
