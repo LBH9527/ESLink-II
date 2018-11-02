@@ -20,29 +20,33 @@
 #include "RTL.h"
 #include "rl_usb.h"
 #include "tasks.h"
-#include "config_rom_set.h"
+#include "settings_rom.h"
 
-#include "gpio.h"
+#include "eslink_gpio.h"
 #include "fsl_common.h"
 #include "pin_mux.h"
 #include "uart.h"
 #include "spi_flash.h" 
+#include "eeprom.h"
 #include "key.h"  
 #include "oled.h"   
 
 #include "DAP.h"
 #include "eslink.h"
 #include "menu.h"
-#include "offline_file.h"
+#include "offline_app.h"
+#include "offline_file.h" 
+
 /*******************************************************************************
 								变量
 *******************************************************************************/
-/* 任务栈 */  
-static U64 stk_timer_task[TIMER_TASK_STACK / sizeof(U64)];
-static U64 stk_main_task[MAIN_TASK_STACK / sizeof(U64)];
+/* 任务栈 */ 
+static U64 stk_main_task[MAIN_TASK_STACK / sizeof(U64)]; 
+static U64 stk_offline_task[OFFLINE_TASK_STACK / sizeof(U64)];
+static U64 stk_eslink_task[ESLINK_TASK_STACK / sizeof(U64)];  
 static U64 stk_key_task[KEY_TASK_STACK / sizeof(U64)];
 static U64 stk_oled_diaplay_task[OLED_DISPLAY_TASK_STACK / sizeof(U64)];
-//static U64 stk_offline_task[OFFLINE_TASK_STACK / sizeof(U64)];
+
 /* 信号量 */
 OS_SEM key_sem;
 /* 事件标志 */
@@ -55,6 +59,7 @@ OS_SEM key_sem;
 #define FLAGS_MAIN_CDC_EVENT    (1 << 3)
 // Used by msd when flashing a new binary
 #define FLAGS_LED_BLINK_30MS    (1 << 4)
+#define FLAGS_MAIN_PROC_USB     (1 << 5)
 
 // Reference to our main task
 OS_TID main_task_id;
@@ -65,7 +70,9 @@ __task void main_task(void);
 __task void timer_task(void);
 __task void key_task(void);
 __task void oled_display_task(void );
+__task void offline_program_task(void);
 
+extern void cdc_process_event(void);
 // Start CDC processing
 void main_cdc_send_event(void)
 {
@@ -75,7 +82,8 @@ void main_cdc_send_event(void)
 //reset system
 void main_reset(void )
 {
-    os_evt_set(FLAGS_MAIN_RESET, main_task_id);
+    isr_evt_set(FLAGS_MAIN_RESET, main_task_id);
+// os_evt_set(FLAGS_MAIN_RESET, main_task_id);
     return;
 }
 
@@ -92,37 +100,33 @@ void main_blink_cdc_led(main_led_state_t state)
 //    cdc_led_usb_activity = 1;
 //    cdc_led_state = state;
     return;
-}
-
-
-
+} 
+void USBD_SignalHandler()
+{
+    isr_evt_set(FLAGS_MAIN_PROC_USB, main_task_id);
+} 
 
 /*******************************************************************************
-*	函 数 名: main_task
-*	功能说明: 
+*	函 数 名: offline_program_task
+*	功能说明: 联机任务
 *	形    参: 无
 *	返 回 值: 无
-*   优 先 级: 5       
+*   优 先 级: 5    OFFLINE_TASK_PRIORITY
 *******************************************************************************/
-__task void main_task(void)
+__task void eslink_task(void)
 {
     uint8_t i;
     uint16_t flags = 0;
-    // Get a reference to this task
-    main_task_id = os_tsk_self();
     
+    DAP_Setup(); 
+    // Get a reference to this task
+    main_task_id = os_tsk_self();    
     usbd_init();                          /* USB Device Initialization          */
     usbd_connect(__TRUE);                 /* USB Device Connect                 */
     while (!usbd_configured ());          /* Wait for device to configure        */  
-    // Update versions and IDs
-    //    info_init();
-    
-    // Start timer tasks
-    os_tsk_create_user(timer_task, TIMER_TASK_PRIORITY, (void *)stk_timer_task, TIMER_TASK_STACK);
-    // Start key tasks
-//    os_tsk_create_user(key_task, KEY_TASK_PRIORITY, (void *)stk_key_task, KEY_TASK_STACK);
-    // Start oled display tasks
-    os_tsk_create_user(oled_display_task, DISPALY_TASK_PRIORITY, (void *)stk_oled_diaplay_task, OLED_DISPLAY_TASK_STACK);
+	// Update versions and IDs
+    //    info_init();    
+    es_program_init(PRG_INTF_ISP);  //上电默认ISp烧录
      while (1) 
      {
         // need to create a new event for programming failure
@@ -130,12 +134,19 @@ __task void main_task(void)
                        | FLAGS_MAIN_RESET_TARGET    // Put target in reset state
                        | FLAGS_MAIN_30MS            // 30mS tick
                        | FLAGS_MAIN_CDC_EVENT       // cdc event
+                       | FLAGS_MAIN_PROC_USB        // process usb events
                        , NO_TIMEOUT);
         // Find out what event happened
         flags = os_evt_get();
+//		if (flags & FLAGS_MAIN_PROC_USB) 
+//        {
+//            USBD_Handler();
+//        }
+		
         if (flags & FLAGS_MAIN_RESET)
         {
-            clear_timing_info_and_update();
+            clear_timing_info();    
+            set_app_update(UPDATE_BOOT_APP);
             SystemSoftReset();           
         }
         if (flags & FLAGS_MAIN_RESET_TARGET) 
@@ -144,53 +155,101 @@ __task void main_task(void)
         }
         if (flags & FLAGS_MAIN_CDC_EVENT)
         {
-//            cdc_process_event();
+            cdc_process_event();
         }
-        if (flags & FLAGS_MAIN_30MS) 
-        {
-            if(30 == i++)
-            {
-                i = 0;
-                LED_YELLOW_TOGGLE();
-               
-            }
-        }
+//        if (flags & FLAGS_MAIN_30MS) 
+//        {
+//            if(i++ % 30 == 0)
+//            {                
+//                LED_RED_TOGGLE();                  
+//            }
+////            if(i % 90 == 0)
+////                SystemReset();            
+//        }
+        os_dly_wait(10); 
         
      }
     
 }
-__task void offline_task(void)
+/*******************************************************************************
+*	函 数 名: offline_program_task
+*	功能说明: 脱机编程
+*	形    参: 无
+*	返 回 值: 无
+*   优 先 级: 5    OFFLINE_TASK_PRIORITY
+*******************************************************************************/
+__task void offline_program_task(void)
 {
+    ofl_prog_state_t state = IN_MODE_CHECK;
     
+    uint8_t menu_msg;
+    
+    ofl_prog_init();
+    while(1)
+    {
+        switch(state)
+        {
+            case IN_MODE_CHECK :
+                if(ofl_in_prog_mode() == TRUE)
+                {                       
+                     state = OFL_PROG_ING;
+                     menu_msg = MSG_PROG_ING;
+                     msg_write_data(&menu_msg) ;    
+                }
+                break;
+            case OFL_PROG_ING:                 
+                if(ofl_prog() != TRUE)
+                    menu_msg = MSG_PROG_FAILE;
+                else
+                    menu_msg = MSG_PROG_OK;
+                state = OUT_MODE_CHECK; 
+                msg_write_data(&menu_msg);
+                break;
+            case OUT_MODE_CHECK:
+                if(ofl_in_prog_mode() != TRUE)
+                {
+                    state = IN_MODE_CHECK; 
+                    menu_msg = MSG_PROG_MODE_CHECK;
+                    msg_write_data(&menu_msg);     
+                
+                }
+                break;           
+        }  
+        os_dly_wait(100);    
+    }
 }
 /*******************************************************************************
 *	函 数 名: key_task
-*	功能说明: 按键扫描任务
+*	功能说明: 按键消息处理任务
 *	形    参: 无
 *	返 回 值: 无
-*   优 先 级: 3
+*   优 先 级: 2    KEY_TASK_PRIORITY
 *******************************************************************************/
 __task void key_task(void)
 {
     uint8_t key_value;
+    uint8_t menu_msg;
     /* 创建信号量计数值是0, 用于任务同步 */
 //    os_sem_init (&key_sem, 0);
 
     while(1)
     {
-        if (key_read_data(&key_value))
+        if(key_read_data(&key_value) != 0)        //有按键按下
         {
-            if (key_value == KEY0_DOWN)
+            switch (key_value)
             {
-    
-             
-            }
-            else if (key_value == KEY0_LONG)
-            {
-             
-             
-            }
-        } 		
+                case KEY_DOWN:
+                    menu_msg = MSG_KEY_DOWN; 
+                   
+                break;
+                case KEY_ENTER:
+                    menu_msg = MSG_KEY_ENTER; 
+                break;
+                default:
+                break;
+            }  
+            msg_write_data(&menu_msg);
+        }          		
         os_dly_wait(10);    //100ms
     }
 }
@@ -198,66 +257,82 @@ __task void key_task(void)
 
 /*******************************************************************************
 *	函 数 名: gui_refresh_task
-*	功能说明: gui刷新函数
+*	功能说明: gui刷新任务
 *	形    参: 无
 *	返 回 值: 无
-*   优 先 级: 3  优先级较低
+*   优 先 级: 1  DISPALY_TASK_PRIORITY
 *******************************************************************************/
 __task void oled_display_task(void )
 {     
-//	eslink_display();
-
-
-    menu_display_logo();
+    menu_init();
     while(1)
-    {         
-        os_dly_wait(10);    //100ms
+    {     
+		menu_display();
+        os_dly_wait(40);    //400ms
     }
 }
+
 /*******************************************************************************
-*	函 数 名: timer_task_10mS
-*	功能说明: gui刷新函数
+*	函 数 名: main_task
+*	功能说明: 启动任务，优先级最高
 *	形    参: 无
 *	返 回 值: 无
-*   优 先 级: 3  优先级较低
+*   优 先 级: 5       
 *******************************************************************************/
-__task void timer_task(void)
-{
-    uint8_t i = 0;
-    os_itv_set(1); // 10mS
-
-    while (1) {
-        /* 按键扫描 */
+__task void main_task(void)
+{   
+	 //创建任务
+    
+    // Start key tasks
+    os_tsk_create_user(key_task, KEY_TASK_PRIORITY, (void *)stk_key_task, KEY_TASK_STACK);
+    // Start oled display tasks
+    os_tsk_create_user(oled_display_task, DISPALY_TASK_PRIORITY, (void *)stk_oled_diaplay_task, OLED_DISPLAY_TASK_STACK);
+    
+    if(get_link_mode() == LINK_OFFLINE_MODE)
+    {
+          os_tsk_create_user(offline_program_task, OFFLINE_TASK_PRIORITY, (void *)stk_offline_task, OFFLINE_TASK_STACK);//    
+    }   
+	else
+	{
+		 // Start timer tasks
+		os_tsk_create_user(eslink_task, ESLINK_TASK_PRIORITY, (void *)stk_eslink_task, ESLINK_TASK_STACK);			
+	}
+    
+     while (1) 
+     {
+		/* 按键扫描 */
 		key_scan();
-        os_itv_wait();    
-        if (!(i++ % 3)) {
-            os_evt_set(FLAGS_MAIN_30MS, main_task_id);
-        }
-    }
+        os_dly_wait(2);
+     }
+    
 }
-
-
-int main(void)
-{
-//    SCB->VTOR = SCB_VTOR_TBLOFF_Msk & ESLINK_ROM_LINK_START;    
+int main (void) 
+{	
+	__set_PRIMASK(0); 
+    SCB->VTOR = SCB_VTOR_TBLOFF_Msk & ESLINK_ROM_LINK_START;    
     /* Init board hardware. */
     BOARD_InitPins();
     BOARD_BootClockRUN();
     BOARD_InitDebugConsole();   
-    config_rom_init();
+    settings_rom_init();
     
     gpio_init();
-    gpio_set_trget_power(TRGET_POWER_3V3);
+    es_set_trget_power(TRGET_POWER_3V3);     
     oled_init();
     key_init();     
-    DAP_Setup();      
-    ofl_init();
-    eslink_init();
-//    ofl_file_open("111") ;
-    //创建联机任务
+
+    fm24cxx_init();
+    
+    spi_flash_init(); 
+    //    sf_erase_chip();  
+    ofl_file_init();
+    
+    msg_init();
+	LED_GREEN_ON();
     os_sys_init_user(main_task, MAIN_TASK_PRIORITY, stk_main_task, MAIN_TASK_STACK);//
-    //脱机任务
+	while(1);
 }
+
 
 struct exception_stack_frame
 {
@@ -290,5 +365,7 @@ void HardFault_Handler()
 //    SystemReset();
 //     printf("\r\n HardFault_Handler interrupt!\r\n");
     rt_hw_hard_fault_exception((struct exception_stack_frame *)__get_PSP());
+    rt_hw_hard_fault_exception((struct exception_stack_frame *)__get_MSP());
+    
     while (1); // Wait for reset
 }

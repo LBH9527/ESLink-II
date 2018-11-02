@@ -32,9 +32,9 @@
 	按键滤波时间100ms, 单位10ms。
 	只有连续检测到100ms状态不变才认为有效，包括弹起和按下两种事件	
 */
-#define KEY_DOWN_PERIOD     10		//单位10ms， 持续80ms，认为按键按下
-#define KEY_LONG_PERIOD     200		//单位10ms， 持续2秒，认为长按事件
-#define KEY_REPEAT_PERIOD   5       //单位10ms， 连续按键周期为50ms
+#define KEY_DOWN_PERIOD     5		//单位20ms， 持续100ms，认为按键按下
+#define KEY_LONG_PERIOD     100		//单位20ms， 持续2秒，认为长按事件
+#define KEY_REPEAT_PERIOD   2       //单位20ms， 连续按键周期为40ms
 /* 
     按键ID, 主要用于GetKeyState()函数的入口参数
 */

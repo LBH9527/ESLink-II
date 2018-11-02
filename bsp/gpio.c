@@ -1,5 +1,5 @@
 
-#include "gpio.h"
+#include "eslink_gpio.h"
 
 void gpio_init(void)
 {
@@ -27,10 +27,9 @@ void gpio_init(void)
     V33_SELECT_INIT(1);         //connfig pin as 3.3V select  
     V5_SELECT_INIT(1);         //connfig pin as 5V select  
     
-    LED_RED_INIT(1);
     LED_GREEN_INIT(1);
-    LED_YELLOW_INIT(1);
-    
+    LED_RED_INIT(1);
+
     OLED_RST_INIT(1);
     OLED_CS_INIT(1);
     OLED_SCK_INIT(1);
@@ -60,12 +59,20 @@ uint8_t gpio_key2_down(void)
 }
 
 
-void gpio_set_trget_power(trget_power_t power)
+void es_set_trget_power(trget_power_t power)
 {
-    if(power == TRGET_POWER_DISABLE){
+    if(power == TRGET_POWER_DISABLE)
+    {
         V33_OFF();     
         V5_OFF();        
-    }else if(power == TRGET_POWER_3V3){
+    }
+    else if(power == TRGET_POWER_ENABLE)
+    {
+         V33_ON();    
+         V5_ON();  
+    }
+    else if(power == TRGET_POWER_3V3)
+    {
         V33_ON();       
         V5_OFF();                 
     }else if(power == TRGET_POWER_5V){

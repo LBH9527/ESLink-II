@@ -1,6 +1,6 @@
 #ifndef _UPDATE_H
 #define _UPDATE_H
-
+ 
 typedef struct
 {
     bool isActive;
@@ -9,9 +9,6 @@ typedef struct
     uint32_t sector_szie;
     uint8_t option;
 }bootloader_context_t;
-
-#define UPDATE_OFFLINE_APP  0x4F46464c     //OFFL
-#define UPDATE_LINK_APP     0x4c494E4B     //LINK  
 
 /*******************************************************************************
 *函数名：stay_in_bootloader
@@ -27,7 +24,7 @@ uint8_t stay_in_bootloader(void);
 * 输入 ：
 * 输出 ：
 *******************************************************************************/
-void application_check_and_run(void);
+uint8_t application_check_and_run(void);
 
 uint8_t update_app_init(uint32_t app_type) ;
 /*******************************************************************************
@@ -37,6 +34,9 @@ uint8_t update_app_init(uint32_t app_type) ;
 * 输出 ：0 - OK,  1 - Failed 
 *******************************************************************************/
 uint8_t update_app_program(uint32_t app_type,uint32_t addr, uint8_t *data, uint32_t size ) ;
+uint8_t ofl_update_app_program(uint32_t app_type, uint32_t addr, uint8_t *data, uint32_t size );
 void update_app_program_end(void);
 uint8_t get_update_app_checksum(uint32_t *checksum);
+uint32_t get_offlink_app_version(void);
+
 #endif

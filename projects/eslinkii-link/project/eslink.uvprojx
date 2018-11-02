@@ -47,14 +47,14 @@
             <NotGenerated>0</NotGenerated>
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
-          <OutputDirectory>debug\</OutputDirectory>
-          <OutputName>eslink.out</OutputName>
+          <OutputDirectory>.\Objects\</OutputDirectory>
+          <OutputName>output</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
           <DebugInformation>1</DebugInformation>
           <BrowseInformation>1</BrowseInformation>
-          <ListingPath>.\output\</ListingPath>
+          <ListingPath>.\Listings\</ListingPath>
           <HexFormatSelection>1</HexFormatSelection>
           <Merge32K>0</Merge32K>
           <CreateBatchFile>0</CreateBatchFile>
@@ -79,9 +79,9 @@
             <nStopB2X>0</nStopB2X>
           </BeforeMake>
           <AfterMake>
-            <RunUserProg1>0</RunUserProg1>
+            <RunUserProg1>1</RunUserProg1>
             <RunUserProg2>0</RunUserProg2>
-            <UserProg1Name></UserProg1Name>
+            <UserProg1Name>D:\DAPLink_Workspace\eslink\projects\eslinkii-link\project\CopyHex_Flash.bat</UserProg1Name>
             <UserProg2Name></UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
@@ -355,7 +355,7 @@
             <uClangAs>0</uClangAs>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>DEBUG</Define>
+              <Define>DEBUG,OFL_VERSION=0x00000000,</Define>
               <Undefine></Undefine>
               <IncludePath>CMSIS;board;drivers;source;startup;utilities</IncludePath>
             </VariousControls>
@@ -404,11 +404,6 @@
               <FilePath>..\..\..\app\eslink_def.h</FilePath>
             </File>
             <File>
-              <FileName>eslink_io_config.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\app\eslink_io_config.h</FilePath>
-            </File>
-            <File>
               <FileName>eslink_addr.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\..\app\eslink_addr.h</FilePath>
@@ -418,15 +413,35 @@
               <FileType>5</FileType>
               <FilePath>..\..\..\app\errno.h</FilePath>
             </File>
+            <File>
+              <FileName>settings_spi_flash.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\app\settings_spi_flash.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
           <GroupName>bsp</GroupName>
           <Files>
             <File>
+              <FileName>eslink_gpio.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\bsp\eslink_gpio.h</FilePath>
+            </File>
+            <File>
               <FileName>board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\bsp\board.c</FilePath>
+            </File>
+            <File>
+              <FileName>gpio.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\bsp\gpio.c</FilePath>
+            </File>
+            <File>
+              <FileName>pin_mux.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\bsp\pin_mux.c</FilePath>
             </File>
             <File>
               <FileName>clock_config.c</FileName>
@@ -439,19 +454,9 @@
               <FilePath>..\..\..\bsp\eeprom.c</FilePath>
             </File>
             <File>
-              <FileName>gpio.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\bsp\gpio.c</FilePath>
-            </File>
-            <File>
               <FileName>key.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\bsp\key.c</FilePath>
-            </File>
-            <File>
-              <FileName>pin_mux.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\bsp\pin_mux.c</FilePath>
             </File>
             <File>
               <FileName>spi_flash.c</FileName>
@@ -472,11 +477,6 @@
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\source\main.c</FilePath>
-            </File>
-            <File>
-              <FileName>eslink.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\source\eslink.c</FilePath>
             </File>
             <File>
               <FileName>RTX_Config.c</FileName>
@@ -504,14 +504,9 @@
               <FilePath>..\source\SVC_Table.s</FilePath>
             </File>
             <File>
-              <FileName>offline_file.c</FileName>
+              <FileName>eslink_link.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\source\offline_file.c</FilePath>
-            </File>
-            <File>
-              <FileName>online_file.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\source\online_file.c</FilePath>
+              <FilePath>..\source\eslink_link.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -537,6 +532,31 @@
               <FileName>es_target_set.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\..\app\target_chip\es_target_set.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>offline</GroupName>
+          <Files>
+            <File>
+              <FileName>offline_app.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\app\offline\offline_app.c</FilePath>
+            </File>
+            <File>
+              <FileName>offline_file.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\app\offline\offline_file.c</FilePath>
+            </File>
+            <File>
+              <FileName>offline_def.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\app\offline\offline_def.h</FilePath>
+            </File>
+            <File>
+              <FileName>offline_file.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\app\offline\offline_file.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -576,16 +596,6 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>offline</GroupName>
-          <Files>
-            <File>
-              <FileName>offline_def.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\app\offline\offline_def.h</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
           <GroupName>es-isp</GroupName>
           <Files>
             <File>
@@ -594,19 +604,46 @@
               <FilePath>..\..\..\app\es-isp\isp_prog_intf.c</FilePath>
             </File>
             <File>
-              <FileName>isp_def.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\app\es-isp\isp_def.h</FilePath>
-            </File>
-            <File>
               <FileName>isp_prog_intf.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\..\app\es-isp\isp_prog_intf.h</FilePath>
             </File>
+            <File>
+              <FileName>isp.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\app\es-isp\isp.h</FilePath>
+            </File>
+            <File>
+              <FileName>M620_ISP.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\app\es-isp\M620_ISP.c</FilePath>
+            </File>
+            <File>
+              <FileName>M620_ISP.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\app\es-isp\M620_ISP.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
-          <GroupName>es-icd</GroupName>
+          <GroupName>es-debug</GroupName>
+          <Files>
+            <File>
+              <FileName>hr7p169b_icd.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\app\es-debug\hr7p169b_icd.c</FilePath>
+            </File>
+            <File>
+              <FileName>hr7p169b_icd.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\app\es-debug\hr7p169b_icd.h</FilePath>
+            </File>
+            <File>
+              <FileName>debug_def.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\app\es-debug\debug_def.h</FilePath>
+            </File>
+          </Files>
         </Group>
         <Group>
           <GroupName>es-bootisp</GroupName>
@@ -705,14 +742,19 @@
               <FilePath>..\..\..\gui\fonts.c</FilePath>
             </File>
             <File>
-              <FileName>menu.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\gui\menu.c</FilePath>
-            </File>
-            <File>
               <FileName>oled.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\gui\oled.c</FilePath>
+            </File>
+            <File>
+              <FileName>link_menu.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\gui\link_menu.c</FilePath>
+            </File>
+            <File>
+              <FileName>message.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\gui\message.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -730,9 +772,9 @@
               <FilePath>..\..\..\iap\iap_flash_intf.c</FilePath>
             </File>
             <File>
-              <FileName>config_rom_set.c</FileName>
+              <FileName>settings_rom.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\iap\config_rom_set.c</FilePath>
+              <FilePath>..\..\..\iap\settings_rom.c</FilePath>
             </File>
           </Files>
         </Group>

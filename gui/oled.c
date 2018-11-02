@@ -18,7 +18,7 @@
 y
 */
 #include "oled.h"
-#include "gpio.h"
+#include "eslink_gpio.h"
 #include "es_common.h"
 #include "fonts.h"
 

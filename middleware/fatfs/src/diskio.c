@@ -20,7 +20,7 @@ DSTATUS disk_initialize (
 	BYTE pdrv				/* Physical drive nmuber (0..) */
 )
 {
-    DSTATUS stat;
+//    DSTATUS stat;
 	switch (pdrv) {
 
 		case FS_SPI_FLASH :
@@ -121,7 +121,7 @@ DRESULT disk_ioctl (
 )
 {
 	DRESULT res;
-	int result;
+//	int result;
 
 	switch (pdrv) {
 	case FS_SPI_FLASH :

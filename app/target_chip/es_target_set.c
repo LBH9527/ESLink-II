@@ -33,3 +33,9 @@ bool config_get_overflow_detect()
 {
     return false;
 }
+
+
+bool config_isp_verify_program()
+{
+    return false;
+}

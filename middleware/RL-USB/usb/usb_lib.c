@@ -2192,6 +2192,13 @@ const U8 USBD_ConfigDescriptor[] = {
     MSC_DESC
     MSC_EP
 #endif
+//add by 9527 for usbd cls
+//(down)
+#if (USBD_CLS_ENABLE)
+    CLS_DESC
+    CLS_EP
+#endif
+//(up)
 
 #if (USBD_HID_ENABLE)
     HID_DESC
@@ -2211,14 +2218,6 @@ const U8 USBD_ConfigDescriptor[] = {
     CDC_ACM_DESC_IF1
     CDC_ACM_EP_IF1
 #endif
-//add by 9527 for usbd cls
-//(down)
-#if (USBD_CLS_ENABLE)
-    CLS_DESC
-    CLS_EP
-#endif
-//(up)
-
 
     /* Terminator */                                                                                            \
     0                                     /* bLength */                                                       \

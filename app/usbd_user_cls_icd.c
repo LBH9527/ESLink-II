@@ -84,7 +84,7 @@ static uint32_t get_cmd_data_len( uint8_t *data)
     else if(header == PROG_FRAME_HEAD)
     {
         if( (data[5] == ID_DL_USERHEX)                  |
-            (data[5] == ID_DL_BOOT_HEX)                 |
+            (data[5] == ID_DL_OFL_HEX)                 |
             (data[5] == ID_DL_TIMING_ING)               | 
             (data[5] == ID_READ_FLASH)                  | 
             (data[5] == ID_DL_OFFLINE_HEX) )

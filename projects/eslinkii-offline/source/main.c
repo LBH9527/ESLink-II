@@ -15,20 +15,25 @@
 #include "fsl_device_registers.h"
 
 #include "board.h"
-#include "gpio.h"
+#include "eslink_gpio.h"
 #include "fsl_common.h"
 #include "pin_mux.h"
 #include "clock_config.h"   
 #include "main.h"  
 #include "spi_flash.h"
-//#include "uart.h"
+#include "eeprom.h"
 #include "key.h"
-#include "spi_flash_fs.h"  
+
 #include "oled.h"
 #include "eslink_addr.h"
 #include "systick.h"
 
-#include "fonts.h"
+#include "menu.h"
+#include "eslink.h"
+#include "offline_file.h"
+#include "ofl_prj_decoder.h"
+#include "settings_rom.h"
+#include "info.h"
 /*******************************************************************************
 							函数声明
 *******************************************************************************/
@@ -47,77 +52,59 @@ void oled_display(void);
 int main(void)
 {
     uint8_t key_value;
-    
+    uint8_t menu_msg ;
+	
     SCB->VTOR = SCB_VTOR_TBLOFF_Msk & ESLINK_ROM_OFFLINE_START;    
     /* Init board hardware. */
     BOARD_InitPins();
     BOARD_BootClockRUN();
     BOARD_InitDebugConsole();
+    settings_rom_init();
+   
     gpio_init();
-    gpio_set_trget_power(TRGET_POWER_3V3);
-    bsp_init_systick();
+    es_set_trget_power(TRGET_POWER_3V3);     
 
-    spi_flash_init();
-    sf_read_info();
-    key_init();
     oled_init();
-//    mount_filesystem();
-//    fs_file_find();
-    
-//    //flash test
-//    spiflash_test( 0,0x800000);
-    oled_display();
-        
+    key_init();  
+    fm24cxx_init();
+    spi_flash_init(); 
+    //    sf_erase_chip();      
+    ofl_file_init();
+    menu_init();
+    bsp_init_systick();
+	
     while (1)
     {
+       
+		if(key_read_data(&key_value) != 0)        //有按键按下
+		{
+		    switch (key_value)
+			{
+				case KEY_DOWN:
+					menu_msg = MSG_KEY_DOWN; 					
+				break;
+				case KEY_ENTER:
+					menu_msg = MSG_KEY_ENTER; 
+				break;
+				default:
+				break;
+			}  
+			msg_write_data(&menu_msg);			
+		}
+         menu_display(); 	 
+		LED_GREEN_TOGGLE();		
+//		bsp_delay_ms(1000);
+    }   
 
-          LED_GREEN_TOGGLE();
-        bsp_delay_ms(1000);
-        if (key_read_data(&key_value))
-        {
-             if (key_value == KEY0_DOWN)
-             {
-                 
-                 
-             }
-             else if (key_value == KEY0_LONG)
-             {
-                 
-                 
-             }
-            
-        }  
-    }
 }
 
 void main_10ms_task(void)
 {       
-    key_scan();     
-}
-
-void oled_display(void)
-{
-    FONT_T Font_log;
-        FONT_T Font16;
+    key_scan(); 
     
-    Font16.FontCode = FC_ST_16;	/* 字体代码 16点阵 */
-    Font16.FrontColor = 1;		/* 字体颜色 0 或 1 */
-    Font16.BackColor = 0;		/* 文字背景颜色 0 或 1 */
-    Font16.Space = 0;			/* 文字间距，单位 = 像素 */	
-    OLED_DispStr(0,0,"es_link", &Font16);
-    OLED_DispStr(0,16,"选择方案", &Font16);
-    Font_log.FontCode = FC_ST_24;	/* 字体代码 16点阵 */
-//    Font_log.FrontColor = 1;		/* 字体颜色 0 或 1 */
-//    Font_log.BackColor = 0;		/* 文字背景颜色 0 或 1 */
-//    Font_log.Space = 0;			/* 文字间距，单位 = 像素 */	
-//    oled_display_log(0,0,0);
-//    oled_display_log(12,0,1);
-//    oled_display_log(24,0,2);
-//    oled_display_log(36,0,3);
-//    oled_display_log(48,0,4);
-//    oled_display_log(60,0,5);
-
 }
+
+
 
 
 struct exception_stack_frame
@@ -134,14 +121,14 @@ struct exception_stack_frame
 
 void rt_hw_hard_fault_exception(struct exception_stack_frame *exception_stack)
 {
-    printf("psr: 0x%08x\r\n", exception_stack->psr);
-    printf(" pc: 0x%08x\r\n", exception_stack->pc);
-    printf(" lr: 0x%08x\r\n", exception_stack->lr);
-    printf("r12: 0x%08x\r\n", exception_stack->r12);
-    printf("r03: 0x%08x\r\n", exception_stack->r3);
-    printf("r02: 0x%08x\r\n", exception_stack->r2);
-    printf("r01: 0x%08x\r\n", exception_stack->r1);
-    printf("r00: 0x%08x\r\n", exception_stack->r0);
+//    printf("psr: 0x%08x\r\n", exception_stack->psr);
+//    printf(" pc: 0x%08x\r\n", exception_stack->pc);
+//    printf(" lr: 0x%08x\r\n", exception_stack->lr);
+//    printf("r12: 0x%08x\r\n", exception_stack->r12);
+//    printf("r03: 0x%08x\r\n", exception_stack->r3);
+//    printf("r02: 0x%08x\r\n", exception_stack->r2);
+//    printf("r01: 0x%08x\r\n", exception_stack->r1);
+//    printf("r00: 0x%08x\r\n", exception_stack->r0);
 }
 
 
@@ -149,8 +136,9 @@ void HardFault_Handler()
 {
 //    util_assert(0);
 //    SystemReset();
-     printf("\r\n HardFault_Handler interrupt!\r\n");
+//     printf("\r\n HardFault_Handler interrupt!\r\n");
     rt_hw_hard_fault_exception((struct exception_stack_frame *)__get_PSP());
+    rt_hw_hard_fault_exception((struct exception_stack_frame *)__get_MSP());
     while (1); // Wait for reset
 }
   

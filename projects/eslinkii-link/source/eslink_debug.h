@@ -39,7 +39,7 @@
 #define util_assert(EXPR)                                                           \
 if (!(EXPR))                                                                   \
 {                                                                              \
-    printf("(%s) has assert failed at %s.\n", #EXPR, __FUNCTION__);            \
+//    printf("(%s) has assert failed at %s.\n", #EXPR, __FUNCTION__);            \
     while (1);                                                                 \
 }
 

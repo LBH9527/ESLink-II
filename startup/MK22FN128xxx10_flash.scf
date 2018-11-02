@@ -99,9 +99,22 @@ LR_m_text m_interrupts_start m_text_start+m_text_size-m_interrupts_start { ; loa
   }
 }
 
-LR_CONFIG ESLINK_ROM_UPDATE_START ESLINK_ROM_UPDATE_SIZE { ; reserve last sector for config data
-  ER_CONFIG ESLINK_ROM_UPDATE_START UNINIT ESLINK_ROM_UPDATE_SIZE {
+;LR_FONT ESLINK_OLED_FONT_START ESLINK_OLED_FONT_SIZE { ; reserve last sector for config data
+  ;LR_FONT ESLINK_OLED_FONT_START UNINIT ESLINK_OLED_FONT_SIZE {
+    ;.ANY (+RO)
+  ;}
+;}
+
+LR_CONFIG ESLINK_ROM_CFG_START ESLINK_ROM_CFG_SIZE { ; reserve last sector for config data
+  ER_CONFIG ESLINK_ROM_CFG_START UNINIT ESLINK_ROM_CFG_SIZE {
     .ANY (cfgrom)
   }
 }
+     
+LR_INFO ESLINK_ROM_INFO_START ESLINK_ROM_INFO_SIZE { ; reserve last sector for config data
+  ER_INFO ESLINK_ROM_INFO_START UNINIT ESLINK_ROM_INFO_SIZE {
+    .ANY (inforom)
+  }
+}
+
 

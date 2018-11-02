@@ -28,7 +28,7 @@ uint32_t iap_Init(void)
 #else
     SIM->COPC = 0x00u;
 #endif
-    cortex_int_restore(state);
+    
     memset(&iap_flash, 0, sizeof(flash_config_t));
 
     /* Setup flash driver structure for device and initialize variables. */
@@ -37,6 +37,7 @@ uint32_t iap_Init(void)
     {
         return FALSE;
     }
+    cortex_int_restore(state);
     return TRUE;
 } 
 
@@ -44,17 +45,17 @@ uint32_t iap_Init(void)
  *  Erase complete Flash Memory
  *    Return Value:   0 - OK,  1 - Failed
  */
-static uint32_t EraseChip(void)
-{
-//    cortex_int_state_t state = cortex_int_get_and_disable();
-    int status = FLASH_EraseAll(&iap_flash, kFLASH_ApiEraseKey);
-    if (status == kStatus_Success)
-    {
-        status = FLASH_VerifyEraseAll(&iap_flash, kFLASH_MarginValueNormal);
-    }
-//    cortex_int_restore(state);
-    return status;
-}
+//static uint32_t EraseChip(void)
+//{
+////    cortex_int_state_t state = cortex_int_get_and_disable();
+//    int status = FLASH_EraseAll(&iap_flash, kFLASH_ApiEraseKey);
+//    if (status == kStatus_Success)
+//    {
+//        status = FLASH_VerifyEraseAll(&iap_flash, kFLASH_MarginValueNormal);
+//    }
+////    cortex_int_restore(state);
+//    return status;
+//}
 
 /*
  *  Erase Sector in Flash Memory
@@ -85,7 +86,7 @@ uint32_t iap_erase_sector(uint32_t adr)
 uint32_t iap_flash_program(uint32_t adr, uint8_t *buf,  uint32_t sz)
 {
     if (adr & 0x03)
-        return 1;
+        return FALSE;
     cortex_int_state_t state = cortex_int_get_and_disable();
     int status = FLASH_Program(&iap_flash, adr, (uint32_t*)buf, sz);
     if (status == kStatus_Success)
@@ -97,7 +98,7 @@ uint32_t iap_flash_program(uint32_t adr, uint8_t *buf,  uint32_t sz)
     }
     cortex_int_restore(state);
     if( status != kStatus_Success)
-        return 1;
+        return FALSE;
     return TRUE;
 }
 /*

@@ -2,12 +2,8 @@
 *********************************************************************************************************
 *
 *	模块名称 : 独立按键驱动模块
-*	文件名称 : bsp_key.c
-*	说    明 : 扫描独立按键，具有软件滤波机制，具有按键FIFO。可以检测如下事件：
-*				(1) 按键按下
-*				(2) 按键弹起
-*				(3) 长按键
-*				(4) 长按时自动连发
+*	文件名称 : key.c
+*	说    明 :
 *
 *	修改记录 :
 *		版本号  日期        作者     说明
@@ -19,7 +15,7 @@
 
 #include "key.h"
 #include "circ_buf.h"
-#include "gpio.h"
+#include "eslink_gpio.h"
 
 #define BUFFER_SIZE   10
 circ_buf_t key_buffer;
@@ -42,7 +38,7 @@ static void Key_InitVar(void)
 		key_param[i].FilterTime = KEY_DOWN_PERIOD;
         key_param[i].LongTime = KEY_LONG_PERIOD;       /* 长按时间 0 表示不检测长按键事件 */       
         key_param[i].Count = 0;
-        key_param[i].RepeatTime = KEY_REPEAT_PERIOD;  /* 按键连发的速度，0表示不支持连发，5表示每个50ms自动发送键值*/
+        key_param[i].RepeatTime = 0;  /* 按键连发的速度，0表示不支持连发，5表示每个50ms自动发送键值*/
         key_param[i].state = STATE_KEY_UP;
     }
 
@@ -132,7 +128,7 @@ static void bsp_detect_key(uint8_t i)
                 if (key->Count >= key->FilterTime)             
                 {                   
                     /* 100ms 发送按钮按下的消息 */                    
-                    key_write_data(&(key->key_down_value));
+//                    key_write_data(&(key->key_down_value));
 					if (key->LongTime > 0)    	 	//检测长按键
 					{
 						key->state = STATE_KEY_LONG;   
@@ -191,6 +187,7 @@ static void bsp_detect_key(uint8_t i)
             }
             break;
         case STATE_KEY_RELEASE:
+            key_write_data(&(key->key_down_value));
             key->state = STATE_KEY_UP;
             break;
         default:

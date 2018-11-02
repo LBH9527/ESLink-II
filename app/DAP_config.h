@@ -22,7 +22,7 @@
 #ifndef __DAP_CONFIG_H__
 #define __DAP_CONFIG_H__
 
-#include "eslink_io_config.h"
+#include "eslink_gpio.h"
 
 //**************************************************************************************************
 /**
@@ -40,7 +40,7 @@ Provides definitions about:
 
 /// Processor Clock of the Cortex-M MCU used in the Debug Unit.
 /// This value is used to calculate the SWD/JTAG clock speed.
-#define CPU_CLOCK               45750000U        ///< Specifies the CPU Clock in Hz
+#define CPU_CLOCK               60000000U        ///< Specifies the CPU Clock in Hz
 
 /// Number of processor cycles for I/O Port write operations.
 /// This value is used to calculate the SWD/JTAG clock speed that is generated with I/O

@@ -59,7 +59,7 @@ __Vectors       DCD     |Image$$ARM_LIB_STACK$$ZI$$Limit| ; Top of Stack
                 DCD     BusFault_Handler                    ;Bus Fault Handler
                 DCD     UsageFault_Handler                  ;Usage Fault Handler
                 DCD     0                                   ;Reserved
-                DCD     0                                   ;Reserved
+                DCD     OFL_VERSION				            ;固件版本
                 DCD     0                                   ;Reserved
                 DCD     0                                   ;Reserved
                 DCD     SVC_Handler                         ;SVCall Handler
@@ -408,7 +408,7 @@ FPROT3          EQU     nFPROT3:EOR:0xFF
 ;     <o.5> FAST_INIT
 ;       <0=> Slower initialization
 ;       <1=> Fast Initialization
-FOPT          EQU     0xFF
+FOPT          EQU     0xF9
 ;   </h>
 ;   <h> Flash security byte (FSEC)
 ;     <i> WARNING: If SEC field is configured as "MCU security status is secure" and MEEN field is configured as "Mass erase is disabled",

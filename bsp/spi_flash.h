@@ -16,17 +16,8 @@
 #ifndef __SPI_FLASH_H__
 #define __SPI_FLASH_H__
 
-#include "stdint.h"
-#include "board.h"
+#include "stdint.h"  
 
-/* Control Pin */
-#define SF_CS_INIT(output)                                                 \
-    GPIO_PinWrite(FLASH_DSPI_INT_GPIO, FLASH_DSPI_INT_PIN, output); \
-    FLASH_DSPI_INT_GPIO->PDDR |= (1U << FLASH_DSPI_INT_PIN) /*!< Enable target LED_RED */
-#define SF_CS_CLR() \
-    GPIO_PortClear(FLASH_DSPI_INT_GPIO, 1U << FLASH_DSPI_INT_PIN) /*!< Turn on target LED_RED */
-#define SF_CS_SET() \
-    GPIO_PortSet(FLASH_DSPI_INT_GPIO, 1U << FLASH_DSPI_INT_PIN) /*!< Turn off target LED_RED */
     
 /**
  * error code
@@ -63,6 +54,6 @@ sf_err spi_flash_read( uint32_t _uiReadAddr, uint8_t * _pBuf,uint32_t _uiSize );
 sf_err spi_flash_write( uint32_t _uiWriteAddr, const uint8_t* _pBuf, uint32_t _usWriteSize);
 sf_err sf_page_write(uint32_t addr,const uint8_t * _pBuf, uint32_t _usSize);
 
-uint8_t sf_CmpData(uint32_t _uiSrcAddr, const uint8_t *_ucpTar, uint32_t _uiSize);
+uint8_t sf_cmp_data(uint32_t _uiSrcAddr, const uint8_t *_ucpTar, uint32_t _uiSize);
 //int spiflash_test(uint32_t begin, uint32_t end);
 #endif

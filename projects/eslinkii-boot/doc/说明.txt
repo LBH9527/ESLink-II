@@ -2,3 +2,10 @@ MCU 60MHZ
 BSP
 IAP程序过程
 1、下载APP程序。
+
+
+
+
+TODO：
+1、添加硬件版本。
+

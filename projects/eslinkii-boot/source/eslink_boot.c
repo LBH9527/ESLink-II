@@ -1,8 +1,8 @@
 #include "eslink.h"
 //#include "iap_flash_intf.h"
-#include "config_rom_set.h"
+#include "settings_rom.h"
 #include "update.h"
-                    
+#include "info.h"                    
 // Delay for specified time
 //    delay:  delay time in ms
 void es_delay_ms(uint32_t delay) 
@@ -18,38 +18,38 @@ void es_delay_us(uint32_t delay)
     ES_DELAY_SLOW(delay);
 }
 
-static void int2array(uint8_t *res, uint32_t *data, uint8_t len) {
-    uint8_t i = 0;
+//static void int2array(uint8_t *res, uint32_t *data, uint8_t len) {
+//    uint8_t i = 0;
 
-    for (i = 0; i < len; i+=4) {
-        res[i]     = *data  & 0xff;
-        res[i + 1] = (*data >> 8 ) & 0xff;
-        res[i + 2] = (*data >> 16) & 0xff;
-        res[i + 3] = (*data >> 24) & 0xff;
-        data++;
-    }
-}    
+//    for (i = 0; i < len; i+=4) {
+//        res[i]     = *data  & 0xff;
+//        res[i + 1] = (*data >> 8 ) & 0xff;
+//        res[i + 2] = (*data >> 16) & 0xff;
+//        res[i + 3] = (*data >> 24) & 0xff;
+//        data++;
+//    }
+//}    
 
-//设置目标芯片电压
-void eslink_set_trget_power(trget_power_t power)
-{
-    if(power == TRGET_POWER_DISABLE){
-        V33_OFF();     
-        V5_OFF();        
-    }else if(power == TRGET_POWER_3V3){
-        V33_ON();       
-        V5_OFF();                 
-    }else if(power == TRGET_POWER_5V){
-        V33_OFF();       
-        V5_ON();      
-    }        
-}
+////设置目标芯片电压
+//void eslink_set_trget_power(trget_power_t power)
+//{
+//    if(power == TRGET_POWER_DISABLE){
+//        V33_OFF();     
+//        V5_OFF();        
+//    }else if(power == TRGET_POWER_3V3){
+//        V33_ON();       
+//        V5_OFF();                 
+//    }else if(power == TRGET_POWER_5V){
+//        V33_OFF();       
+//        V5_ON();      
+//    }        
+//}
 
-trget_power_t eslink_get_trget_power()
-{
-    
-    
-}    
+//trget_power_t eslink_get_trget_power()
+//{
+//    
+//    
+//}    
 //void flash_set_target_config(flash_t *obj)
 /*
  *  读固件版本
@@ -57,9 +57,12 @@ trget_power_t eslink_get_trget_power()
  */
 static error_t read_offline_version(uint8_t *buf)
 {   
-    error_t result = ERROR_SUCCESS;     
-    if(get_offline_info(buf) != sizeof(offline_info_t) )
-        result = ERROR_IAP_READ;
+    error_t result = ERROR_SUCCESS;    
+    uint32_t version = get_offlink_app_version();
+    buf[0]     = version  & 0xff;
+    buf[1] = (version >> 8 ) & 0xff;
+    buf[2] = (version >> 16) & 0xff;
+    buf[3] = (version >> 24) & 0xff;
     
     return result;  
 }
@@ -89,12 +92,20 @@ static error_t download_offline_hex_end(uint8_t *data)
     error_t result = ERROR_SUCCESS;
     uint32_t checksum;
     
-    get_update_app_checksum(&checksum);    
+    get_update_app_checksum(&checksum);  
+    checksum &= 0x0000ffff;
     if( ( *data != (checksum & 0xff ))            |  
         ( *(data+1) != ((checksum >> 8) & 0xff )) |
         ( *(data+2) != ((checksum >> 16) & 0xff)) |
         ( *(data+3) != ((checksum >> 24) & 0xff)) )
         result = ERROR_IAP_WRITE;
+    else    //更新成功
+    {
+        update_app_program_end();
+//         uint32_t version = get_offlink_app_version();
+//         set_offline_info((uint8_t*)&version);       
+    }          
+        
     return result;    
 }
 
@@ -122,9 +133,13 @@ error_t download_timinginfo(uint8_t *data)
 {
     error_t result = ERROR_SUCCESS;
 
-    if(set_timing_info_and_update(data) != TRUE )
-        result = ERROR_IAP_WRITE;
-
+    if(set_timing_info(data) != TRUE )
+        result = ERROR_IAP_WRITE; 
+    if(set_app_update(UPDATE_LINK_APP) != TRUE )
+        result = ERROR_IAP_WRITE; 
+//    if(set_app_update(UPDATE_OFFLINE_APP) != TRUE )
+//        result = ERROR_IAP_WRITE; 
+    
     return result;  
 }
 /*
@@ -173,10 +188,10 @@ prog_comm_frame_t prog_data;
 
 uint32_t prog_process_command(uint8_t *request, uint8_t *response)
 {
-    uint8_t temp;
+//    uint8_t temp;
     uint8_t result = ERROR_SUCCESS;
     uint32_t ack_len = 512;         //isp通信采用变长协议，用来返回回复数据的长度
-    uint32_t sum;
+//    uint32_t sum;
     
     prog_data.wrbuf = request;
     prog_data.rdbuf = response;     
@@ -202,8 +217,8 @@ uint32_t prog_process_command(uint8_t *request, uint8_t *response)
             prog_data.data_length = 0;
             break;
         //------------------------Boot判断--------------------------------
-        case ID_READ_BOOT_VERSION:           //0xD7 读脱机工程版本 
-            #if 0
+        case ID_READ_OFL_VERSION:           //0xD7 读脱机工程版本 
+            #if 1
             result = read_offline_version(&prog_data.rdbuf[8]);
             prog_data.data_length = sizeof(offline_info_t);
             #else
@@ -215,16 +230,16 @@ uint32_t prog_process_command(uint8_t *request, uint8_t *response)
             prog_data.rdbuf[11] = 0x00;
             #endif
             break;                     
-        case ID_DL_BOOT_START:               //0xD8  脱机工程下载开始 
+        case ID_DL_OFL_START:               //0xD8  脱机工程下载开始 
             update_app_init(UPDATE_OFFLINE_APP);
             prog_data.data_length = 0;    
             break;
-        case ID_DL_BOOT_HEX:                 //0xD9 下载脱机工程HEX  //1024
+        case ID_DL_OFL_HEX:                 //0xD9 下载脱机工程HEX  //1024
             result =  download_offline_hex( &prog_data.wrbuf[8]);
             ack_len = 1024;
             prog_data.data_length = 0;    
             break;
-        case ID_DL_BOOT_HEX_END:              //0xDA 下载结束  
+        case ID_DL_OFL_HEX_END:              //0xDA 下载结束  
             result =  download_offline_hex_end( &prog_data.wrbuf[8]);  
             prog_data.data_length = 0;                
             break;

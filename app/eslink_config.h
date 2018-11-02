@@ -6,7 +6,7 @@ extern "C" {
 #endif    
     
 #include "MK22f12810.h"
-#include "eslink_io_config.h"
+#include "eslink_gpio.h"
 // Configure ISP I/O pins ------------------------------
 
 /** Setup ISP pins: ISPSCK、ISPSDA and RST.

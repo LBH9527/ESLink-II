@@ -81,9 +81,9 @@
 //   </h>
 #define USBD_STRDESC_LANGID         0x0409
 #define USBD_STRDESC_MAN            L"ESSEMI"
-#define USBD_STRDESC_PROD           L"ESLinkII "
+#define USBD_STRDESC_PROD           L"ESLinkII"
 #define USBD_STRDESC_SER_ENABLE     1
-#define USBD_STRDESC_SER            L"0001A0000000"
+#define USBD_STRDESC_SER            L"0001A000000A"
 
 //   <e0> Class Support
 //     <i> Enables USB Device Class specific Requests
@@ -131,8 +131,8 @@
 #define HID_ENDPOINT 1
 #endif
 #define USBD_HID_ENABLE             HID_ENDPOINT
-#define USBD_HID_EP_INTIN           5
-#define USBD_HID_EP_INTOUT          5
+#define USBD_HID_EP_INTIN           2
+#define USBD_HID_EP_INTOUT          2
 #define USBD_HID_EP_INTIN_STACK     0
 #define USBD_HID_WMAXPACKETSIZE     64
 #define USBD_HID_BINTERVAL          1
@@ -439,13 +439,16 @@
 #define USBD_ADC_SIF1_NUM          (1)
 #define USBD_ADC_SIF2_NUM          (2)
 #define USBD_MSC_IF_NUM            (USBD_ADC_ENABLE*2+0)
-#define USBD_CDC_ACM_CIF_NUM       (USBD_ADC_ENABLE*2+USBD_MSC_ENABLE*1+0)
-#define USBD_CDC_ACM_DIF_NUM       (USBD_ADC_ENABLE*2+USBD_MSC_ENABLE*1+1)
-#define USBD_HID_IF_NUM            (USBD_ADC_ENABLE*2+USBD_MSC_ENABLE*1+USBD_CDC_ACM_ENABLE*2+0)
-
+//#define USBD_CDC_ACM_CIF_NUM       (USBD_ADC_ENABLE*2+USBD_MSC_ENABLE*1+0)
+//#define USBD_CDC_ACM_DIF_NUM       (USBD_ADC_ENABLE*2+USBD_MSC_ENABLE*1+1)
+//#define USBD_HID_IF_NUM            (USBD_ADC_ENABLE*2+USBD_MSC_ENABLE*1+USBD_CDC_ACM_ENABLE*2+0)
+#define USBD_CDC_ACM_CIF_NUM       1    //实验结论：CDC的端口一定要为 1 & 2 ，驱动才能安装成功
+#define USBD_CDC_ACM_DIF_NUM       2
+#define USBD_HID_IF_NUM            3  
 //add by 9527 for usbd cls
 //(START)
-#define USBD_CLS_IF_NUM            (USBD_ADC_ENABLE*2+USBD_MSC_ENABLE*1+USBD_CDC_ACM_ENABLE*2+1)//接口编号    
+//#define USBD_CLS_IF_NUM            (USBD_ADC_ENABLE*2+USBD_MSC_ENABLE*1+USBD_CDC_ACM_ENABLE*2+1)//interface编号    
+#define USBD_CLS_IF_NUM            0
 //(END)
 
 #define USBD_ADC_CIF_STR_NUM       (3+USBD_STRDESC_SER_ENABLE+0)

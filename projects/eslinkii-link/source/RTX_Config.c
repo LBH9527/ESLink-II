@@ -187,7 +187,7 @@ void os_error(U32 err_code)
     /* 'err_code' holds the runtime error code (defined in RTL.H).         */
     switch (err_code) {
         case OS_ERR_STK_OVF:
-//            util_assert(0);  
+//            assert(0);  
             
             break;
 

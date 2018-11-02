@@ -24,11 +24,12 @@
 
 #include "stdint.h"
 #include "stdbool.h"
-
+#include "errno.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
-    
+
+ 
 void main_10ms_task(void);	
 
 

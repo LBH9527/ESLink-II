@@ -17,6 +17,8 @@
  
 #include "spi_flash.h"
 #include "es_common.h"
+#include "board.h"
+#include "eslink_gpio.h"
 
 
 /* 定义串行Flash ID */
@@ -501,7 +503,7 @@ sf_err sf_erase_chip(void)
 
 /*
 *********************************************************************************************************
-*	函 数 名: sf_CmpData
+*	函 数 名: sf_cmp_data
 *	功能说明: 比较Flash的数据.
 *	形    参:  	_ucpTar : 数据缓冲区
 *				_uiSrcAddr ：Flash地址
@@ -509,7 +511,7 @@ sf_err sf_erase_chip(void)
 *	返 回 值: 0 = 相等, 1 = 不等
 *********************************************************************************************************
 */
-uint8_t sf_CmpData(uint32_t _uiSrcAddr, const uint8_t *_ucpTar, uint32_t _uiSize)
+uint8_t sf_cmp_data(uint32_t _uiSrcAddr, const uint8_t *_ucpTar, uint32_t _uiSize)
 {
 	uint8_t ucValue;
 
@@ -672,7 +674,7 @@ uint8_t sf_CmpData(uint32_t _uiSrcAddr, const uint8_t *_ucpTar, uint32_t _uiSize
 ////		/* 编程一个SECTOR */
 ////		sf_page_write(s_spiBuf, uiFirstAddr, g_flash.sector_size);
 
-////		if (sf_CmpData(_uiWrAddr, _ucpSrc, _usWrLen) == 0)
+////		if (sf_cmp_data(_uiWrAddr, _ucpSrc, _usWrLen) == 0)
 ////		{
 ////			cRet = 1;
 ////			break;

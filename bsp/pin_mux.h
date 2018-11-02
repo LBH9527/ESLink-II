@@ -161,20 +161,6 @@ void BOARD_InitBootPins(void);
 #define BOARD_LED_G_PASS_DIRECTION kPIN_MUX_DirectionOutput /*!<@brief Direction */
                                                             /* @} */
 
-/*! @name PORTB2 (number 37), LED_R/ERROR_OUT
-  @{ */
-#define BOARD_LED_R_ERROR_PERIPHERAL GPIOB                   /*!<@brief Device name: GPIOB */
-#define BOARD_LED_R_ERROR_SIGNAL GPIO                        /*!<@brief GPIOB signal: GPIO */
-#define BOARD_LED_R_ERROR_GPIO GPIOB                         /*!<@brief GPIO device name: GPIOB */
-#define BOARD_LED_R_ERROR_GPIO_PIN 2U                        /*!<@brief PORTB pin index: 2 */
-#define BOARD_LED_R_ERROR_PORT PORTB                         /*!<@brief PORT device name: PORTB */
-#define BOARD_LED_R_ERROR_PIN 2U                             /*!<@brief PORTB pin index: 2 */
-#define BOARD_LED_R_ERROR_CHANNEL 2                          /*!<@brief GPIOB GPIO channel: 2 */
-#define BOARD_LED_R_ERROR_PIN_NAME PTB2                      /*!<@brief Pin name */
-#define BOARD_LED_R_ERROR_LABEL "LED_R/ERROR_OUT"            /*!<@brief Label */
-#define BOARD_LED_R_ERROR_NAME "LED_R_ERROR"                 /*!<@brief Identifier name */
-#define BOARD_LED_R_ERROR_DIRECTION kPIN_MUX_DirectionOutput /*!<@brief Direction */
-                                                             /* @} */
 
 /*! @name PORTB3 (number 38), LED_Y/BUSY_OUT
   @{ */

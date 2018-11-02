@@ -36,10 +36,10 @@
 #define _BOARD_H_
 
 #include "clock_config.h"
-#include "fsl_gpio.h"
+//#include "fsl_gpio.h"
 #include "fsl_dspi.h"
 //#include "fsl_i2c.h"
-#include "pin_mux.h"
+//#include "pin_mux.h"
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
@@ -60,30 +60,10 @@
 #endif /* BOARD_DEBUG_UART_BAUDRATE */
 
 
-/* Board beep */
-#define BEEP_INIT(output)                                                 \
-    GPIO_PinWrite(BOARD_BEEP_GPIO, BOARD_BEEP_GPIO_PIN, output); \
-    BOARD_BEEP_GPIO->PDDR |= (1U << BOARD_BEEP_GPIO_PIN) /*!< Enable target LED_RED */
-#define BEEP_ON() \
-    GPIO_PortClear(BOARD_BEEP_GPIO, 1U << BOARD_BEEP_GPIO_PIN) /*!< Turn on target LED_RED */
-#define BEEP_OFF() \
-    GPIO_PortSet(BOARD_BEEP_GPIO, 1U << BOARD_BEEP_GPIO_PIN) /*!< Turn off target LED_RED */
 
 
  
-/*******************************************************************************
-*   ES_LINK ¹¦ÄÜIO
-*******************************************************************************/
-/* Control Pin */
-#define CLT_INIT(output)                                                 \
-    GPIO_PinWrite(PIN_CTL_GPIO, PIN_CTL_BIT, output); \
-    PIN_CTL_GPIO->PDDR |= (1U << PIN_CTL_BIT) /*!< Enable target LED_RED */
-#define CTL_SET() \
-    GPIO_PortClear(PIN_CTL_GPIO, 1U << PIN_CTL_BIT) /*!< Turn on target LED_RED */
-#define CTL_CLR() \
-    GPIO_PortSet(PIN_CTL_GPIO, 1U << PIN_CTL_BIT) /*!< Turn off target LED_RED */
-#define CTL_TOGGLE() \
-    GPIO_PortToggle(PIN_CTL_GPIO, 1U << PIN_CTL_BIT) /*!< Toggle on target LED_BLUE */
+
    
 /* SDHC base address, clock and card detection pin */
 #define BOARD_SDHC_BASEADDR SDHC

@@ -1,14 +1,5 @@
 #ifndef __ESLINK_DEF_H__
-#define __ESLINK_DEF_H__
-
-
-//eslink 参数信息
-typedef struct {
-    uint32_t build_key;
-    uint32_t hic_id;
-    uint32_t version;           //固件版本
-    uint16_t power_state;       //power状态
-} eslink_info_t;
+#define __ESLINK_DEF_H__   
 
 typedef struct {  
     uint32_t version;        /*时序版本*/
@@ -37,23 +28,27 @@ typedef struct  {
 /*
  *  序列号代码
  */
-typedef struct {
-    uint8_t enable_flag;     //序列号是否有效.
-    uint32_t addr;           //序列号起始地址
-    uint32_t size;           //序列号数据长度
-    uint32_t data[2];       //序列号代码值
-}es_serial_number_t;
+typedef struct {     
+    uint32_t addr;           	//序列号起始地址
+    uint32_t size;           	//序列号数据长度
+    uint8_t data[8];       		//序列号代码值
+}serial_number_t;
 
 //编程操作接口
 struct es_prog_ops {
     void    (*init) (es_target_cfg *target) ;
+    error_t (*prog_init) (void);
     error_t (*erase_chip) ( uint8_t *para);
-    error_t (*check_empty) (uint32_t *addr, uint32_t *data);    
-    error_t (*program_flash) (uint32_t adr, uint8_t *buf, uint32_t size);
-    error_t (*read_flash) (uint32_t adr, uint32_t *buf, uint32_t size);
-    error_t (*read_chipid) (void);
-    error_t (*program_config_word) (uint32_t adr, uint32_t *buf, uint32_t size);
-    error_t (*read_config_word) (uint32_t adr, uint32_t *buf, uint32_t size);                
+    error_t (*check_empty) (uint32_t *addr, uint32_t *data);  
+    error_t (*read_chipid) (uint32_t *data);  
+    error_t (*read_chip_chksum) (uint32_t *data);
+    error_t (*encrypt_chip) (void);    
+    error_t (*program_config_word) (uint32_t adr, uint8_t *buf, uint32_t size,uint32_t *failed_addr);
+    error_t (*read_config_word) (uint32_t adr, uint8_t *buf, uint32_t size); 
+    error_t (*verify_config_word) (uint32_t addr,  uint8_t *data, uint32_t size, uint32_t *failed_addr, uint32_t *failed_data); 
+    error_t (*program_flash) (uint32_t adr, uint8_t *buf, uint32_t size,uint32_t *failed_addr);
+    error_t (*read_flash) (uint32_t adr, uint8_t *buf, uint32_t size);   
+    error_t (*verify_flash) (uint32_t addr,  uint8_t *data, uint32_t size, uint32_t *failed_addr, uint32_t *failed_data);    
 };
 //编程协议帧接口
 typedef struct{
@@ -88,13 +83,7 @@ typedef enum
     PRG_INTF_BOOTISP = 0x52000002,          //bootisp烧录
 } prog_intf_type_t;   
 
-//脱机步骤
-#define OFL_STEP_ERASE           0x20
-#define OFL_STEP_BLANK_CHECK     0x21  
-#define OFL_STEP_PRORAM          0x22
-#define OFL_STEP_VERIFY           0x23
-#define OFL_STEP_ENCRYPT           0x24
-#define OFL_SETP_CFG_WORD           0x26
+
 
 //编程步长
 #define FLASH_PRG_MIN_SIZE      1024
@@ -123,8 +112,6 @@ typedef struct {
 #define DEBUG_FRAME_HEAD                        0xABCDDCBA     
 
 
-
-
 #define OFL_FRAME_HEAD                  0xABCDDCBA          //帧头
 #define OFL_DEV_ADDR                    0x33                //设备地址
 
@@ -138,24 +125,25 @@ typedef struct {
 // ESLINKII Command IDs
 #define ID_HANDSHAKE                        0x01
 
-#define ID_READ_BOOT_VERSION                0xD7    //读boot版本
-#define ID_DL_BOOT_START                    0xD8    //脱机工程下载开始   
-#define ID_DL_BOOT_HEX                      0xD9    //下载脱机工程HEX'  （1024）
-#define ID_DL_BOOT_HEX_END                  0xDA    //bootloader下载结束 
+#define ID_READ_OFL_VERSION                0xD7    //读固件版本
+#define ID_DL_OFL_START                    0xD8    //脱机工程下载开始   
+#define ID_DL_OFL_HEX                      0xD9    //下载脱机工程HEX'  （1024）
+#define ID_DL_OFL_HEX_END                  0xDA    //脱机下载结束 
 
 //#define ID_DL_TIMING                        0x19    //时序下载(1024)
 //#define ID_DL_TIMING_START                  0x1B    //时序下载开始    
 //#define ID_DL_TIMING_END                    0x1C	//时序下载结束
 #define ID_READ_TIMING_INFO                 0x28    //读芯片信息
 #define ID_DL_TIMING_INFO                   0x27    //下载芯片信息
-
+#define ID_READ_CHIP_CHKSUM                 0x2D    //读芯片校验和
 
 #define ID_DL_PRG_INTF                      0x37    //下载烧录接口
 #define ID_DL_CONFIG_WORD                   0x17    //下载配置字
-#define ID_DL_CONFIG_WORD_END                   0x3A    //配置字下载完成
+#define ID_DL_CONFIG_WORD_END               0x3A    //配置字下载完成
 #define ID_DL_USERHEX                       0x18    //下载用户HEX(1024)
 #define ID_DL_USERHEX_END                   0x1D    //用户HEX下载结束
 #define ID_DL_SERIALNUM                     0x2B    //下载序列号代码
+#define ID_DL_OFL_SERIALNUM                 0x2C    //下载脱机序列号
 
 #define ID_READ_PRG_INTF                    0x39    //读烧录接口
 #define ID_FULL_ERASE                       0x20    //擦除
