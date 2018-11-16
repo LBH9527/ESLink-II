@@ -95,8 +95,7 @@
 //#define FLASH_DSPI_INT_PIN_IRQ PORTB_IRQn
 //#define FLASH_DSPI_INT_PIN_IRQ_HANDLER PORTB_IRQHandler
 
-/* DAC base address */
-#define BOARD_DAC_BASEADDR DAC0
+
 
 /* Board accelerometer driver */
 #define BOARD_ACCEL_FXOS

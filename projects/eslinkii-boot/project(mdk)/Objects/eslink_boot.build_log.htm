@@ -22,19 +22,41 @@ Dialog DLL:      TCM.DLL V1.27.0.0
  
 <h2>Project:</h2>
 D:\DAPLink_Workspace\eslink\projects\eslinkii-boot\project(mdk)\boot.uvprojx
-Project File Date:  10/31/2018
+Project File Date:  11/09/2018
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 4 (build 422)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'Target 1'
-".\Objects\eslink_boot.axf" - 0 Error(s), 0 Warning(s).
+compiling eslink.c...
+compiling usbd_user_cls_icd.c...
+compiling board.c...
+compiling gpio.c...
+..\..\..\bsp\gpio.c(85): warning:  #1-D: last line of file ends without a newline
+  }
+..\..\..\bsp\gpio.c: 1 warning, 0 errors
+compiling key.c...
+compiling pin_mux.c...
+compiling spi_flash.c...
+compiling main.c...
+compiling eslink_boot.c...
+compiling settings_rom.c...
+compiling debug_boot.c...
+..\source\debug_boot.c(24): warning:  #550-D: variable "result"  was set but never used
+      error_t result = ERROR_SUCCESS;
+..\source\debug_boot.c(90): warning:  #177-D: variable "i"  was declared but never referenced
+      uint16_t i;
+..\source\debug_boot.c: 2 warnings, 0 errors
+linking...
+Program Size: Code=13888 RO-data=1808 RW-data=488 ZI-data=10840  
+FromELF: creating hex file...
+".\Objects\eslink_boot.axf" - 0 Error(s), 3 Warning(s).
 
 <h2>Collection of Component include folders:</h2>
   .\RTE\_Target_1
   C:\Keil_v5\ARM\PACK\NXP\MK22F12810_DFP\10.0.0
 
 <h2>Collection of Component Files used:</h2>
-Build Time Elapsed:  00:00:00
+Build Time Elapsed:  00:00:11
 </pre>
 </body>
 </html>

@@ -17,7 +17,7 @@
 #include "clock_config.h"
 #include "systick.h"
 
-
+__IO uint32_t run_time = 0;
 static volatile uint32_t delay_count = 0;
 static volatile uint8_t time_out_flag = 0;  
 
@@ -88,6 +88,7 @@ void SysTick_Handler(void)
 {
 	static uint8_t count = 0;
     
+    run_time++;
 	if (delay_count > 0)
 	{
 		if (--delay_count == 0)
@@ -112,7 +113,7 @@ void SysTick_Handler(void)
 *	形    参:  n : 延迟长度，单位1 ms。 n 应大于2
 *	返 回 值: 无
 *******************************************************************************/
-void bsp_delay_ms(__IO uint32_t Delay)
+void bsp_delay_ms( uint32_t Delay)
 {
 	if (Delay == 0)
 	{
@@ -144,4 +145,21 @@ void bsp_delay_ms(__IO uint32_t Delay)
 		}
 	}
 }
+
+
+uint32_t bsp_time_get(void)
+{
+	int32_t runtime;
+
+	DISABLE_INT();  	
+
+	runtime = run_time;	
+
+	ENABLE_INT();  		
+
+	return runtime;
+}
+
+
+
 

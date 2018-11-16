@@ -63,7 +63,7 @@
 //        USBD_WriteEP(usbd_cls_ep_bulkin | 0x80, USBD_CLS_BulkBuf, send_size);
 //        eslink_data_offset += send_size;
 //        eslink_in_data_len -= send_size;
-//        if(eslink_data_offset >= ICD_COMM_PACKET_LEN)
+//        if(eslink_data_offset >= DEBUG_FRAME_PACKET_LEN)
 //            USBD_CLS_Reset_Event();
 //    }     
 //    if(eslink_in_data_len == 0)
@@ -83,7 +83,7 @@
 //    eslink_data_offset += len_received;
 //    eslink_out_data_len -= len_received;  
 //    
-//    if(eslink_data_offset >= ICD_COMM_PACKET_LEN)
+//    if(eslink_data_offset >= DEBUG_FRAME_PACKET_LEN)
 //        USBD_CLS_Reset_Event();
 //    if (len_received) 
 //    {
@@ -92,7 +92,7 @@
 //            eslink_in_data_len = usbd_cls_eslink(USBD_CLS_WriteBuf, USBD_CLS_ReadBuf);
 //            eslink_data_offset = 0;    
 //            eslink_stage = ESLINK_DATA_IN;
-//            if(eslink_in_data_len >= ICD_COMM_PACKET_LEN)
+//            if(eslink_in_data_len >= DEBUG_FRAME_PACKET_LEN)
 //                USBD_CLS_Reset_Event();
 //        }
 //    }
@@ -139,7 +139,7 @@
 //                USBD_CLS_Reset_Event();
 //                
 //            }
-//            if(eslink_out_data_len >= ICD_COMM_PACKET_LEN)
+//            if(eslink_out_data_len >= DEBUG_FRAME_PACKET_LEN)
 //                USBD_CLS_Reset_Event();
 //            break;
 //        case ESLINK_DATA_OUT:            

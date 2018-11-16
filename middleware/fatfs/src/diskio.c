@@ -9,6 +9,7 @@
 
 #include "diskio.h"			/* FatFs lower layer API */
 #include "spi_flash.h"      
+#include "settings_spi_flash.h"
 
 /* Definitions of physical drive number for each media */
 #define FS_SPI_FLASH  0
@@ -95,7 +96,7 @@ DRESULT disk_write (
 		case FS_SPI_FLASH :
 			{
                 /* 扇区偏移2MB，外部Flash文件系统空间放在SPI Flash后面6MB空间 */ 
-                sector += 512;
+                sector += SF_FATFS_OFFSET;
                 sf_erase_sector(sector<<12, 4096);
                 spi_flash_write(sector<<12, buff, count<<12 );
                 // translate the reslut code here
@@ -129,7 +130,7 @@ DRESULT disk_ioctl (
             // Process of the command for the RAM drive
                 switch (cmd) {
             case GET_SECTOR_COUNT:
-                *(DWORD * )buff = 1536;		//sector˽   1536*4096/1024/1024=6(MB)
+                *(DWORD * )buff = SF_FATFS_SECTOR_COUNT;		//sector˽   1536*4096/1024/1024=6(MB)
             break;
             case GET_SECTOR_SIZE :     // Get R/W sector size (WORD)
 

@@ -135,17 +135,60 @@ void ofl_display (void)
             ofl_diplay_str((i+1)*16,ofl_item.str[i+ofl_state.first_line]); 
     } 	
 }
- 
+
+//脱机序列号显示
+void ofl_sn_display(uint8_t state)
+{
+    char display_temp[16+1] = {'\0'};
+    ofl_serial_number_t sn_info;                //序列号信息
+    FONT_T Font16;
+    Font16.FontCode = FC_ST_16;	/* 字体代码 16点阵 */
+    Font16.Space = 0;
+    Font16.FrontColor = 1;		/* 字体颜色 0 或 1 */
+	Font16.BackColor = 0;		/* 文字背景颜色 0 或 1 */
+
+    fm24cxx_read(EE_SERIAL_NUMBER_ADDR,(uint8_t*)&sn_info, sizeof(sn_info)); 
+    if( state & 0x01)
+    {
+        if(sn_info.state != OFL_SERIALNUM_DISABLE)
+        {
+           if(sn_info.read_mode  == OFL_SERIALNUM_READ_USE_IAP)  //32位机 IAP方式
+            {
+                sprintf(display_temp,"%02X%02X%02X%02X%02X%02X%02X%02X", sn_info.sn.data[0],sn_info.sn.data[1],
+                                                          sn_info.sn.data[2],sn_info.sn.data[3],
+                                                          sn_info.sn.data[4],sn_info.sn.data[5],
+                                                          sn_info.sn.data[6],sn_info.sn.data[7]);
+            }
+            else
+            {
+                sprintf(display_temp,"%02X%02X%02X%02X%02X%02X%02X%02X", sn_info.sn.data[1],sn_info.sn.data[3],
+                                                          sn_info.sn.data[5],sn_info.sn.data[7],
+                                                          sn_info.sn.data[9],sn_info.sn.data[11],
+                                                          sn_info.sn.data[13],sn_info.sn.data[15]); 
+            }                
+                         
+            oled_display_str(0,32, display_temp  , &Font16);        
+        }   
+    } 
+    if(state & 0x02)
+    {
+        //烧录成功个数
+        oled_display_str(0,48,"OK:             ", &Font16);        
+        sprintf(display_temp,"%08d", sn_info.success_count);         
+        oled_display_str(24,48, display_temp  , &Font16);      
+    }       
+} 
             
 void ofl_program_display(void)
 {
     static uint8_t disp_init = 0 ;  	
     static ofl_prj_info_t ofl_prj_info;         //脱机方案信息
-    static ofl_serial_number_t sn_info;                //序列号信息
+    
     char display_temp[16+1] = {'\0'};
     uint8_t msg = MSG_NULL;
     FONT_T Font16;
     Font16.FontCode = FC_ST_16;	/* 字体代码 16点阵 */
+    Font16.Space = 0;
     Font16.FrontColor = 1;		/* 字体颜色 0 或 1 */
 	Font16.BackColor = 0;		/* 文字背景颜色 0 或 1 */
     
@@ -158,36 +201,17 @@ void ofl_program_display(void)
         oled_display_str(0,0,display_temp  , &Font16);             //芯片名称
 
         
-        oled_display_str(0,16,"S:      C:      ", &Font16);        //配置字和flash数据累加和 与 CRC校验和
+        oled_display_str(0,16,"S:      C:    ", &Font16);        //配置字和flash数据累加和 与 CRC校验和
         Font16.FrontColor = 0;		/* 字体颜色 0 或 1 */
         Font16.BackColor = 1;		/* 文字背景颜色 0 或 1 */
-        sprintf(display_temp,"%X", ofl_prj_info.checksum);
+        sprintf(display_temp,"%04X", ofl_prj_info.checksum);
         oled_display_str(20,16,display_temp  , &Font16);             //芯片累加和
         ofl_prj_info.crc &= 0x0000ffff;                             //显示低字节
-        sprintf(display_temp,"%X", ofl_prj_info.crc);
+        sprintf(display_temp,"%04X", ofl_prj_info.crc);
         oled_display_str(84,16,display_temp  , &Font16);             //芯片CRC校验和           
         Font16.FrontColor = 1;		/* 字体颜色 0 或 1 */
-        Font16.BackColor = 0;		/* 文字背景颜色 0 或 1 */
-        
-        fm24cxx_read(EE_SERIAL_NUMBER_ADDR,(uint8_t*)&sn_info, sizeof(sn_info)); 
-        
-        if(sn_info.state != OFL_SERIALNUM_DISABLE)
-        {
-            oled_display_str(0,32,"SN:             ", &Font16);        //脱机序列号
-            if(sn_info.sn_size == 4)
-            {
-                sprintf(display_temp,"%-8x", sn_info.sn_data[0]);
-            }          
-            else if(sn_info.sn_size == 8) 
-            {
-                sprintf(display_temp,"%-8x", sn_info.sn_data[1]);
-            }             
-            oled_display_str(24,32, display_temp  , &Font16);         
-        }
-        //烧录成功个数
-        oled_display_str(0,48,"OK:             ", &Font16);        
-        sprintf(display_temp,"%x", sn_info.success_count);         
-        oled_display_str(24,48, display_temp  , &Font16);            
+        Font16.BackColor = 0;		/* 文字背景颜色 0 或 1 */          
+        ofl_sn_display(0x03);      
         disp_init = 1;
     }     
     
@@ -205,65 +229,35 @@ void ofl_program_display(void)
             oled_display_str(0,16,"S:      C:      ", &Font16);        //配置字和flash数据累加和 与 CRC校验和
             Font16.FrontColor = 0;		/* 字体颜色 0 或 1 */
             Font16.BackColor = 1;		/* 文字背景颜色 0 或 1 */
-            sprintf(display_temp,"%X", ofl_prj_info.checksum);
+            sprintf(display_temp,"%04X", ofl_prj_info.checksum);
             oled_display_str(20,16,display_temp  , &Font16);             //芯片累加和
             ofl_prj_info.crc &= 0x0000ffff;                             //显示低字节
-            sprintf(display_temp,"%X", ofl_prj_info.crc);
+            sprintf(display_temp,"%04X", ofl_prj_info.crc);
             oled_display_str(84,16,display_temp  , &Font16);             //芯片CRC校验和           
             Font16.FrontColor = 1;		/* 字体颜色 0 或 1 */
             Font16.BackColor = 0;		/* 文字背景颜色 0 或 1 */
             
-            fm24cxx_read(EE_SERIAL_NUMBER_ADDR,(uint8_t*)&sn_info, sizeof(sn_info)); 
-            
-            if(sn_info.state != OFL_SERIALNUM_DISABLE)
-            {
-                oled_display_str(0,32,"SN:             ", &Font16);        //脱机序列号
-                if(sn_info.sn_size == 4)
-                {
-                    sprintf(display_temp,"%-8x", sn_info.sn_data[0]);
-                }          
-                else if(sn_info.sn_size == 8) 
-                {
-                    sprintf(display_temp,"%-8x", sn_info.sn_data[1]);
-                }             
-                oled_display_str(24,32, display_temp  , &Font16);         
-            }
-            //烧录成功个数
-            oled_display_str(0,48,"OK:             ", &Font16);        
-            sprintf(display_temp,"%x", sn_info.success_count);         
-            oled_display_str(24,48, display_temp  , &Font16);    
+            ofl_sn_display(0x03);      
             break ;
         case MSG_PROG_ING:
             oled_clr_scr(0x00);	
-            oled_display_str(0,16,"   programing   ", &Font16); 
+            oled_display_str(0,16,"  programing  ", &Font16); 
+            ofl_sn_display(0x01);      
             
-            
-            if(sn_info.state != OFL_SERIALNUM_DISABLE)
-            {
-                oled_display_str(0,32,"SN:             ", &Font16);        //脱机序列号
-                if(sn_info.sn_size == 4)
-                {
-                    sprintf(display_temp,"%-16x", sn_info.sn_data[0]);
-                }          
-                else if(sn_info.sn_size == 8) 
-                {
-                    sprintf(display_temp,"%-16x", sn_info.sn_data[1]);
-                }             
-                 oled_display_str(24,32, display_temp  , &Font16);         
-            }
             break;
         case MSG_PROG_OK:
             oled_clr_scr(0x00);	            
             oled_display_str(0,16,"      OK        ", &Font16); 
-            //烧录成功个数              
-            oled_display_str(0,48,"OK:             ", &Font16);  
-            fm24cxx_read(EE_SERIAL_NUMBER_ADDR,(uint8_t*)&sn_info, sizeof(sn_info));               
-            sprintf(display_temp,"%x", sn_info.success_count);         
-            oled_display_str(24,48, display_temp  , &Font16);    
+            ofl_sn_display(0x02); 
             break;
         case MSG_PROG_FAILE:
             oled_clr_scr(0x00);	
-            oled_display_str(0,16,"     FAILE      ", &Font16); 
+            oled_display_str(0,16,"   PROG FAILE   ", &Font16); 
+            break;
+        case MSG_PROG_COUNT_FULL:
+            oled_clr_scr(0x00);	
+            oled_display_str(0,16,"   PROG FAILE   ", &Font16); 
+            oled_display_str(0,32,"   COUNT FULL   ", &Font16); 
             break;
         case MSG_KEY_ENTER:     //长按回到联机模式      
             if(set_link_mode(LINK_ONLINE_MODE) != TRUE )
@@ -334,3 +328,4 @@ void menu_display(void)
 {   
     cur_menu->func(); 	
 }
+

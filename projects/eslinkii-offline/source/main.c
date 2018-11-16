@@ -73,6 +73,7 @@ int main(void)
     menu_init();
     bsp_init_systick();
 	
+    LED_RED_ON();             
     while (1)
     {
        
@@ -92,7 +93,7 @@ int main(void)
 			msg_write_data(&menu_msg);			
 		}
          menu_display(); 	 
-		LED_GREEN_TOGGLE();		
+
 //		bsp_delay_ms(1000);
     }   
 

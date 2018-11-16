@@ -47,8 +47,7 @@ void BOARD_InitPins(void)
     /* PORTA19 (pin 33) is configured as XTAL0 */
     PORT_SetPinMux(PORTA, 19U, kPORT_PinDisabledOrAnalog);
 
-    /* PORTA2 (pin 24) is configured as PTA2 */
-    PORT_SetPinMux(BOARD_KEY2_PORT, BOARD_KEY2_PIN, kPORT_MuxAsGpio);
+
 
     PORTA->PCR[2] = ((PORTA->PCR[2] &
                       /* Mask bits to zero which are setting */
@@ -71,7 +70,7 @@ void BOARD_InitPins(void)
                      | PORT_PCR_PE(kPORT_PullDisable));
 
     /* PORTA5 (pin 27) is configured as PTA5 */
-    PORT_SetPinMux(BOARD_LED_G_PASS_PORT, BOARD_LED_G_PASS_PIN, kPORT_MuxAsGpio);
+    PORT_SetPinMux(LED_G_PASS_PORT, LED_G_PASS_PIN, kPORT_MuxAsGpio);
 
     PORTA->PCR[5] = ((PORTA->PCR[5] &
                       /* Mask bits to zero which are setting */
@@ -84,35 +83,32 @@ void BOARD_InitPins(void)
 //    PORT_SetPinMux(PORTB, 0U, kPORT_MuxAlt2);
 //    /* PORTB1 (pin 36) is configured as I2C0_SDA */
 //    PORT_SetPinMux(PORTB, 1U, kPORT_MuxAlt2);
+    /* PORTB19 (pin 42) is configured as PTB19 */
+    PORT_SetPinMux(PIN_OLED_CS_PORT, PIN_OLED_CS_BIT, kPORT_MuxAsGpio);
+
+    /* PORTB18 (pin 41) is configured as PTB18 */
+    PORT_SetPinMux(PIN_OLED_RST_PORT, PIN_OLED_RST_BIT, kPORT_MuxAsGpio);
+
+    /* PORTB2 (pin 37) is configured as PTB2 */
+    PORT_SetPinMux(LED_R_ERROR_PORT, LED_R_ERROR_PIN, kPORT_MuxAsGpio);
+    /* PORTB3 (pin 38) is configured as PTB3 */
+    PORT_SetPinMux(LED_Y_BUSY_PORT, LED_Y_BUSY_PIN, kPORT_MuxAsGpio);
 
     /* PORTB16 (pin 39) is configured as FTM_CLKIN0 */
     PORT_SetPinMux(PORTB, 16U, kPORT_MuxAlt4);
-
-    /* PORTB18 (pin 41) is configured as PTB18 */
-    PORT_SetPinMux(BOARD_OLED_CS_PORT, BOARD_OLED_CS_PIN, kPORT_MuxAsGpio);
-
-    /* PORTB19 (pin 42) is configured as PTB19 */
-    PORT_SetPinMux(BOARD_OLED_RST_PORT, BOARD_OLED_RST_PIN, kPORT_MuxAsGpio);
-
-    /* PORTB2 (pin 37) is configured as PTB2 */
-
-    /* PORTB3 (pin 38) is configured as PTB3 */
-    PORT_SetPinMux(BOARD_LED_Y_BUSY_PORT, BOARD_LED_Y_BUSY_PIN, kPORT_MuxAsGpio);
-
+    
+    
     /* PORTC0 (pin 43) is configured as ADC0_SE14 */
     PORT_SetPinMux(PORTC, 0U, kPORT_PinDisabledOrAnalog);
-
-    /* PORTC1 (pin 44) is configured as ADC0_SE15 */
-    PORT_SetPinMux(PORTC, 1U, kPORT_PinDisabledOrAnalog);
 
     /* PORTC10 (pin 55) is configured as PTC10 */
     PORT_SetPinMux(BOARD_ES_CTL_IO_PORT, BOARD_ES_CTL_IO_PIN, kPORT_MuxAsGpio);
 
     /* PORTC2 (pin 45) is configured as PTC2 */
-    PORT_SetPinMux(BOARD_OLED_SCK_PORT, BOARD_OLED_SCK_PIN, kPORT_MuxAsGpio);
+    PORT_SetPinMux(PIN_OLED_SCK_PORT, PIN_OLED_SCK_BIT, kPORT_MuxAsGpio);
 
     /* PORTC3 (pin 46) is configured as PTC3 */
-    PORT_SetPinMux(BOARD_OLED_SDA_PORT, BOARD_OLED_SDA_PIN, kPORT_MuxAsGpio);
+    PORT_SetPinMux(PIN_OLED_SDA_PORT, PIN_OLED_SDA_BIT, kPORT_MuxAsGpio);
 
     /* PORTC4 (pin 49) is configured as PTC4 */
     PORT_SetPinMux(BOARD_ES_RST_PORT, BOARD_ES_RST_PIN, kPORT_MuxAsGpio);
@@ -133,7 +129,7 @@ void BOARD_InitPins(void)
     PORT_SetPinMux(PORTD, 2U, kPORT_MuxAlt3);
 
     /* PORTD3 (pin 60) is configured as PTD3 */
-    PORT_SetPinMux(BOARD_BEEP_PORT, BOARD_BEEP_PIN, kPORT_MuxAsGpio);
+    PORT_SetPinMux(BEEP_PORT, BEEP_PIN, kPORT_MuxAsGpio);
 
     /* PORTD4 (pin 61) is configured as SPI1_PCS0 */
     PORT_SetPinMux(PORTD, 4U, kPORT_MuxAsGpio);

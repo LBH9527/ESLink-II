@@ -310,7 +310,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>3</Optim>
+            <Optim>2</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
@@ -333,9 +333,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls>--gnu --library_interface=armcc  --library_type=standardlib --diag_suppress=66,1296,186 </MiscControls>
-              <Define>CPU_MK22FN128VLH10,NDEBUG,HID_ENDPOINT, CDC_ENDPOINT,</Define>
+              <Define>CPU_MK22FN128VLH10,NDEBUG,HID_ENDPOINT, CDC_ENDPOINT,HR_8BIT</Define>
               <Undefine></Undefine>
-              <IncludePath>..\source;..\..\..\common;..\..\..\bsp;..\..\..\drivers;..\..\..\CMSIS;..\..\..\app;..\..\..\bsp;..\..\..\app;..\..\..\iap;..\..\..\gui;..\..\..\middleware\ff13b\source;..\..\..\middleware\RL-USB;..\..\..\middleware\RL-USB\usb;..\..\..\middleware\RL-USB\usb\cls</IncludePath>
+              <IncludePath>..\source;..\..\..\common;..\..\..\bsp;..\..\..\drivers;..\..\..\CMSIS;..\..\..\app;..\..\..\bsp;..\..\..\app;..\..\..\iap;..\..\..\gui;..\..\..\app\es-debug;..\..\..\middleware\ff13b\source;..\..\..\middleware\RL-USB;..\..\..\middleware\RL-USB\usb;..\..\..\middleware\RL-USB\usb\cls;..\..\..\eslink</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -369,7 +369,7 @@
             <ScatterFile>..\source\MK22FN128xxx10_flash.scf</ScatterFile>
             <IncludeLibs></IncludeLibs>
             <IncludeLibsPath></IncludeLibsPath>
-            <Misc>--predefine="-I..\..\..\app"</Misc>
+            <Misc>--predefine="-I..\..\..\eslink"</Misc>
             <LinkerInputFile></LinkerInputFile>
             <DisabledWarnings></DisabledWarnings>
           </LDads>
@@ -380,29 +380,29 @@
           <GroupName>eslink</GroupName>
           <Files>
             <File>
-              <FileName>eslink_addr.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\app\eslink_addr.h</FilePath>
+              <FileName>usbd_user_cls_icd.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\eslink\usbd_user_cls_icd.c</FilePath>
+            </File>
+            <File>
+              <FileName>settings_spi_flash.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\eslink\settings_spi_flash.c</FilePath>
             </File>
             <File>
               <FileName>eslink.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\..\..\app\eslink.h</FilePath>
+              <FilePath>..\..\..\eslink\eslink.h</FilePath>
             </File>
             <File>
-              <FileName>eslink_def.h</FileName>
+              <FileName>eslink_addr.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\..\..\app\eslink_def.h</FilePath>
+              <FilePath>..\..\..\eslink\eslink_addr.h</FilePath>
             </File>
             <File>
-              <FileName>eslink_config.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\app\eslink_config.h</FilePath>
-            </File>
-            <File>
-              <FileName>usbd_user_cls_icd.c</FileName>
+              <FileName>eslink.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\app\usbd_user_cls_icd.c</FilePath>
+              <FilePath>..\..\..\eslink\eslink.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -468,6 +468,11 @@
               <FileName>eslink_boot.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\source\eslink_boot.c</FilePath>
+            </File>
+            <File>
+              <FileName>debug_boot.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\debug_boot.c</FilePath>
             </File>
           </Files>
         </Group>

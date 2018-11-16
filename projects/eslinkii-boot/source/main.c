@@ -70,7 +70,7 @@ int main(void)
     usbd_init();                          /* USB Device Initialization          */
     usbd_connect(__TRUE);                 /* USB Device Connect                 */
     while (!usbd_configured ());          /* Wait for device to configure        */
-    LED_GREEN_ON();
+    LED_GREEN_ON();             
     while (1)
     {              
         if(stay_in_bootloader() != TRUE)

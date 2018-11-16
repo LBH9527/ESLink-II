@@ -1,55 +1,11 @@
 #include "eslink.h"
-//#include "iap_flash_intf.h"
 #include "settings_rom.h"
 #include "update.h"
 #include "info.h"                    
-// Delay for specified time
-//    delay:  delay time in ms
-void es_delay_ms(uint32_t delay) 
-{
-    delay *= ((SystemCoreClock/1000U) + (ES_DELAY_SLOW_CYCLES-1U)) / ES_DELAY_SLOW_CYCLES;
-    ES_DELAY_SLOW(delay);
-}
-// Delay for specified time
-//    delay:  delay time in us
-void es_delay_us(uint32_t delay) 
-{
-    delay *= ((SystemCoreClock/1000000U) + (ES_DELAY_SLOW_CYCLES-1U)) / ES_DELAY_SLOW_CYCLES;
-    ES_DELAY_SLOW(delay);
-}
 
-//static void int2array(uint8_t *res, uint32_t *data, uint8_t len) {
-//    uint8_t i = 0;
+  
 
-//    for (i = 0; i < len; i+=4) {
-//        res[i]     = *data  & 0xff;
-//        res[i + 1] = (*data >> 8 ) & 0xff;
-//        res[i + 2] = (*data >> 16) & 0xff;
-//        res[i + 3] = (*data >> 24) & 0xff;
-//        data++;
-//    }
-//}    
-
-////设置目标芯片电压
-//void eslink_set_trget_power(trget_power_t power)
-//{
-//    if(power == TRGET_POWER_DISABLE){
-//        V33_OFF();     
-//        V5_OFF();        
-//    }else if(power == TRGET_POWER_3V3){
-//        V33_ON();       
-//        V5_OFF();                 
-//    }else if(power == TRGET_POWER_5V){
-//        V33_OFF();       
-//        V5_ON();      
-//    }        
-//}
-
-//trget_power_t eslink_get_trget_power()
-//{
-//    
-//    
-//}    
+  
 //void flash_set_target_config(flash_t *obj)
 /*
  *  读固件版本
@@ -63,7 +19,11 @@ static error_t read_offline_version(uint8_t *buf)
     buf[1] = (version >> 8 ) & 0xff;
     buf[2] = (version >> 16) & 0xff;
     buf[3] = (version >> 24) & 0xff;
-    
+    //硬件版本，暂定为0
+    buf[4] = 0;
+    buf[5] = 0;
+    buf[6] = 0;
+    buf[7] = 0;   
     return result;  
 }
 
@@ -81,9 +41,8 @@ static error_t download_offline_hex(uint8_t *data)
             (*(data+5) <<  8) |
             (*(data+6) << 16) |
             (*(data+7) << 24);
-    if (update_app_program(UPDATE_OFFLINE_APP, addr, (data+8), size ) != 0)
-//        result =  ERROR_IAP_PROG;
-        result = ERROR_SUCCESS ;
+    if (update_app_program(UPDATE_OFFLINE_APP, addr, (data+8), size ) != TRUE)
+        result =  ERROR_IAP_WRITE;
     return result;    
 }
     
@@ -145,7 +104,7 @@ error_t download_timinginfo(uint8_t *data)
 /*
  *  时序下载    
  */
-error_t download_timing(uint8_t *data)
+static error_t download_timing(uint8_t *data)
 {
     error_t result = ERROR_SUCCESS;
     uint32_t addr;
@@ -210,7 +169,7 @@ uint32_t prog_process_command(uint8_t *request, uint8_t *response)
     prog_data.fun_code      = *(request+5);
     prog_data.data_length   = (*(request+6) << 0) | (*(request+7) << 8);
     
-    memset(prog_data.rdbuf, 0, PROG_FRAME_SIZE);   
+    memset(prog_data.rdbuf, 0, PROG_FRAME_MAX_SIZE);   
     
     switch(prog_data.fun_code){   
         case ID_HANDSHAKE:
@@ -220,7 +179,7 @@ uint32_t prog_process_command(uint8_t *request, uint8_t *response)
         case ID_READ_OFL_VERSION:           //0xD7 读脱机工程版本 
             #if 1
             result = read_offline_version(&prog_data.rdbuf[8]);
-            prog_data.data_length = sizeof(offline_info_t);
+            prog_data.data_length = sizeof(offline_info_t) + 4;
             #else
             //add by 9527 for test: 设置固件版本为固定值
             prog_data.data_length = 4;
@@ -297,3 +256,7 @@ uint32_t prog_process_command(uint8_t *request, uint8_t *response)
     
     return ack_len;
 }
+
+
+
+

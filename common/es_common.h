@@ -251,6 +251,23 @@ typedef enum {DISABLE = 0, ENABLE = !DISABLE} FunctionalState;
 
 #define ROUND_DOWN(value, boundary)     ((value) - ((value) % (boundary)))
 
+//发送事件
+#define flag_send(c,b)			( (c) |= (b) ) 
+//接收事件   
+#define flag_recv(c,b)		    ( ( (c) & (b)) >0 )
+//清除事件
+#define flag_clr(c,b)			( (c) &= ~(b) )
+
+//#define LONG_TO_BIG_ENDIAN_ADDRESS(n, m)       \
+//    {                                              \
+//        m[0] = ((((uint32_t)(n)) >> 24U) & 0xFFU); \
+//        m[1] = ((((uint32_t)(n)) >> 16U) & 0xFFU); \
+//        m[2] = ((((uint32_t)(n)) >> 8U) & 0xFFU);  \
+//        m[3] = (((uint32_t)(n)) & 0xFFU);          \
+//    }
+
+
+
 #if defined(LIB_DEBUG)
   #define assert_param(expr) ((expr) ? (void)0 : assert_failed((char *)__FILE__, __LINE__))
 /* Exported functions ------------------------------------------------------- */

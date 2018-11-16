@@ -9,10 +9,10 @@
 typedef struct __attribute__((__packed__))  {
     uint32_t key;               // Magic key to indicate a valid record
     // Configurable values
-    offline_info_t offline_info;
-    timing_info_t timing_info;
-    es_target_cfg target_dev;
-
+    offline_info_t offline_info;    //脱机版本信息
+    timing_info_t timing_info;      //时序信息
+    es_target_cfg target_dev;       //32位机目标芯片信息
+    hr_target_cfg hr_dev;           //8位机芯片信息
 } config_set_t;  
 
 // Configuration ROM
@@ -34,7 +34,18 @@ static const config_set_t config_default = {
     .target_dev.encrypt_addr = 0,
     .target_dev.encrypt_value = 0,
     .target_dev.chipid_addr = 0,
-    .target_dev.chipid_value = 0,        
+    .target_dev.chipid_value = 0,  
+    .hr_dev.version = 0,        //版本号
+    .hr_dev.checksum = 0,       //校验和
+    .hr_dev.reserved1 = 0,      //保留
+    .hr_dev.timing_id = 0,      /*时序号*/
+    .hr_dev.reset_voltage = 0,  //复位电平
+    .hr_dev.chipid  = 0,         //芯片ID
+    .hr_dev.reserved2 = 0,
+    .hr_dev.prog_id = 0,             //编程时序号
+    .hr_dev.code_start = 0,     //主程序区起始地址
+    .hr_dev.code_size = 0,      //主程序区容量
+    
 };  
 
 // Buffer for data to flash
@@ -73,7 +84,7 @@ uint8_t get_offline_info(uint8_t *data)
     return len;
 }
 
-//获取时序信息
+//32位获取时序信息
 uint8_t get_timing_info(uint8_t *data)
 {
     uint8_t len = 0;
@@ -88,6 +99,8 @@ uint8_t get_timing_info(uint8_t *data)
     
     return (sizeof(timing_info_t) + sizeof(es_target_cfg) );
 }
+
+
 //目标芯片信息
 uint8_t get_target_info(uint8_t *data)
 {
@@ -96,7 +109,15 @@ uint8_t get_target_info(uint8_t *data)
         *(data++) =  *((uint8_t *)&config_rom_copy.target_dev + i);
     return len;
 }
+//8位机芯片信息
+uint8_t get_hr_target_info( uint8_t *data)
+{
+    uint8_t len = sizeof(hr_target_cfg);
+    for(uint8_t i = 0; i< len; i++) 
+        *(data++) =  *((uint8_t *)&config_rom_copy.hr_dev + i);
+    return len;
 
+}
 //uint8_t set_target_info(uint8_t *data)
 //{
 //    uint8_t len = sizeof(es_target_cfg);
@@ -121,7 +142,7 @@ uint8_t set_offline_info(uint8_t *data)
 }
 
 
-//设置时序信息
+//设置32位时序信息
 uint8_t set_timing_info(uint8_t *data)
 {
     uint8_t len = 0;
@@ -139,6 +160,18 @@ uint8_t set_timing_info(uint8_t *data)
     
     return TRUE;    
     
+}
+uint8_t set_hr_timing_info(uint8_t *data)
+{
+    uint8_t len = sizeof(hr_target_cfg);
+    
+    for(uint8_t i = 0; i< len; i++) 
+        *((uint8_t *)&config_rom_copy.hr_dev + i) = *(data++);
+        
+    if(config_rom_set(&config_rom_copy) != TRUE)
+        return FALSE;
+    return TRUE;
+
 }
 //清空时序信息和更新标志位
 uint8_t clear_timing_info(void)

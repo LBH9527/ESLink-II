@@ -22,38 +22,45 @@ Dialog DLL:      TCM.DLL V1.27.0.0
  
 <h2>Project:</h2>
 D:\DAPLink_Workspace\eslink\projects\eslinkii-offline\project\offline.uvprojx
-Project File Date:  10/30/2018
+Project File Date:  11/10/2018
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 4 (build 422)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'Target 1'
-compiling offline_file.c...
-..\..\..\app\offline\offline_file.c(59): warning:  #128-D: loop is not reachable
-              while(1);
-..\..\..\app\offline\offline_file.c(43): warning:  #550-D: variable "fre_sect"  was set but never used
-      DWORD fre_clust, fre_sect, tot_sect;     
-..\..\..\app\offline\offline_file.c(43): warning:  #550-D: variable "tot_sect"  was set but never used
-      DWORD fre_clust, fre_sect, tot_sect;     
-..\..\..\app\offline\offline_file.c: 3 warnings, 0 errors
+compiling settings_spi_flash.c...
 compiling eeprom.c...
-compiling ofl_prj_decoder.c...
+compiling spi_flash.c...
 compiling main.c...
-compiling ofl_menu.c...
+compiling ofl_prj_decoder.c...
+compiling offline_file.c...
+..\..\..\eslink\offline\offline_file.c(59): warning:  #128-D: loop is not reachable
+              while(1);
+..\..\..\eslink\offline\offline_file.c(43): warning:  #550-D: variable "fre_sect"  was set but never used
+      DWORD fre_clust, fre_sect, tot_sect;     
+..\..\..\eslink\offline\offline_file.c(43): warning:  #550-D: variable "tot_sect"  was set but never used
+      DWORD fre_clust, fre_sect, tot_sect;     
+..\..\..\eslink\offline\offline_file.c: 3 warnings, 0 errors
+compiling update.c...
+..\..\..\iap\update.c(53): warning:  #177-D: variable "stay_in"  was declared but never referenced
+      uint8_t stay_in = TRUE;
+..\..\..\iap\update.c: 1 warning, 0 errors
 compiling settings_rom.c...
+compiling ofl_menu.c...
+compiling diskio.c...
 linking...
-Program Size: Code=24736 RO-data=7664 RW-data=136 ZI-data=11344  
+Program Size: Code=24320 RO-data=7692 RW-data=140 ZI-data=11428  
 FromELF: creating hex file...
-After Build - User command #1: D:\DAPLink_Workspace\eslink\projects\eslinkii-offline\project\CopyHex_Flash.bat
+After Build - User command #1: .\CopyHex_Flash.bat
 D:\DAPLink_Workspace\eslink\projects\eslinkii-offline\project>copy Objects\output.hex ..\..\Update.hex 
 已复制         1 个文件。
-".\Objects\output.axf" - 0 Error(s), 3 Warning(s).
+".\Objects\output.axf" - 0 Error(s), 4 Warning(s).
 
 <h2>Collection of Component include folders:</h2>
   .\RTE\_Target_1
   C:\Keil_v5\ARM\PACK\NXP\MK22F12810_DFP\10.0.0
 
 <h2>Collection of Component Files used:</h2>
-Build Time Elapsed:  00:00:12
+Build Time Elapsed:  00:00:11
 </pre>
 </body>
 </html>

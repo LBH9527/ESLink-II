@@ -13,8 +13,9 @@
 
 /* 提供给其他C文件调用的函数 */
 void bsp_init_systick(void);    
-void bsp_delay_ms(__IO uint32_t Delay);
+void bsp_delay_ms( uint32_t Delay);
 void bsp_delay_us(uint32_t n);  
+uint32_t bsp_time_get(void);
 
 #endif
 

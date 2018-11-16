@@ -56,4 +56,5 @@ sf_err sf_page_write(uint32_t addr,const uint8_t * _pBuf, uint32_t _usSize);
 
 uint8_t sf_cmp_data(uint32_t _uiSrcAddr, const uint8_t *_ucpTar, uint32_t _uiSize);
 //int spiflash_test(uint32_t begin, uint32_t end);
+
 #endif

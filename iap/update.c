@@ -174,7 +174,6 @@ uint8_t update_app_program(uint32_t app_type, uint32_t addr, uint8_t *data, uint
     return TRUE;
 }
 //脱机更新时序
-//联机更新APP，地址由上位机保证
 uint8_t ofl_update_app_program(uint32_t app_type, uint32_t addr, uint8_t *data, uint32_t size )
 {
     uint8_t status;

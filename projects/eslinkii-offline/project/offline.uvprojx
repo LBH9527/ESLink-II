@@ -81,7 +81,7 @@
           <AfterMake>
             <RunUserProg1>1</RunUserProg1>
             <RunUserProg2>0</RunUserProg2>
-            <UserProg1Name>D:\DAPLink_Workspace\eslink\projects\eslinkii-offline\project\CopyHex_Flash.bat</UserProg1Name>
+            <UserProg1Name>.\CopyHex_Flash.bat</UserProg1Name>
             <UserProg2Name></UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
@@ -335,7 +335,7 @@
               <MiscControls>--gnu --library_interface=armcc  --library_type=standardlib --diag_suppress=66,1296,186 </MiscControls>
               <Define>CPU_MK22FN128VLH10,NDEBUG,</Define>
               <Undefine></Undefine>
-              <IncludePath>..\source;..\..\..\common;..\..\..\bsp;..\..\..\drivers;..\..\..\CMSIS;..\..\..\bsp;..\..\..\app;..\..\..\gui;..\..\..\middleware\FatFS\src;..\..\..\app\offline;..\..\..\iap</IncludePath>
+              <IncludePath>..\source;..\..\..\common;..\..\..\bsp;..\..\..\drivers;..\..\..\CMSIS;..\..\..\bsp;..\..\..\app;..\..\..\gui;..\..\..\middleware\FatFS\src;..\..\..\app\offline;..\..\..\iap;..\..\..\eslink;..\..\..\eslink\offline</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -369,7 +369,7 @@
             <ScatterFile>..\source\MK22FN128xxx10_flash.scf</ScatterFile>
             <IncludeLibs></IncludeLibs>
             <IncludeLibsPath></IncludeLibsPath>
-            <Misc>--predefine="-I..\..\..\app"</Misc>
+            <Misc>--predefine="-I..\..\..\eslink"</Misc>
             <LinkerInputFile></LinkerInputFile>
             <DisabledWarnings></DisabledWarnings>
           </LDads>
@@ -382,17 +382,22 @@
             <File>
               <FileName>eslink_addr.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\..\..\app\eslink_addr.h</FilePath>
+              <FilePath>..\..\..\eslink\eslink_addr.h</FilePath>
             </File>
             <File>
               <FileName>errno.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\..\..\app\errno.h</FilePath>
+              <FilePath>..\..\..\eslink\errno.h</FilePath>
+            </File>
+            <File>
+              <FileName>settings_spi_flash.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\eslink\settings_spi_flash.h</FilePath>
             </File>
             <File>
               <FileName>settings_spi_flash.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\app\settings_spi_flash.c</FilePath>
+              <FilePath>..\..\..\eslink\settings_spi_flash.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -477,12 +482,12 @@
             <File>
               <FileName>offline_file.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\app\offline\offline_file.c</FilePath>
+              <FilePath>..\..\..\eslink\offline\offline_file.c</FilePath>
             </File>
             <File>
-              <FileName>offline_file.h</FileName>
+              <FileName>offline_def.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\..\..\app\offline\offline_file.h</FilePath>
+              <FilePath>..\..\..\eslink\offline\offline_def.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -623,11 +628,6 @@
               <FileName>fsl_gpio.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\drivers\fsl_gpio.c</FilePath>
-            </File>
-            <File>
-              <FileName>fsl_uart.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\drivers\fsl_uart.c</FilePath>
             </File>
             <File>
               <FileName>fsl_i2c.c</FileName>

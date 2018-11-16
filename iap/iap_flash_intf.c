@@ -85,10 +85,13 @@ uint32_t iap_erase_sector(uint32_t adr)
  */
 uint32_t iap_flash_program(uint32_t adr, uint8_t *buf,  uint32_t sz)
 {
+    uint32_t data[0x100] = {0};
+    
     if (adr & 0x03)
         return FALSE;
+    memcpy((uint8_t*)data, buf, sz);
     cortex_int_state_t state = cortex_int_get_and_disable();
-    int status = FLASH_Program(&iap_flash, adr, (uint32_t*)buf, sz);
+    int status = FLASH_Program(&iap_flash, adr, data, sz);
     if (status == kStatus_Success)
     {
         // Must use kFlashMargin_User, or kFlashMargin_Factory for verify program

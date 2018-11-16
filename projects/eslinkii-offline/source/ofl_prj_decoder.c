@@ -166,7 +166,7 @@ static error_t update_ofl_serialnum(partition_t *part )
 {
     error_t ret;
     uint8_t buf[sizeof(ofl_serial_number_t)];
-    uint8_t buf_temp[sizeof(ofl_serial_number_t)];
+//    uint8_t buf_temp[sizeof(ofl_serial_number_t)];
 //    uint32_t checksum = part->data;
     uint32_t size = part->size;
     uint32_t addr = part->start;       
@@ -184,8 +184,8 @@ static error_t update_ofl_serialnum(partition_t *part )
         return ret;   
     ofl_file_read_end();
     
+    fm24cxx_write(EE_OFL_SERIAL_NUMBER_PARTITION, buf, sizeof(buf));
     fm24cxx_write(EE_SERIAL_NUMBER_ADDR, buf, sizeof(buf));
-    fm24cxx_read(EE_SERIAL_NUMBER_ADDR, buf_temp, sizeof(buf));
     return ERROR_SUCCESS;   
 }
 
@@ -281,6 +281,8 @@ error_t ofl_prj_update(char *path)
     ret = update_ofl_user_hex(&ofl_partition.part[5]);
     if(ERROR_SUCCESS != ret)
         return ret; 
-    //TODO 更新失败，对方案的处理    
+ 
+    //更新成功，在EE中写入文件名，在脱出脱机状态时，会写序列号。
+    fm24cxx_write(EE_OFL_SERIAL_NUMBER_PARTITION, (uint8_t*)path, OFL_FILE_NAME_MAX_LEN);
     return ERROR_SUCCESS;
 }

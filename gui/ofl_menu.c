@@ -100,11 +100,12 @@ void update_display(void)
     if( ofl_flag.select)
     {
         ofl_flag.select = 0;
-        LED_YELLOW_ON();	
+        LED_YELLOW_ON();	   
         ret = ofl_prj_update(ofl_flag.name);
 
         if(ret != ERROR_SUCCESS)
         {
+            //TODO：更新失败处理
             oled_clr_scr(0x00);	              
             oled_display_str(0,12,"  update error  ", &Font16);
             ofl_flag.select = 0;

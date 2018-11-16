@@ -3,9 +3,6 @@
 
 //硬件版本版本信息
 #define  HARDWARE_VERSION    0x4D4B3232      //MK22
-
-
-
 //跳转的APP 标志
 #define UPDATE_BOOT_APP     0x00
 #define UPDATE_OFFLINE_APP  0x4F46464c     //OFFL   ‘O' ‘F’ ‘F' ’L‘
@@ -20,10 +17,16 @@ uint32_t app_update_check(void);
 uint8_t get_offline_info(uint8_t *data);
 uint8_t set_offline_info(uint8_t *data);
 
-uint8_t get_timing_info(uint8_t *data);
+uint8_t get_timing_info(uint8_t *data);  
 uint8_t set_timing_info(uint8_t *data);
-uint8_t clear_timing_info(void);
+
 uint8_t get_target_info(uint8_t *data);
+uint8_t get_hr_target_info( uint8_t *data);  
+uint8_t set_hr_timing_info(uint8_t *data);
+
+uint8_t clear_timing_info(void);
+
+
 
 uint32_t get_update_app(void);
 uint8_t set_app_update(uint32_t update_app);

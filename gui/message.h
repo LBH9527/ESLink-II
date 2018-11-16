@@ -21,6 +21,7 @@
 #define  MSG_PROG_ING               0x07
 #define  MSG_PROG_OK               0x08
 #define  MSG_PROG_FAILE               0x09
+#define MSG_PROG_COUNT_FULL         0x0A
 
 void msg_init(void);
 uint8_t msg_read_data(uint8_t *value);
