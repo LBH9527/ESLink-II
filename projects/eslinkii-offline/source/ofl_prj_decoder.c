@@ -184,7 +184,8 @@ static error_t update_ofl_serialnum(partition_t *part )
         return ret;   
     ofl_file_read_end();
     
-    fm24cxx_write(EE_OFL_SERIAL_NUMBER_PARTITION, buf, sizeof(buf));
+    fm24cxx_write(EE_OFL_SERIAL_NUMBER_PARTITION, (uint8_t*)&(part->type), sizeof(partition_t));
+//    fm24cxx_read(EE_OFL_SERIAL_NUMBER_PARTITION, buf, sizeof(partition_t));
     fm24cxx_write(EE_SERIAL_NUMBER_ADDR, buf, sizeof(buf));
     return ERROR_SUCCESS;   
 }

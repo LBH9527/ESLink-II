@@ -22,5 +22,6 @@ uint8_t ofl_out_prog_mode(void);
 ofl_prog_error_t ofl_prog(void);
 error_t update_ofl_serial_number(void);
 
+
 #endif
 

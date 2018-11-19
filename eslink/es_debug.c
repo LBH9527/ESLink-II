@@ -181,14 +181,7 @@ error_t download_userhex_end(void)
     target_state = ICD_HALT;   
 
     ISP_SETUP();    
-    PORT_ISP_SETUP(); 
-//PIN_ISPSDA_SET();       
-//                    
-//    PIN_ISPCLK_SET(); 
-//                    
-//    PIN_ISPSDA_CLR();    
-//                     
-//    PIN_ISPCLK_CLR();        
+    PORT_ISP_SETUP();       
     PIN_RST_OUT(1);
     
     return ERROR_SUCCESS; 
@@ -239,7 +232,7 @@ error_t dbg_reset_target(void)
                 return ERR_CHIP_INFO;
 		}		
     } 
-       
+    //芯片停止标志复位   
     debug_flag.stop = RESET;  
 
     return ERROR_SUCCESS;	  
@@ -381,7 +374,6 @@ error_t dbg_C_step(void)
 {
     uint8_t i;
     uint16_t pc_value,read_data;
-//    uint16_t  start_addr, end_addr;
     
     //stopwatch 清零
 	if(icd_write_str(STPWHL_REG_ADDR,0, 1) != TRUE)       
@@ -412,22 +404,19 @@ error_t dbg_C_step(void)
 		return ERROR_SUCCESS ;
 	}  
     
-    //需要汇编单步走过的起始地址和结束地址
-//    start_addr = (buf[2] << 0x08) +  buf[3]; //get  start address
-//	end_addr = (buf[6] << 0x08) + buf[7];     //get  end address 
-	
-//    if(icd_send( SET_ADDR, LSTPCR_REG_ADDR) != ERROR_SUCCESS) 
-//        return ERR_CHIP_INFO;
     //接收到上位机的停止命令
 	while(1)
-	{
-       
-            
-        
+	{          
         if(icd_step() != TRUE) 
             return ERR_CHIP_INFO;
         //等待芯片停止
-        while(icd_halt_check() != TRUE) ;
+        for(i=0; i<10; i++)
+        {
+            if(icd_halt_check() != FALSE)
+                break;             
+        }
+        if(i >= 10)
+            return ERR_CHIP_INFO; 
         
         if(debug_flag.stop == SET)   //接收到停止命令
         {
@@ -507,41 +496,42 @@ error_t dbg_C_step(void)
 error_t dbg_C_stepover(void)	
 {    
     uint8_t i;
-    uint16_t  start_addr, end_addr;
     uint16_t pc_value,read_data;
     
-    if(icd_write_str(STPWHL_REG_ADDR,0, 1) != TRUE) 	//stopwatch 清零
+    //stopwatch 清零
+    if(icd_write_str(STPWHL_REG_ADDR,0, 1) != TRUE) 	
         return ERR_CHIP_INFO;
-   
-//	start_addr = (buf[2] << 8) | buf[3];  //get  start address
-//	end_addr = (buf[6] << 8) | buf[7];    //get  end address
-    
-//	while( (icd_read(HALT_CHECK)!=0x5aa5)&&(bReceiveStop==0) );//????halt????stop??
+
     if(icd_halt_check() != TRUE)
         return ERR_CHIP_INFO;
-        
-//	icd_write(SET_ADDR,LSTPCR_REG_ADDR);
-
-	while(debug_flag.stop != SET)
+    target_state = ICD_HALT;
+	while(1)
 	{
         if(icd_step_over() != TRUE)    // set sram initial address		
             return ERR_CHIP_INFO;
         //等待芯片停止
-        while(icd_halt_check() != TRUE) ;
+        for(i=0; i<10; i++)
+        {
+            if(icd_halt_check() != FALSE)
+                break;             
+        }
+        if(i >= 10)
+            return ERR_CHIP_INFO; 
+        
+        if(debug_flag.stop == SET)   //接收到停止命令
+        {
+             debug_flag.stop = RESET; 
+             return ERROR_SUCCESS;    
+        }
         
         //判断程序状态寄存器是否有溢出标志
 		if(icd_read_str(PSW, &read_data, 1 ) != TRUE)    // set sram initial address		
             return ERR_CHIP_INFO;
         if((read_data&0x0060) != 0 )break;
         
-//		if(bReceiveStop)  		//若收到停止命令，则退出C步越循环
-//		{	outofaddress = 0;
-//			break;
-//		}
         //判断程序是否运行到断点位置
         if(icd_read_str(PCR_REG_ADDR, &pc_value , 1) != TRUE)    
-                return ERR_CHIP_INFO;
-
+                return ERR_CHIP_INFO; 
         if(debug_breakpoint.empty != TRUE)
         {
 		    for(i = 0x00; i < BREAKPOINT_NUM; i++)
@@ -559,7 +549,7 @@ error_t dbg_C_stepover(void)
 		{	
             //c单步 步出下发的PC地址区间，则需要上传芯片运行停止信息
             debug_flag.monitor = SET;	
-            break;
+            return ERROR_SUCCESS;
             /* 		库函数地址由上位机判断 （add by 9527 2018年6月11日） 
 			byStopFlag = 0;				
 			for(ii=0;ii<(Lab_Num*2);ii=ii+2)
@@ -577,13 +567,7 @@ error_t dbg_C_stepover(void)
 				outofaddress = 1;*/  
 		 }		                   
 	}
-    if(debug_flag.stop == SET)
-        debug_flag.stop = RESET;
-//	if(!bReceiveStop)
-//	{
-//		sysSta.sysSta = Sys_Monitor;			
-//  	 	RUN_LED = 1;
-//	}
+
     return ERROR_SUCCESS;    
 }
 /*******************************************************************************
@@ -740,7 +724,6 @@ error_t update_chip_status(uint8_t *rd_buf)
     uint16_t  read_data;
 
     //a reg
-//    if(icd_read_str(AREG_REG_ADDR, &read_data.B16) != TRUE) 
     if(icd_read_str(AREG, &read_data, 1) != TRUE)    //0xFF85 累加器A寄存器
         return ERR_CHIP_INFO;
     rd_buf[0] = read_data & 0xff;
@@ -765,7 +748,7 @@ error_t update_chip_status(uint8_t *rd_buf)
     if(icd_read_str(STPWHH_REG_ADDR, &read_data, 1) != TRUE)    //9527
         return ERR_CHIP_INFO;
     rd_buf[FRAME_CODE_OFFSET + 8] = (read_data>>8) & 0xff;
-    rd_buf[FRAME_CODE_OFFSET + 8] = read_data & 0xff;
+    rd_buf[FRAME_CODE_OFFSET + 9] = read_data & 0xff;
     if(icd_read_str(STPWHL_REG_ADDR, &read_data , 1) != TRUE)    //9527
         return ERR_CHIP_INFO;
     rd_buf[FRAME_CODE_OFFSET + 10] =(read_data>>8) & 0xff;
@@ -1011,7 +994,7 @@ uint32_t debug_process_command(uint8_t *request, uint8_t *response)
     
     switch(dbg_data.fun_code)
     {
-        case ID_HANDSHAKE:      //0x01                
+        case ID_HANDSHAKE:                  //0x01                
             dbg_data.rdbuf[FRAME_DATA_OFFSET] = 1;//com_interface;// communication mode
 			dbg_data.rdbuf[FRAME_DATA_OFFSET+1] = (ESLINK_ICD_DEBUG_VERSION>>8)&0xff; //record software version	
 			dbg_data.rdbuf[FRAME_DATA_OFFSET+2] = ESLINK_ICD_DEBUG_VERSION&0xff;//
@@ -1025,11 +1008,11 @@ uint32_t debug_process_command(uint8_t *request, uint8_t *response)
             dbg_data.data_length = FRAME_ACK_NORMAL_LEN;
             result = ERROR_SUCCESS;
             break;
-        case ID_READ_CHIP_INFO:        //0x02   读芯片信息
+        case ID_READ_CHIP_INFO:             //0x02   读芯片信息
             result = read_hr_chipinfo(&dbg_data.rdbuf[FRAME_DATA_OFFSET]);
              dbg_data.data_length = FRAME_ACK_NORMAL_LEN + 0x200;
             break;
-        case ID_DL_CHIP_INFO:           //0x03 下载芯片信息
+        case ID_DL_CHIP_INFO:               //0x03 下载芯片信息
             result = download_hr_chipinfo(&dbg_data.wrbuf[FRAME_DATA_OFFSET]);
             dbg_data.data_length = FRAME_ACK_NORMAL_LEN;
             break;
@@ -1038,49 +1021,49 @@ uint32_t debug_process_command(uint8_t *request, uint8_t *response)
             main_reset(); 
             dbg_data.data_length = FRAME_ACK_NORMAL_LEN;
             break;
-//        case ID_DL_SCHEDULE_HEX:        //0x04 下载时序文件          
+//        case ID_DL_SCHEDULE_HEX:          //0x04 下载时序文件          
 //            break;
-//        case DL_SCHEDULE_HEX_END:       //0x05 时序下载完毕
+//        case DL_SCHEDULE_HEX_END:         //0x05 时序下载完毕
 //            break;
         
-        case ID_VOLTAGE_SET:            //0x06 电压设置
+        case ID_VOLTAGE_SET:                //0x06 电压设置
             result = ERROR_SUCCESS;
             dbg_data.data_length = FRAME_ACK_NORMAL_LEN;
             
             break;
-        case READ_VOLTAGE_SET_INFO:     //0x07 读电压    //读电压设置值
+        case READ_VOLTAGE_SET_INFO:         //0x07 读电压    //读电压设置值
             result = ERROR_SUCCESS;
             dbg_data.data_length = FRAME_ACK_NORMAL_LEN;
             break;          
-        case Chipset:                   //0x10 芯片信号选择
+        case Chipset:                       //0x10 芯片信号选择
             result = ERROR_SUCCESS;
             dbg_data.data_length = FRAME_ACK_NORMAL_LEN;               
             break;        
-        case ID_CONFIG_WORD_DL: 		//0x11	配置下载 
+        case ID_CONFIG_WORD_DL: 		    //0x11	配置下载 
             result = download_config_word(dbg_data.wrbuf);           // set config  
        	    dbg_data.data_length = FRAME_ACK_NORMAL_LEN;     
             break;   
-        case ID_USERHEX_DL:      // 0x12 用户程序下载
+        case ID_USERHEX_DL:                 // 0x12 用户程序下载
             LED_YELLOW_ON();    
             result = download_userhex(&dbg_data.wrbuf[FRAME_DATA_OFFSET]);  
 //            LED_GREEN_ON();
             dbg_data.data_length = FRAME_ACK_NORMAL_LEN;     
             break; 
-		case ID_USERHEX_DL_END:	//0x13 用户程序下载完成 programme download end 
+		case ID_USERHEX_DL_END:	            //0x13 用户程序下载完成 programme download end 
             result = download_userhex_end();
             LED_GREEN_ON();
             dbg_data.data_length = FRAME_ACK_NORMAL_LEN;  
             break;
-        case Download_NoStopLab:		//0x14		//add by v2.03 for c debug
+        case Download_NoStopLab:		    //0x14		//add by v2.03 for c debug
             //add by 9527 .新版本库文件地址由上位机判断。只保留正确应答。
             result = Ack_DownloadNoStopLab();
             dbg_data.data_length = FRAME_ACK_NORMAL_LEN;    
 		    break;
-        case ID_SET_MAIN_ADDR:  //0x15
+        case ID_SET_MAIN_ADDR:              //0x15
             result =  set_main_addr(&dbg_data.wrbuf[FRAME_DATA_OFFSET]);
             dbg_data.data_length = FRAME_ACK_NORMAL_LEN;  
 			 break;
-        case ID_RESET:              //0x20  复位
+        case ID_RESET:                      //0x20  复位
             result = dbg_reset_target(); 
             if(result == ERROR_SUCCESS)   
             {
@@ -1090,15 +1073,14 @@ uint32_t debug_process_command(uint8_t *request, uint8_t *response)
             else
             {
                 dbg_data.data_length = FRAME_ACK_NORMAL_LEN;  
-            }
-                
+            }                      
             break;
-        case ID_RUN:                //0x21  全速运行
+        case ID_RUN:                        //0x21  全速运行
             result = ERROR_SUCCESS;
             dbg_data.data_length = FRAME_ACK_NORMAL_LEN;              
             flag_send(debug_event, FLAGS_DBG_RUN);
 			break;
-        case ID_ASM_STEP:           //0x22 汇编单步
+        case ID_ASM_STEP:                   //0x22 汇编单步
             result = dbg_asm_step();
             if(result == ERROR_SUCCESS)   
             {
@@ -1110,12 +1092,12 @@ uint32_t debug_process_command(uint8_t *request, uint8_t *response)
                 dbg_data.data_length = FRAME_ACK_NORMAL_LEN;  
             }   
             break;
-        case ID_ASM_STEP_OVER:  //0x23  汇编步越
+        case ID_ASM_STEP_OVER:              //0x23  汇编步越
             result = ERROR_SUCCESS;
             dbg_data.data_length = FRAME_ACK_NORMAL_LEN;  
             flag_send(debug_event, FLAGS_DBG_ASM_STEP_OVER);
             break;            
-        case ID_HALT:          //停止 0x24              
+        case ID_HALT:                       //停止 0x24              
             result = dbg_halt();   
             if(result == ERROR_SUCCESS)       
             {   //mcu halt
@@ -1129,10 +1111,7 @@ uint32_t debug_process_command(uint8_t *request, uint8_t *response)
             }
             break;     
         case ID_C_STEP:                     //C单步 0x25
-//            for(i=0; i<FRAME_DATA_LEN; i++)
-//            {
-//                dbg_data.rdbuf[i+FRAME_DATA_OFFSET] = 0x00;        
-//            }
+
             result = ERROR_SUCCESS;
             dbg_data.data_length = FRAME_ACK_NORMAL_LEN;             
             flag_send(debug_event, FLAGS_DBG_C_STEP);
@@ -1187,7 +1166,6 @@ uint32_t debug_process_command(uint8_t *request, uint8_t *response)
             break;
  	
 		case ID_RETRY:			            //0x3A 要求重发数据
-//			  Ack_ReSend_Ack();
             dbg_data.data_length = FRAME_ACK_NORMAL_LEN;  
             result = ERROR_SUCCESS;
             break;
@@ -1258,31 +1236,6 @@ uint32_t debug_process_command(uint8_t *request, uint8_t *response)
     if(debug_event != 0)
         main_icd_debug_handle();
     return dbg_data.data_length;
-
-    
- /* 
-    // 先应答，在进行对目标芯片的操作    
-    switch(dbg_data.fun_code){        
-        case ID_EMU_RUN:                //0x21  全速运行 IDE上位启动
-            result = ES_run();	
-            break;
-        case ID_EMU_ASM_STEP_OVER:      //0x23  汇编步越
-            result = ES_asm_step_over();
-            break;
-        case EMU_stepout:
-            result = ES_asm_step_out();	//步出 0x27
-            break;
-//        case C_step:                    //C单步 0x25
-//            result = ES_C_step(&dbg_data.wrbuf[FRAME_DATA_OFFSET]);		
-//            break;
-//        case C_stepover:
-//            result = ES_C_stepover(&dbg_data.wrbuf[FRAME_DATA_OFFSET]);	
-//            break;
-        default:
-            break;
-        
-    }
-    */
 }
 
 
@@ -1291,7 +1244,7 @@ uint32_t debug_process_command(uint8_t *request, uint8_t *response)
 void debug_process_handle(void)
 {
     error_t ret;
-    if( flag_recv(debug_event, FLAGS_DBG_RUN)  )    //0x21  全速运行 IDE上位启动
+    if( flag_recv(debug_event, FLAGS_DBG_RUN)  )                //0x21  全速运行 IDE上位启动
     {
         flag_clr(debug_event, FLAGS_DBG_RUN);
         ret = dbg_run();
@@ -1301,17 +1254,17 @@ void debug_process_handle(void)
         flag_clr(debug_event, FLAGS_DBG_ASM_STEP_OVER);
         ret = dbg_asm_step_over();    
     }
-    else if( flag_recv(debug_event, FLAGS_DBG_STEP_OUT)  ) 
+    else if( flag_recv(debug_event, FLAGS_DBG_STEP_OUT)  )      //步出 0x27
     {
          flag_clr(debug_event, FLAGS_DBG_STEP_OUT);
-        ret = dbg_asm_step_out();	        //步出 0x27
+        ret = dbg_asm_step_out();	                            
     }
-    else if( flag_recv(debug_event, FLAGS_DBG_C_STEP)  )     //C单步 0x25
+    else if( flag_recv(debug_event, FLAGS_DBG_C_STEP)  )        //C单步 0x25
     {      
          flag_clr(debug_event, FLAGS_DBG_C_STEP);
         ret = dbg_C_step();	
     }
-    else if(flag_recv(debug_event, FLAGS_DBG_C_STEP_OVER))
+    else if(flag_recv(debug_event, FLAGS_DBG_C_STEP_OVER))      //步越
     {
          flag_clr(debug_event, FLAGS_DBG_C_STEP_OVER);
         ret = dbg_C_stepover();	

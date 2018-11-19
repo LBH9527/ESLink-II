@@ -73,7 +73,7 @@ int main(void)
     menu_init();
     bsp_init_systick();
 	
-    LED_RED_ON();             
+    LED_GREEN_ON();             
     while (1)
     {
        

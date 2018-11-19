@@ -15,6 +15,11 @@ static struct es_prog_ops *ofl_prog_intf;   //脱机编程接口
 static es_target_cfg ofl_target_device;     //目标芯片信息    
 static ofl_prj_info_t ofl_prj_info;         //脱机方案信息
 static ofl_serial_number_t sn_info;                //序列号信息
+//更新序列号
+static error_t  update_serial_number_8bit(uint64_t sn_data, uint8_t *buf, uint8_t size);
+static error_t  update_serial_number_32bit(uint64_t sn_data, uint8_t *buf, uint8_t size);
+static error_t  get_serial_number_8bit(uint64_t *sn_data, uint8_t *buf, uint8_t size);
+static error_t  get_serial_number_32bit(uint64_t *sn_data, uint8_t *buf, uint8_t size);
 
 error_t ofl_prog_init(void)
 {
@@ -174,28 +179,18 @@ ofl_prog_error_t ofl_prog(void)
     sn_info.success_count ++;       //烧录成功+1
     if(sn_info.state !=  OFL_SERIALNUM_DISABLE)
     {  
-        uint64_t data;
+        uint64_t data = 0;
         if(sn_info.read_mode  == OFL_SERIALNUM_READ_USE_IAP)    //32位机 IAP方式
-        {               
-            data =((uint64_t)sn_info.sn.data[0]<< 56) | ((uint64_t)sn_info.sn.data[1] << 48) | ((uint64_t)sn_info.sn.data[2] << 40) | ((uint64_t)sn_info.sn.data[3] << 32)  \
-                  | ((uint64_t)sn_info.sn.data[4]<< 24) | (sn_info.sn.data[5] << 16) | (sn_info.sn.data[6] << 8) | (sn_info.sn.data[7] << 0);
-            
+        {                     
+            get_serial_number_32bit( &data, sn_info.sn.data, sn_info.sn.size);              
             data += sn_info.sn_step; 
-            memcpy( &sn_info.sn.data,(uint8_t*)&data, 8);       
+            update_serial_number_32bit(data, sn_info.sn.data, sn_info.sn.size);   
         }
         else    //8位机返回指令
-        {
-            data =((uint64_t)sn_info.sn.data[1]<< 56) | ((uint64_t)sn_info.sn.data[3] << 48) | ((uint64_t)sn_info.sn.data[5] << 40) | ((uint64_t)sn_info.sn.data[7] << 32)  \
-                  | ((uint64_t)sn_info.sn.data[9]<< 24) | (sn_info.sn.data[11] << 16) | (sn_info.sn.data[13] << 8) | (sn_info.sn.data[15] << 0);            
-            data += sn_info.sn_step; 
-            sn_info.sn.data[1] =  (data >> 56) & 0xff;
-            sn_info.sn.data[3] =  (data >> 48) & 0xff;
-            sn_info.sn.data[5] =  (data >> 40) & 0xff;
-            sn_info.sn.data[7] =  (data >> 32) & 0xff;
-            sn_info.sn.data[9] =  (data >> 24) & 0xff;
-            sn_info.sn.data[11] =  (data >> 16) & 0xff;   
-            sn_info.sn.data[13] =  (data >> 8) & 0xff;
-            sn_info.sn.data[15] =  (data >> 0) & 0xff;               
+        {                     
+            get_serial_number_8bit(&data, sn_info.sn.data, sn_info.sn.size);
+            data += sn_info.sn_step;  
+            update_serial_number_8bit(data, sn_info.sn.data, sn_info.sn.size);
         }  
   
     }  
@@ -366,6 +361,80 @@ static error_t ofl_program_verify(uint8_t sn_enable)
         return ERROR_CFG_WORD_CHECKSUM;
     
     return  ERROR_SUCCESS;
+}
+
+//获取8位芯片的序列号
+static error_t  get_serial_number_8bit(uint64_t *sn_data, uint8_t *buf, uint8_t size)
+{
+    uint8_t i;
+    
+    if((size <=0) || (size > 8) )
+         return  ERROR_OUT_OF_BOUNDS;
+    
+    for(i=0; i<size; i++)
+    {
+        *sn_data |= ((uint64_t)buf[i*2] & 0xff) << (8 * (size-i));    
+    }
+    return  ERROR_SUCCESS;
+}
+//更新序列号
+static error_t  update_serial_number_8bit(uint64_t sn_data, uint8_t *buf, uint8_t size)
+{
+    uint8_t i;
+    
+    if((size <=0) || (size > 8) )
+         return  ERROR_OUT_OF_BOUNDS;
+    
+    for(i=0; i<size; i++)
+    {
+        buf[i*2] = (sn_data >> (8 * (size-i))) & 0XFF;    
+    }  
+   
+    return  ERROR_SUCCESS;   
+}
+//获取32位芯片的序列号
+static error_t  get_serial_number_32bit(uint64_t *sn_data, uint8_t *buf, uint8_t size)
+{
+    uint8_t i;
+    
+    if((size <=0) || (size > 8) )
+         return  ERROR_OUT_OF_BOUNDS;      
+    
+    if(size == 0x04)
+    {
+        for(i=0; i<4; i++)
+            *sn_data |= ((uint64_t)buf[i] & 0xff) << (8 * i);    
+    }
+    else if(size == 0x08)
+    {
+        for(i=0; i<4; i++)
+            *sn_data |= ((uint64_t)buf[i] & 0xff) << (8 * (i+4));  
+        for(i=4; i<8; i++)
+            *sn_data |= ((uint64_t)buf[i] & 0xff) << (8 * (i-4)); 
+    }
+    return  ERROR_SUCCESS;
+}
+//更新序列号
+static error_t  update_serial_number_32bit(uint64_t sn_data, uint8_t *buf, uint8_t size)
+{
+    uint8_t i;
+    
+    if((size <=0) || (size > 8) )
+         return  ERROR_OUT_OF_BOUNDS;     
+    if(size == 0x04)
+    {
+        for(i=0; i<4; i++)
+            buf[i] = (sn_data >> (8 * i)) & 0XFF;     
+    }
+    else if(size == 0x08)
+    {   
+        for(i=0; i<4; i++)
+            buf[i] = (sn_data >> (8 * (i+4))) & 0XFF;
+        for(i=4; i<8; i++)
+            buf[i] = (sn_data >> (8 * (i-4))) & 0XFF; 
+    }
+   
+    return  ERROR_SUCCESS;   
 }
 
 

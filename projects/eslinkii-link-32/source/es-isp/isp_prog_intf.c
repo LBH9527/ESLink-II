@@ -80,7 +80,8 @@ static error_t isp_prog_init(void)
         
         status = (error_t)isp_entry_isp_mode();
         if(ERROR_SUCCESS != status)
-            return status;
+            return status; 
+//        isp_chipid_check        
     }
     return  ERROR_SUCCESS;
 }

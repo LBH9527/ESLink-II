@@ -136,6 +136,48 @@ void ofl_display (void)
     } 	
 }
 
+static void serial_number_8bit_display(uint16_t y,uint8_t *buf, uint8_t size)
+{
+    uint8_t i;
+    FONT_T Font16;
+    char disp_temp[2+1] = {'\0'};
+    
+    Font16.FontCode = FC_ST_16;	/* 字体代码 16点阵 */
+    Font16.FrontColor = 1;		/* 字体颜色 0 或 1 */
+    Font16.BackColor = 0;		/* 文字背景颜色 0 或 1 */
+    Font16.Space = 0;			/* 文字间距，单位 = 像素 */	 
+
+    for(i=0; i< size; i++)
+    {
+         sprintf(disp_temp,"%02X",buf[i*2]);    
+         oled_display_str( i*16, y, disp_temp, &Font16);  
+    } 
+}
+static void serial_number_32bit_display(uint16_t y,uint8_t *buf, uint8_t size)
+{
+    uint8_t i;
+    FONT_T Font16;
+    char disp_temp[2+1] = {'\0'};
+    
+    Font16.FontCode = FC_ST_16;	/* 字体代码 16点阵 */
+    Font16.FrontColor = 1;		/* 字体颜色 0 或 1 */
+    Font16.BackColor = 0;		/* 文字背景颜色 0 或 1 */     
+    Font16.Space = 0;			/* 文字间距，单位 = 像素 */	   
+
+    for(i=0; i< 4; i++)
+    {
+        sprintf(disp_temp,"%02X",buf[3-i]);    
+        oled_display_str( i*16, y, disp_temp, &Font16);  
+    }          
+    if(size == 0x08)
+    {
+        for(i=4; i< size; i++)
+        {
+            sprintf(disp_temp,"%02X",buf[7 + 4 -i]);    
+            oled_display_str( i*16, y, disp_temp, &Font16);  
+        }   
+    }
+}
 //脱机序列号显示
 void ofl_sn_display(uint8_t state)
 {
@@ -152,22 +194,14 @@ void ofl_sn_display(uint8_t state)
     {
         if(sn_info.state != OFL_SERIALNUM_DISABLE)
         {
-           if(sn_info.read_mode  == OFL_SERIALNUM_READ_USE_IAP)  //32位机 IAP方式
+            if(sn_info.read_mode  == OFL_SERIALNUM_READ_USE_IAP)  //32位机 IAP方式
             {
-                sprintf(display_temp,"%02X%02X%02X%02X%02X%02X%02X%02X", sn_info.sn.data[0],sn_info.sn.data[1],
-                                                          sn_info.sn.data[2],sn_info.sn.data[3],
-                                                          sn_info.sn.data[4],sn_info.sn.data[5],
-                                                          sn_info.sn.data[6],sn_info.sn.data[7]);
+                serial_number_32bit_display( 32 , sn_info.sn.data, sn_info.sn.size);
             }
-            else
+            else        //8位机
             {
-                sprintf(display_temp,"%02X%02X%02X%02X%02X%02X%02X%02X", sn_info.sn.data[1],sn_info.sn.data[3],
-                                                          sn_info.sn.data[5],sn_info.sn.data[7],
-                                                          sn_info.sn.data[9],sn_info.sn.data[11],
-                                                          sn_info.sn.data[13],sn_info.sn.data[15]); 
-            }                
-                         
-            oled_display_str(0,32, display_temp  , &Font16);        
+                serial_number_8bit_display( 32 , sn_info.sn.data, sn_info.sn.size);
+            } 
         }   
     } 
     if(state & 0x02)

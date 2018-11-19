@@ -64,7 +64,7 @@ static uint8_t file_mount(void)
     tot_sect = (fs->n_fatent - 2) * fs->csize;
     fre_sect = fre_clust * fs->csize;
     //TODO:容量下需要提示
-//    if( fre_sect < )
+//    if( fre_sect < )      //容量单位4K
 //    {
 //        
 //    }

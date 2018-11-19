@@ -1,7 +1,7 @@
 #ifndef _ISP_H_
 #define _ISP_H_
 
-#define M620 
+#define M610 
 //#define M610 
 
 #ifdef M620  
@@ -9,7 +9,7 @@
 #endif
 
 #ifdef M610
-#define CHIP_CHECKSUM_ADDR      0x2C            //根据IDE Space 修改
+#define CHIP_CHECKSUM_ADDR      0x23            //根据IDE Space 修改
 #endif
 
 /*******************************************************************************

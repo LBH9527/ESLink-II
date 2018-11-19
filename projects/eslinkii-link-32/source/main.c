@@ -157,8 +157,7 @@ int main (void)
                             beep_prog_fail();
                              menu_msg = MSG_PROG_COUNT_FULL;
                              break;
-                        case OFL_PROG_FAIL:
-                            
+                        case OFL_PROG_FAIL:                             
                              menu_msg = MSG_PROG_FAILE;
                              break;
                          default:
@@ -186,8 +185,7 @@ int main (void)
                     {
                         state = IN_MODE_CHECK; 
                         menu_msg = MSG_PROG_MODE_CHECK;
-                        msg_write_data(&menu_msg);     
-                    
+                        msg_write_data(&menu_msg);                     
                     }
                     break; 
                  default:
@@ -215,9 +213,7 @@ int main (void)
                 }  
                 msg_write_data(&menu_msg);
             }           
-        }
-
-         
+        }           
     }   
 	else
 	{    

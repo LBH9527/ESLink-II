@@ -1,5 +1,5 @@
 #include "eslink.h"
-#include "M620_ISP.h"
+#include "M610_ISP.h"
 
 #define PIN_DELAY(n)    ES_DELAY_SLOW(n)
 //#define PIN_DELAY(n)    ES_DELAY_FAST(n)
