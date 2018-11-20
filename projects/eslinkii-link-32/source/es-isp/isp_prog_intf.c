@@ -105,16 +105,11 @@ static error_t isp_prog_read_chipid(uint32_t *buf)
 //判断chip id
 static error_t isp_chipid_check(void)
 {
-//    error_t status = ERROR_SUCCESS;
-    uint16_t chipid[2] = {0};
-    
-//    status = isp_prog_init();
-//    if(ERROR_SUCCESS != status)
-//        return  status;
-    if(isp_read_config(isp_target_dev->chipid_addr, (uint32_t*)chipid, 1) != TRUE)
+    uint32_t chipid = 0;
+   
+    if(isp_read_config(isp_target_dev->chipid_addr, &chipid, 1) != TRUE)
         return ERROR_ISP_READ_CFG_WORD;
-    if( (chipid[0] != ((isp_target_dev->chipid_value >>16) & 0x0000ffff))  || 
-        (chipid[1] != ((isp_target_dev->chipid_value >>0) & 0x0000ffff)) ) 
+    if(chipid != isp_target_dev->chipid_value)    
         return  ERROR_CHIP_ID_NOT_MATCH;
     return ERROR_SUCCESS; 
 

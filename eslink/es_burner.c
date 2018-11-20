@@ -637,7 +637,7 @@ static error_t es_read_flash(uint8_t *wrbuf, uint8_t *rdbuf, uint16_t *read_size
         *read_size = size+4;
     }  
     
-    if(addr == es_target_device.code_size)
+    if(addr+size == es_target_device.code_size)
         es_prog_intf->prog_uninit(); 
     return ret;
 
