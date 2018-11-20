@@ -202,10 +202,11 @@ int main (void)
                 switch (key_value)
                 {
                     case KEY_DOWN:
+                    
                     menu_msg = MSG_KEY_DOWN;                
                     break;
-                    case KEY_ENTER:
-                    update_ofl_serial_number();
+                    case KEY_ENTER:  
+                    update_ofl_serial_number();    
                     menu_msg = MSG_KEY_ENTER; 
                     break;
                     default:

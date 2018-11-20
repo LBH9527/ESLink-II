@@ -46,12 +46,6 @@ struct  es_prog_ops isp_prog_intf = {
 
 #define ISP_PRG_MINI_SIZE  1024 
 
-////isp操作错误地址和错误数据
-// typedef struct {
-//    uint32_t addr;          //错误地址
-//    uint32_t data;          //错误数据
-//}isp_process_error_t;
-
 static const es_target_cfg *isp_target_dev;   
 
 void isp_init(es_target_cfg *target)
@@ -81,7 +75,6 @@ static error_t isp_prog_init(void)
         status = (error_t)isp_entry_isp_mode();
         if(ERROR_SUCCESS != status)
             return status; 
-//        isp_chipid_check        
     }
     return  ERROR_SUCCESS;
 }

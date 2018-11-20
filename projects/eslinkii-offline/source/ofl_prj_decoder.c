@@ -284,6 +284,6 @@ error_t ofl_prj_update(char *path)
         return ret; 
  
     //更新成功，在EE中写入文件名，在脱出脱机状态时，会写序列号。
-    fm24cxx_write(EE_OFL_SERIAL_NUMBER_PARTITION, (uint8_t*)path, OFL_FILE_NAME_MAX_LEN);
+    fm24cxx_write(EE_OFL_PRJ_NAME, (uint8_t*)path, OFL_FILE_NAME_MAX_LEN);
     return ERROR_SUCCESS;
 }

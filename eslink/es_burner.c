@@ -102,7 +102,7 @@ static error_t serial_number_download(uint8_t *data)
     {
 		 *((uint8_t*)&prog_sn + i) =  *(data++);
 	}
-	prog_sn.addr = prog_sn.addr * 4;	//上位机下发的地址是除以4后的地址。还原为实际地址
+//	prog_sn.addr = prog_sn.addr * 4;	//上位机下发的地址是除以4后的地址。还原为实际地址
 	return ERROR_SUCCESS;
 }
 
@@ -326,7 +326,9 @@ error_t es_erase_chip(uint8_t *data)
     ret = es_prog_intf->prog_init();
     if(ERROR_SUCCESS != ret)
         return  ret;
-        
+    ret = es_prog_intf->chipid_check(); 
+    if(ERROR_SUCCESS != ret)
+        return ret;    
     erase_mode = data[0];    
     ret = es_prog_intf->erase_chip(&erase_mode);
     if(ERROR_SUCCESS != ret)
@@ -355,7 +357,9 @@ error_t es_check_empty(uint8_t *data)
     ret = es_prog_intf->prog_init();
     if(ERROR_SUCCESS != ret)
         return  ret; 
-        
+    ret = es_prog_intf->chipid_check(); 
+    if(ERROR_SUCCESS != ret)
+        return ret;     
     ret = es_prog_intf->check_empty(&failed_addr, &failed_data);
     if(ERROR_SUCCESS != ret)
     {
@@ -394,7 +398,9 @@ error_t es_program_flash(uint8_t sn_enable, uint8_t *data)
     ret = es_prog_intf->prog_init();
     if(ERROR_SUCCESS != ret)
         return  ret;
-        
+    ret = es_prog_intf->chipid_check(); 
+    if(ERROR_SUCCESS != ret)
+        return ret;     
     code_addr =  es_target_device.code_start;
 	code_size =  es_target_device.code_size;
     read_addr =  0; 
@@ -491,7 +497,9 @@ error_t es_program_verify(uint8_t sn_enable,uint8_t *data)
     ret = es_prog_intf->prog_init();
     if(ERROR_SUCCESS != ret)
         return ret;
-        
+    ret = es_prog_intf->chipid_check(); 
+    if(ERROR_SUCCESS != ret)
+        return ret;     
     code_addr =  es_target_device.code_start;
 	code_size =  es_target_device.code_size;
     sf_addr = 0;
@@ -580,7 +588,9 @@ error_t es_program_encrypt(void)
     ret = es_prog_intf->prog_init();
     if(ERROR_SUCCESS != ret)
         return  ret;
-        
+    ret = es_prog_intf->chipid_check(); 
+    if(ERROR_SUCCESS != ret)
+        return ret;     
     ret = es_prog_intf->encrypt_chip(); 
     
     es_prog_intf->prog_uninit();     
@@ -610,7 +620,10 @@ static error_t es_read_flash(uint8_t *wrbuf, uint8_t *rdbuf, uint16_t *read_size
     {
         ret = es_prog_intf->prog_init();
         if(ERROR_SUCCESS != ret)
-            return  ret;     
+            return  ret;  
+        ret = es_prog_intf->chipid_check(); 
+        if(ERROR_SUCCESS != ret)
+            return ret;         
     }     
         
     memcpy( rdbuf, wrbuf, 4);
@@ -651,6 +664,9 @@ static error_t es_program_config_word(uint8_t *data)
     ret = es_prog_intf->prog_init();
     if(ERROR_SUCCESS != ret)
         return  ret;
+    ret = es_prog_intf->chipid_check(); 
+    if(ERROR_SUCCESS != ret)
+        return ret; 
         
     cfg_word_addr =  es_target_device.config_word_start;
 	cfg_word_size =  es_target_device.config_word_size;
@@ -703,7 +719,9 @@ static error_t es_read_config_word(uint8_t *wrbuf, uint8_t *rdbuf, uint16_t *rea
     ret = es_prog_intf->prog_init();
     if(ERROR_SUCCESS != ret)
         return  ret;
-        
+    ret = es_prog_intf->chipid_check(); 
+    if(ERROR_SUCCESS != ret)
+        return ret;     
     memcpy( rdbuf, wrbuf, 4);
     ret = es_prog_intf->read_config_word(addr, rdbuf+4, size); 
     if(ERROR_SUCCESS != ret)
@@ -753,7 +771,9 @@ static error_t es_read_chip_chksum(uint8_t *data)
     ret = es_prog_intf->prog_init();
     if(ERROR_SUCCESS != ret)
         return  ret;
-        
+    ret = es_prog_intf->chipid_check(); 
+    if(ERROR_SUCCESS != ret)
+        return ret;     
     ret = es_prog_intf->read_chip_chksum(&checksum);
     if(ERROR_SUCCESS != ret)
         goto fail;    
