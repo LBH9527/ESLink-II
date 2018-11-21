@@ -16,5 +16,6 @@ typedef struct
 void beep_scan(void);
 void beep_prog_success(void);
 void beep_prog_fail(void);
+void beep_key_press(void);
 
 #endif

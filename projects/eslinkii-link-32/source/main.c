@@ -97,7 +97,7 @@ int main (void)
 {	
     uint8_t key_value = 0;
     uint8_t menu_msg = MSG_NULL;
-	__set_PRIMASK(0); 
+//	__set_PRIMASK(0); 
     SCB->VTOR = SCB_VTOR_TBLOFF_Msk & ESLINK_ROM_LINK_START;    
     /* Init board hardware. */
     BOARD_InitPins();
@@ -260,12 +260,14 @@ int main (void)
                     case KEY_DOWN:
                     menu_msg = MSG_KEY_DOWN; 
 //                    beep_prog_success();                    
-                    break;
-                case KEY_ENTER:
-                    menu_msg = MSG_KEY_ENTER; 
-                    break;
-                default:
-                    break;
+                        break;
+                    case KEY_ENTER:     //长按
+                        beep_key_press();
+                        menu_msg = MSG_KEY_ENTER; 
+                    
+                        break;
+                    default:
+                        break;
                 }  
                 msg_write_data(&menu_msg);
             }          
@@ -314,7 +316,7 @@ void rt_hw_hard_fault_exception(struct exception_stack_frame *exception_stack)
 void HardFault_Handler()
 {
 //    util_assert(0);
-//    SystemReset();
+    SystemSoftReset();
 //     printf("\r\n HardFault_Handler interrupt!\r\n");
     rt_hw_hard_fault_exception((struct exception_stack_frame *)__get_PSP());
     rt_hw_hard_fault_exception((struct exception_stack_frame *)__get_MSP());

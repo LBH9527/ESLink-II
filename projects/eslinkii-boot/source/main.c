@@ -21,11 +21,13 @@
 #include "pin_mux.h"
 #include "clock_config.h" 
 #include "es_common.h" 
+#include "cortex_m.h"
 #include "main.h" 
 #include "RTL.h"
 #include "rl_usb.h"
 #include "settings_rom.h"
 #include "uart.h"
+
 //#include "spi_flash.h" 
 //#include "key.h"  
 //#include "oled.h"
@@ -110,7 +112,7 @@ void rt_hw_hard_fault_exception(struct exception_stack_frame *exception_stack)
 void HardFault_Handler()
 {
 //    util_assert(0);
-//    SystemReset();
+    SystemSoftReset();
 //     printf("\r\n HardFault_Handler interrupt!\r\n");
     rt_hw_hard_fault_exception((struct exception_stack_frame *)__get_PSP());
     while (1); // Wait for reset

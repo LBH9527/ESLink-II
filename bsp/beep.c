@@ -44,15 +44,19 @@ void beep_stop(void)
 	}
 }
 
+void beep_key_press(void)
+{
+    beep_start(10, 10, 1);	/* 鸣叫100ms，停100ms， 1次 */
+}
 //烧录成功 蜂鸣
 void beep_prog_success(void)
 {
-	beep_start(10, 10, 1);	/* 鸣叫100ms，停100ms， 2次 */
+	beep_start(10, 10, 1);	/* 鸣叫100ms，停100ms， 1次 */
 }
 //烧录失败 蜂鸣
 void beep_prog_fail(void)
 {
-	beep_start(10, 10, 2);	/* 鸣叫100ms，停100ms， 1次 */
+	beep_start(10, 10, 2);	/* 鸣叫100ms，停100ms， 2次 */
 }
 
 

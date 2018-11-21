@@ -23,7 +23,7 @@
 #include "spi_flash.h"
 #include "eeprom.h"
 #include "key.h"
-
+#include "beep.h" 
 #include "oled.h"
 #include "eslink_addr.h"
 #include "systick.h"
@@ -85,6 +85,7 @@ int main(void)
 					menu_msg = MSG_KEY_DOWN; 					
 				break;
 				case KEY_ENTER:
+                    beep_key_press();
 					menu_msg = MSG_KEY_ENTER; 
 				break;
 				default:
@@ -102,7 +103,8 @@ int main(void)
 void main_10ms_task(void)
 {       
     key_scan(); 
-    
+    // 蜂鸣器扫描
+    beep_scan();
 }
 
 
