@@ -604,14 +604,9 @@
               <FilePath>..\source\es-isp\isp_prog_intf.h</FilePath>
             </File>
             <File>
-              <FileName>M610_ISP.c</FileName>
+              <FileName>M620_ISP.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\source\es-isp\M610_ISP.c</FilePath>
-            </File>
-            <File>
-              <FileName>M610_ISP.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\source\es-isp\M610_ISP.h</FilePath>
+              <FilePath>..\source\es-isp\M620_ISP.c</FilePath>
             </File>
           </Files>
         </Group>

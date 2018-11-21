@@ -81,7 +81,9 @@ static error_t isp_prog_init(void)
 static error_t isp_prog_uninit(void)
 {
     isp_out_isp_mode();
-    return  ERROR_SUCCESS;
+    if(isp_mode_check() != TRUE)
+        return  ERROR_SUCCESS;
+    return ERROR_OUT_ISP_MODE;
 }   
 
 /*******************************************************************************

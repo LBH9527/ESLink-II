@@ -64,7 +64,7 @@ typedef enum {
     ERROR_ISP_CFG_WORD_VERIFY = 0x4A,             //isp 配置字校验失败
     //"ISP encrypt command FAILURE",  
     ERROR_ISP_ENCRYPT       = 0x4B,              //ISP加密失败
-    
+    ERROR_OUT_ISP_MODE       = 0x4C,
     //swd
     ERROR_SWD_ERASE         = 0x50,                //SWD擦除失败    
     ERROR_SWD_CHECK_EMPTY   = 0x51,                 //SWD查空失败

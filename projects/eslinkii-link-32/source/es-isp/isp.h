@@ -1,7 +1,7 @@
 #ifndef _ISP_H_
 #define _ISP_H_
 
-#define M610 
+#define M620 
 //#define M610 
 
 #ifdef M620  
