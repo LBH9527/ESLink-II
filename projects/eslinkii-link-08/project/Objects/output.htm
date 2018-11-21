@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\Objects\output.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Objects\output.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Wed Nov 21 10:21:06 2018
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Wed Nov 21 14:02:24 2018
 <BR><P>
 <H3>Maximum Stack Usage =       1592 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -3019,7 +3019,7 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> link_menu.o(.data)
 </UL>
-<P><STRONG><a name="[72]"></a>main</STRONG> (Thumb, 608 bytes, Stack size 16 bytes, main.o(i.main))
+<P><STRONG><a name="[72]"></a>main</STRONG> (Thumb, 612 bytes, Stack size 16 bytes, main.o(i.main))
 <BR><BR>[Stack]<UL><LI>Max Depth = 1280<LI>Call Chain = main &rArr; clear_timing_info &rArr; config_rom_set &rArr; iap_flash_program &rArr; FLASH_Program &rArr; flash_cache_clear &rArr; flash_cache_clear_process &rArr; fmc_flash_prefetch_speculation_clear
 </UL>
 <BR>[Calls]<UL><LI><a href="#[1c6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;es_burner_init
@@ -3302,7 +3302,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[72]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[251]"></a>ofl_prog</STRONG> (Thumb, 322 bytes, Stack size 32 bytes, offline_app.o(i.ofl_prog))
+<P><STRONG><a name="[251]"></a>ofl_prog</STRONG> (Thumb, 338 bytes, Stack size 32 bytes, offline_app.o(i.ofl_prog))
 <BR><BR>[Stack]<UL><LI>Max Depth = 1160<LI>Call Chain = ofl_prog &rArr; ofl_program_verify &rArr; online_file_read &rArr; spi_flash_read &rArr; flash_send_byte
 </UL>
 <BR>[Calls]<UL><LI><a href="#[207]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fm24cxx_write
@@ -3623,10 +3623,10 @@ Global Symbols
 <P><STRONG><a name="[246]"></a>spi_flash_init</STRONG> (Thumb, 28 bytes, Stack size 8 bytes, spi_flash.o(i.spi_flash_init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 184<LI>Call Chain = spi_flash_init &rArr; spi_falsh_hw_init &rArr; DSPI_MasterInit &rArr; DSPI_MasterSetDelayTimes &rArr; DSPI_MasterSetDelayScaler
 </UL>
-<BR>[Calls]<UL><LI><a href="#[283]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sf_write_disable
+<BR>[Calls]<UL><LI><a href="#[289]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;spi_falsh_hw_init
+<LI><a href="#[283]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sf_write_disable
 <LI><a href="#[282]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sf_wait_busy
 <LI><a href="#[27f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sf_set_cs
-<LI><a href="#[289]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;spi_falsh_hw_init
 </UL>
 <BR>[Called By]<UL><LI><a href="#[72]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
@@ -4470,7 +4470,7 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[251]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ofl_prog
 </UL>
 
-<P><STRONG><a name="[210]"></a>get_serial_number_8bit</STRONG> (Thumb, 74 bytes, Stack size 32 bytes, offline_app.o(i.get_serial_number_8bit))
+<P><STRONG><a name="[210]"></a>get_serial_number_8bit</STRONG> (Thumb, 76 bytes, Stack size 32 bytes, offline_app.o(i.get_serial_number_8bit))
 <BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = get_serial_number_8bit
 </UL>
 <BR>[Calls]<UL><LI><a href="#[99]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_llsl
@@ -4505,7 +4505,7 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[251]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ofl_prog
 </UL>
 
-<P><STRONG><a name="[25e]"></a>update_serial_number_8bit</STRONG> (Thumb, 62 bytes, Stack size 32 bytes, offline_app.o(i.update_serial_number_8bit))
+<P><STRONG><a name="[25e]"></a>update_serial_number_8bit</STRONG> (Thumb, 64 bytes, Stack size 32 bytes, offline_app.o(i.update_serial_number_8bit))
 <BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = update_serial_number_8bit
 </UL>
 <BR>[Calls]<UL><LI><a href="#[98]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_llsr

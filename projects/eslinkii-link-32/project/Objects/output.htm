@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\Objects\output.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Objects\output.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Wed Nov 21 10:21:27 2018
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Wed Nov 21 16:27:01 2018
 <BR><P>
 <H3>Maximum Stack Usage =       1592 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -1005,7 +1005,7 @@ Global Symbols
 <LI><a href="#[284]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;swd_transfer_retry
 </UL>
 
-<P><STRONG><a name="[f6]"></a>SWD_TransferFast</STRONG> (Thumb, 1668 bytes, Stack size 20 bytes, sw_dp.o(i.SWD_TransferFast))
+<P><STRONG><a name="[f6]"></a>SWD_TransferFast</STRONG> (Thumb, 1240 bytes, Stack size 20 bytes, sw_dp.o(i.SWD_TransferFast))
 <BR><BR>[Stack]<UL><LI>Max Depth = 20<LI>Call Chain = SWD_TransferFast
 </UL>
 <BR>[Called By]<UL><LI><a href="#[c8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SWD_Transfer
@@ -2721,7 +2721,7 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> link_menu.o(.data)
 </UL>
-<P><STRONG><a name="[72]"></a>main</STRONG> (Thumb, 590 bytes, Stack size 16 bytes, main.o(i.main))
+<P><STRONG><a name="[72]"></a>main</STRONG> (Thumb, 594 bytes, Stack size 16 bytes, main.o(i.main))
 <BR><BR>[Stack]<UL><LI>Max Depth = 1280<LI>Call Chain = main &rArr; clear_timing_info &rArr; config_rom_set &rArr; iap_flash_program &rArr; FLASH_Program &rArr; flash_cache_clear &rArr; flash_cache_clear_process &rArr; fmc_flash_prefetch_speculation_clear
 </UL>
 <BR>[Calls]<UL><LI><a href="#[a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BOARD_InitPins
@@ -3003,7 +3003,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[72]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[243]"></a>ofl_prog</STRONG> (Thumb, 322 bytes, Stack size 32 bytes, offline_app.o(i.ofl_prog))
+<P><STRONG><a name="[243]"></a>ofl_prog</STRONG> (Thumb, 338 bytes, Stack size 32 bytes, offline_app.o(i.ofl_prog))
 <BR><BR>[Stack]<UL><LI>Max Depth = 1160<LI>Call Chain = ofl_prog &rArr; ofl_program_verify &rArr; online_file_read &rArr; spi_flash_read &rArr; flash_send_byte
 </UL>
 <BR>[Calls]<UL><LI><a href="#[200]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fm24cxx_write
@@ -4173,7 +4173,7 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[243]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ofl_prog
 </UL>
 
-<P><STRONG><a name="[209]"></a>get_serial_number_8bit</STRONG> (Thumb, 74 bytes, Stack size 32 bytes, offline_app.o(i.get_serial_number_8bit))
+<P><STRONG><a name="[209]"></a>get_serial_number_8bit</STRONG> (Thumb, 96 bytes, Stack size 32 bytes, offline_app.o(i.get_serial_number_8bit))
 <BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = get_serial_number_8bit
 </UL>
 <BR>[Calls]<UL><LI><a href="#[99]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_llsl
@@ -4208,7 +4208,7 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[243]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ofl_prog
 </UL>
 
-<P><STRONG><a name="[250]"></a>update_serial_number_8bit</STRONG> (Thumb, 62 bytes, Stack size 32 bytes, offline_app.o(i.update_serial_number_8bit))
+<P><STRONG><a name="[250]"></a>update_serial_number_8bit</STRONG> (Thumb, 84 bytes, Stack size 32 bytes, offline_app.o(i.update_serial_number_8bit))
 <BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = update_serial_number_8bit
 </UL>
 <BR>[Calls]<UL><LI><a href="#[98]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_llsr
@@ -4265,7 +4265,7 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[b4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DAP_ProcessCommand
 </UL>
 
-<P><STRONG><a name="[ba]"></a>DAP_Delay</STRONG> (Thumb, 44 bytes, Stack size 12 bytes, dap.o(i.DAP_Delay))
+<P><STRONG><a name="[ba]"></a>DAP_Delay</STRONG> (Thumb, 42 bytes, Stack size 12 bytes, dap.o(i.DAP_Delay))
 <BR><BR>[Stack]<UL><LI>Max Depth = 12<LI>Call Chain = DAP_Delay
 </UL>
 <BR>[Called By]<UL><LI><a href="#[b4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DAP_ProcessCommand
@@ -4351,7 +4351,7 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[b4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DAP_ProcessCommand
 </UL>
 
-<P><STRONG><a name="[bc]"></a>DAP_SWJ_Pins</STRONG> (Thumb, 382 bytes, Stack size 16 bytes, dap.o(i.DAP_SWJ_Pins))
+<P><STRONG><a name="[bc]"></a>DAP_SWJ_Pins</STRONG> (Thumb, 384 bytes, Stack size 16 bytes, dap.o(i.DAP_SWJ_Pins))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = DAP_SWJ_Pins
 </UL>
 <BR>[Called By]<UL><LI><a href="#[b4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DAP_ProcessCommand
@@ -4762,7 +4762,7 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[253]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ofl_sn_display
 </UL>
 
-<P><STRONG><a name="[256]"></a>serial_number_8bit_display</STRONG> (Thumb, 70 bytes, Stack size 32 bytes, link_menu.o(i.serial_number_8bit_display))
+<P><STRONG><a name="[256]"></a>serial_number_8bit_display</STRONG> (Thumb, 76 bytes, Stack size 32 bytes, link_menu.o(i.serial_number_8bit_display))
 <BR><BR>[Stack]<UL><LI>Max Depth = 256<LI>Call Chain = serial_number_8bit_display &rArr; oled_display_str &rArr; OLED_PutPixel &rArr; oled_write_data
 </UL>
 <BR>[Calls]<UL><LI><a href="#[231]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;oled_display_str

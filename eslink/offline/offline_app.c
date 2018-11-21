@@ -142,6 +142,10 @@ ofl_prog_error_t ofl_prog(void)
     uint32_t i = 0;
     if(sn_info.success_count >=  sn_info.total_size)
         return OFL_COUNT_FULL;
+        
+    ret = ofl_prog_intf->chipid_check(); 
+    if(ERROR_SUCCESS != ret)
+        return OFL_PROG_FAIL;
     for(i = 0; i<ofl_prj_info.step; i++)
     {
         switch(ofl_prj_info.item[i])
@@ -368,12 +372,15 @@ static error_t  get_serial_number_8bit(uint64_t *sn_data, uint8_t *buf, uint8_t 
 {
     uint8_t i;
     
+    if(size & 0x01)
+        return  ERROR_OUT_OF_BOUNDS;
+    size = size /2;
     if((size <=0) || (size > 8) )
          return  ERROR_OUT_OF_BOUNDS;
     
     for(i=0; i<size; i++)
     {
-        *sn_data |= ((uint64_t)buf[i*2] & 0xff) << (8 * (size-i));    
+        *sn_data |= ((uint64_t)buf[i*2] & 0xff) << (8 * (size-1-i));    
     }
     return  ERROR_SUCCESS;
 }
@@ -382,12 +389,15 @@ static error_t  update_serial_number_8bit(uint64_t sn_data, uint8_t *buf, uint8_
 {
     uint8_t i;
     
+    if(size & 0x01)
+        return  ERROR_OUT_OF_BOUNDS;
+    size = size /2;
     if((size <=0) || (size > 8) )
          return  ERROR_OUT_OF_BOUNDS;
     
     for(i=0; i<size; i++)
     {
-        buf[i*2] = (sn_data >> (8 * (size-i))) & 0XFF;    
+        buf[i*2] = (sn_data >> (8 * (size-1-i))) & 0XFF;    
     }  
    
     return  ERROR_SUCCESS;   

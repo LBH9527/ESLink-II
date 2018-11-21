@@ -205,7 +205,8 @@ int main (void)
                     
                     menu_msg = MSG_KEY_DOWN;                
                     break;
-                    case KEY_ENTER:  
+                    case KEY_ENTER: 
+                    beep_key_press();
                     update_ofl_serial_number();    
                     menu_msg = MSG_KEY_ENTER; 
                     break;

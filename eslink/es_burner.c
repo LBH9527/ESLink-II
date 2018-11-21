@@ -1057,7 +1057,7 @@ static error_t download_ofl_serial_num(uint8_t *data, uint16_t size)
     ret = ofl_file_write(data , size);
     return ret;     
 }
-#include "cortex_m.h"
+
 //脱机方案用户HEX下载
 static error_t download_ofl_prj_hex(uint8_t *data)
 {

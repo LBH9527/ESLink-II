@@ -147,7 +147,7 @@ static void serial_number_8bit_display(uint16_t y,uint8_t *buf, uint8_t size)
     Font16.BackColor = 0;		/* 文字背景颜色 0 或 1 */
     Font16.Space = 0;			/* 文字间距，单位 = 像素 */	 
 
-    for(i=0; i< size; i++)
+    for(i=0; i< size/2; i++)
     {
          sprintf(disp_temp,"%02X",buf[i*2]);    
          oled_display_str( i*16, y, disp_temp, &Font16);  
