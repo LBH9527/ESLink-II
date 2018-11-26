@@ -339,7 +339,7 @@
 </MiscControls>
               <Define>NDEBUG,CPU_MK22FN128VLH10,CDC_ENDPOINT,HID_ENDPOINT,ES_32BIT,</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\bsp;..\..\..\drivers;..\source;..\..\..\startup;..\..\..\utilities;..\..\..\CMSIS;..\..\..\common;..\..\..\gui;..\..\..\middleware\RL-USB\usb;..\..\..\middleware\RL-USB;..\..\..\middleware\RL-USB\usb\cls;..\..\..\middleware\RL_FlashFS\include;..\..\..\middleware\RL_FlashFS\Driver;..\..\..\iap;..\..\..\middleware\FatFS\src;..\source;..\source\cmsis-dap;..\source\es-bootisp;..\source\es-debug;..\source\es-isp;..\source\swd;..\source\target_chip;..\..\..\eslink;..\..\..\eslink\usb2uart;..\..\..\eslink\offline;..\source\offline</IncludePath>
+              <IncludePath>..\..\..\bsp;..\..\..\drivers;..\source;..\..\..\startup;..\..\..\utilities;..\..\..\CMSIS;..\..\..\common;..\..\..\gui;..\..\..\middleware\RL-USB\usb;..\..\..\middleware\RL-USB;..\..\..\middleware\RL-USB\usb\cls;..\..\..\middleware\RL_FlashFS\include;..\..\..\middleware\RL_FlashFS\Driver;..\..\..\iap;..\..\..\middleware\FatFS\src;..\source;..\source\cmsis-dap;..\source\es-bootisp;..\source\es-debug;..\source\es-isp;..\source\swd;..\source\target_chip;..\..\..\eslink;..\..\..\eslink\usb2uart;..\..\..\eslink\offline;..\source\offline;..\source\es-rtc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -836,6 +836,11 @@
               <FileName>fsl_cmp.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\..\drivers\fsl_cmp.h</FilePath>
+            </File>
+            <File>
+              <FileName>fsl_pdb.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\drivers\fsl_pdb.c</FilePath>
             </File>
           </Files>
         </Group>

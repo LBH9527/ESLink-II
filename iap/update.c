@@ -69,14 +69,14 @@ uint8_t stay_in_bootloader(void)
     {
         check_sum = iap_flash_checksum( ESLINK_ROM_LINK_START , ESLINK_ROM_LINK_SIZE);
         check_sum &= 0x0000ffff;
-        if( check_sum != get_timing_checksum())
-        {
-            //不合法，删除标志信息，
-             set_app_update(UPDATE_BOOT_APP);
-             clear_timing_info(); 
-             stay_in = TRUE;
-             return stay_in;        
-        }
+//        if( check_sum != get_timing_checksum())
+//        {
+//            //不合法，删除标志信息，
+//             set_app_update(UPDATE_BOOT_APP);
+//             clear_timing_info(); 
+//             stay_in = TRUE;
+//             return stay_in;        
+//        }
         bl_ctx.address = ESLINK_ROM_LINK_START;
         bl_ctx.size = ESLINK_ROM_LINK_SIZE;
         return FALSE;         

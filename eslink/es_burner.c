@@ -634,11 +634,11 @@ static error_t es_read_flash(uint8_t *wrbuf, uint8_t *rdbuf, uint16_t *read_size
     if(ERROR_SUCCESS != ret)
     {
         *read_size = 0 ;
+        goto fail;
     }
     else
     {
-        *read_size = size+4;
-        goto fail;   
+        *read_size = size+4;             
     }  
     
     if(addr+size == es_target_device.code_size)
@@ -737,11 +737,11 @@ static error_t es_read_config_word(uint8_t *wrbuf, uint8_t *rdbuf, uint16_t *rea
     if(ERROR_SUCCESS != ret)
     {
         *read_size = 0 ;
+        goto fail; 
     }
     else
     {               
-        *read_size = size+4;
-        goto fail;  
+        *read_size = size+4;          
     }  
     
     es_prog_intf->prog_uninit();

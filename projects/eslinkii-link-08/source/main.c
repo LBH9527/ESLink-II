@@ -112,7 +112,7 @@ int main (void)
     settings_rom_init();
     
     gpio_init();
-    es_set_trget_power(TRGET_POWER_3V3);     
+    es_set_trget_power(TRGET_POWER_ENABLE);     
     oled_init();
     key_init(); 
     fm24cxx_init();     

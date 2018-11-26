@@ -36,6 +36,7 @@
 #include "offline_app.h"
 #include "offline_file.h" 
 #include "systick.h"
+//#include "rtc.h"
 
 /*******************************************************************************
 								变量
@@ -106,7 +107,7 @@ int main (void)
     settings_rom_init();
     
     gpio_init();
-    es_set_trget_power(TRGET_POWER_3V3);     
+    es_set_trget_power(TRGET_POWER_ENABLE);     
     oled_init();
     key_init(); 
     fm24cxx_init();     
@@ -116,6 +117,8 @@ int main (void)
     msg_init();   	
     bsp_init_systick();
     menu_init();
+    
+//    rtc_Init();
     
     LED_GREEN_ON();  
     //脱机模式
@@ -202,13 +205,12 @@ int main (void)
                 switch (key_value)
                 {
                     case KEY_DOWN:
-                    
-                    menu_msg = MSG_KEY_DOWN;                
+                        menu_msg = MSG_KEY_DOWN;                
                     break;
                     case KEY_ENTER: 
-                    beep_key_press();
-                    update_ofl_serial_number();    
-                    menu_msg = MSG_KEY_ENTER; 
+                        beep_key_press();
+                        update_ofl_serial_number();    
+                        menu_msg = MSG_KEY_ENTER; 
                     break;
                     default:
                     break;
@@ -316,7 +318,7 @@ void rt_hw_hard_fault_exception(struct exception_stack_frame *exception_stack)
 
 void HardFault_Handler()
 {
-//    util_assert(0);
+
     SystemSoftReset();
 //     printf("\r\n HardFault_Handler interrupt!\r\n");
     rt_hw_hard_fault_exception((struct exception_stack_frame *)__get_PSP());

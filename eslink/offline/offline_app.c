@@ -452,7 +452,7 @@ static error_t  update_serial_number_32bit(uint64_t sn_data, uint8_t *buf, uint8
 error_t update_ofl_serial_number(void)
 {  
     error_t ret = ERROR_SUCCESS;
-    char path[16+1];
+    char path[16+1] = {'\0'};
     partition_t part; 
     
     if(sn_info.state ==  OFL_SERIALNUM_DISABLE)

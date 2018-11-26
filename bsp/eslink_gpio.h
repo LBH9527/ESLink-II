@@ -289,9 +289,10 @@ extern "C" {
     GPIO_PinWrite(PIN_SELECT_5V_GPIO, PIN_SELECT_5V_BIT, output); \
     PIN_SELECT_5V_GPIO->PDDR |= (1U << PIN_SELECT_5V_BIT) 
 #define V5_ON() \
-    GPIO_PortClear(PIN_SELECT_5V_GPIO, 1U << PIN_SELECT_5V_BIT) 
-#define V5_OFF() \
     GPIO_PortSet(PIN_SELECT_5V_GPIO, 1U << PIN_SELECT_5V_BIT) 
+#define V5_OFF() \
+    GPIO_PortClear(PIN_SELECT_5V_GPIO, 1U << PIN_SELECT_5V_BIT) 
+    
 /*******************************************************************************
 *   ES_LINK ٦ŜIO
 *******************************************************************************/

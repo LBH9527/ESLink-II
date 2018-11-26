@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\Objects\output.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Objects\output.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Wed Nov 21 14:02:24 2018
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Mon Nov 26 10:51:28 2018
 <BR><P>
 <H3>Maximum Stack Usage =       1592 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -614,6 +614,7 @@ Global Symbols
 <LI><a href="#[1c0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;download_ofl_prj_timing_end
 <LI><a href="#[1bb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;download_ofl_prj_hex_end
 <LI><a href="#[1b1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;download_ofl_prj_config_end
+<LI><a href="#[254]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;update_ofl_serial_number
 <LI><a href="#[15e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;iap_flash_program
 <LI><a href="#[217]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;iap_Init
 <LI><a href="#[261]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ofl_sn_display
@@ -2122,7 +2123,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[72]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[1ca]"></a>es_check_empty</STRONG> (Thumb, 100 bytes, Stack size 24 bytes, es_burner.o(i.es_check_empty))
+<P><STRONG><a name="[1ca]"></a>es_check_empty</STRONG> (Thumb, 96 bytes, Stack size 24 bytes, es_burner.o(i.es_check_empty))
 <BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = es_check_empty &rArr; int2array
 </UL>
 <BR>[Calls]<UL><LI><a href="#[1cb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;int2array
@@ -2146,7 +2147,7 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[27a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;program_and_check
 </UL>
 
-<P><STRONG><a name="[270]"></a>es_erase_chip</STRONG> (Thumb, 84 bytes, Stack size 16 bytes, es_burner.o(i.es_erase_chip))
+<P><STRONG><a name="[270]"></a>es_erase_chip</STRONG> (Thumb, 80 bytes, Stack size 16 bytes, es_burner.o(i.es_erase_chip))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = es_erase_chip
 </UL>
 <BR>[Called By]<UL><LI><a href="#[1db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prog_process_command
@@ -2157,13 +2158,13 @@ Global Symbols
 <LI><a href="#[1d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;es_download_prg_intf
 </UL>
 
-<P><STRONG><a name="[271]"></a>es_program_encrypt</STRONG> (Thumb, 58 bytes, Stack size 8 bytes, es_burner.o(i.es_program_encrypt))
+<P><STRONG><a name="[271]"></a>es_program_encrypt</STRONG> (Thumb, 66 bytes, Stack size 8 bytes, es_burner.o(i.es_program_encrypt))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = es_program_encrypt
 </UL>
 <BR>[Called By]<UL><LI><a href="#[1db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prog_process_command
 </UL>
 
-<P><STRONG><a name="[1d5]"></a>es_program_flash</STRONG> (Thumb, 336 bytes, Stack size 1072 bytes, es_burner.o(i.es_program_flash))
+<P><STRONG><a name="[1d5]"></a>es_program_flash</STRONG> (Thumb, 332 bytes, Stack size 1072 bytes, es_burner.o(i.es_program_flash))
 <BR><BR>[Stack]<UL><LI>Max Depth = 1120<LI>Call Chain = es_program_flash &rArr; online_file_read &rArr; spi_flash_read &rArr; flash_send_byte
 </UL>
 <BR>[Calls]<UL><LI><a href="#[1cb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;int2array
@@ -2173,7 +2174,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[1db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prog_process_command
 </UL>
 
-<P><STRONG><a name="[1d7]"></a>es_program_verify</STRONG> (Thumb, 448 bytes, Stack size 1088 bytes, es_burner.o(i.es_program_verify))
+<P><STRONG><a name="[1d7]"></a>es_program_verify</STRONG> (Thumb, 444 bytes, Stack size 1088 bytes, es_burner.o(i.es_program_verify))
 <BR><BR>[Stack]<UL><LI>Max Depth = 1136<LI>Call Chain = es_program_verify &rArr; online_file_read &rArr; spi_flash_read &rArr; flash_send_byte
 </UL>
 <BR>[Calls]<UL><LI><a href="#[18f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;check_sum
@@ -3726,11 +3727,12 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[183]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;debug_process_command
 </UL>
 
-<P><STRONG><a name="[254]"></a>update_ofl_serial_number</STRONG> (Thumb, 70 bytes, Stack size 48 bytes, offline_app.o(i.update_ofl_serial_number))
+<P><STRONG><a name="[254]"></a>update_ofl_serial_number</STRONG> (Thumb, 78 bytes, Stack size 48 bytes, offline_app.o(i.update_ofl_serial_number))
 <BR><BR>[Stack]<UL><LI>Max Depth = 520<LI>Call Chain = update_ofl_serial_number &rArr; ofl_file_lseek_write &rArr; f_open &rArr; dir_register &rArr; dir_find &rArr; dir_next &rArr; create_chain &rArr; put_fat &rArr; move_window &rArr; sync_window &rArr; disk_write &rArr; spi_flash_write &rArr; sf_page_write &rArr; sf_wait_busy &rArr; flash_send_byte
 </UL>
 <BR>[Calls]<UL><LI><a href="#[201]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fm24cxx_read
 <LI><a href="#[259]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ofl_file_lseek_write
+<LI><a href="#[13b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
 </UL>
 <BR>[Called By]<UL><LI><a href="#[72]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
@@ -3994,7 +3996,7 @@ Local Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[1db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prog_process_command
 </UL>
 
-<P><STRONG><a name="[1d4]"></a>es_program_config_word</STRONG> (Thumb, 182 bytes, Stack size 1056 bytes, es_burner.o(i.es_program_config_word))
+<P><STRONG><a name="[1d4]"></a>es_program_config_word</STRONG> (Thumb, 178 bytes, Stack size 1056 bytes, es_burner.o(i.es_program_config_word))
 <BR><BR>[Stack]<UL><LI>Max Depth = 1104<LI>Call Chain = es_program_config_word &rArr; online_file_read &rArr; spi_flash_read &rArr; flash_send_byte
 </UL>
 <BR>[Calls]<UL><LI><a href="#[1cb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;int2array
@@ -4004,25 +4006,25 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[1db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prog_process_command
 </UL>
 
-<P><STRONG><a name="[274]"></a>es_read_chip_chksum</STRONG> (Thumb, 100 bytes, Stack size 16 bytes, es_burner.o(i.es_read_chip_chksum))
+<P><STRONG><a name="[274]"></a>es_read_chip_chksum</STRONG> (Thumb, 96 bytes, Stack size 16 bytes, es_burner.o(i.es_read_chip_chksum))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = es_read_chip_chksum
 </UL>
 <BR>[Called By]<UL><LI><a href="#[1db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prog_process_command
 </UL>
 
-<P><STRONG><a name="[275]"></a>es_read_chipid</STRONG> (Thumb, 84 bytes, Stack size 16 bytes, es_burner.o(i.es_read_chipid))
+<P><STRONG><a name="[275]"></a>es_read_chipid</STRONG> (Thumb, 82 bytes, Stack size 16 bytes, es_burner.o(i.es_read_chipid))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = es_read_chipid
 </UL>
 <BR>[Called By]<UL><LI><a href="#[1db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prog_process_command
 </UL>
 
-<P><STRONG><a name="[272]"></a>es_read_config_word</STRONG> (Thumb, 132 bytes, Stack size 32 bytes, es_burner.o(i.es_read_config_word))
+<P><STRONG><a name="[272]"></a>es_read_config_word</STRONG> (Thumb, 140 bytes, Stack size 32 bytes, es_burner.o(i.es_read_config_word))
 <BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = es_read_config_word
 </UL>
 <BR>[Called By]<UL><LI><a href="#[1db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prog_process_command
 </UL>
 
-<P><STRONG><a name="[273]"></a>es_read_flash</STRONG> (Thumb, 152 bytes, Stack size 32 bytes, es_burner.o(i.es_read_flash))
+<P><STRONG><a name="[273]"></a>es_read_flash</STRONG> (Thumb, 160 bytes, Stack size 32 bytes, es_burner.o(i.es_read_flash))
 <BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = es_read_flash
 </UL>
 <BR>[Called By]<UL><LI><a href="#[1db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prog_process_command
@@ -4470,7 +4472,7 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[251]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ofl_prog
 </UL>
 
-<P><STRONG><a name="[210]"></a>get_serial_number_8bit</STRONG> (Thumb, 76 bytes, Stack size 32 bytes, offline_app.o(i.get_serial_number_8bit))
+<P><STRONG><a name="[210]"></a>get_serial_number_8bit</STRONG> (Thumb, 96 bytes, Stack size 32 bytes, offline_app.o(i.get_serial_number_8bit))
 <BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = get_serial_number_8bit
 </UL>
 <BR>[Calls]<UL><LI><a href="#[99]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_llsl
@@ -4505,7 +4507,7 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[251]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ofl_prog
 </UL>
 
-<P><STRONG><a name="[25e]"></a>update_serial_number_8bit</STRONG> (Thumb, 64 bytes, Stack size 32 bytes, offline_app.o(i.update_serial_number_8bit))
+<P><STRONG><a name="[25e]"></a>update_serial_number_8bit</STRONG> (Thumb, 84 bytes, Stack size 32 bytes, offline_app.o(i.update_serial_number_8bit))
 <BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = update_serial_number_8bit
 </UL>
 <BR>[Calls]<UL><LI><a href="#[98]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_llsr
@@ -4820,7 +4822,7 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[261]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ofl_sn_display
 </UL>
 
-<P><STRONG><a name="[264]"></a>serial_number_8bit_display</STRONG> (Thumb, 70 bytes, Stack size 32 bytes, link_menu.o(i.serial_number_8bit_display))
+<P><STRONG><a name="[264]"></a>serial_number_8bit_display</STRONG> (Thumb, 76 bytes, Stack size 32 bytes, link_menu.o(i.serial_number_8bit_display))
 <BR><BR>[Stack]<UL><LI>Max Depth = 256<LI>Call Chain = serial_number_8bit_display &rArr; oled_display_str &rArr; OLED_PutPixel &rArr; oled_write_data
 </UL>
 <BR>[Calls]<UL><LI><a href="#[240]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;oled_display_str

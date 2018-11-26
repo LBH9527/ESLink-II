@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\Objects\output.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Objects\output.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Wed Nov 21 18:10:39 2018
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Mon Nov 26 10:54:28 2018
 <BR><P>
 <H3>Maximum Stack Usage =       1592 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -332,8 +332,8 @@ Global Symbols
 <BR>[Address Reference Count : 1]<UL><LI> startup_mk22f12810.o(.text)
 </UL>
 <P><STRONG><a name="[71]"></a>DefaultISR</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, startup_mk22f12810.o(.text))
-<BR>[Address Reference Count : 2]<UL><LI> startup_mk22f12810.o(.text)
-<LI> startup_mk22f12810.o(RESET)
+<BR>[Address Reference Count : 2]<UL><LI> startup_mk22f12810.o(RESET)
+<LI> startup_mk22f12810.o(.text)
 </UL>
 <P><STRONG><a name="[2d]"></a>FTF_IRQHandler</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, startup_mk22f12810.o(.text))
 <BR>[Address Reference Count : 1]<UL><LI> startup_mk22f12810.o(RESET)
@@ -613,6 +613,7 @@ Global Symbols
 <LI><a href="#[1b9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;download_ofl_prj_timing_end
 <LI><a href="#[1b4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;download_ofl_prj_hex_end
 <LI><a href="#[1a9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;download_ofl_prj_config_end
+<LI><a href="#[247]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;update_ofl_serial_number
 <LI><a href="#[183]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;iap_flash_program
 <LI><a href="#[213]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;iap_Init
 <LI><a href="#[254]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ofl_sn_display
@@ -841,8 +842,7 @@ Global Symbols
 <P><STRONG><a name="[d1]"></a>DSPI_MasterInit</STRONG> (Thumb, 272 bytes, Stack size 32 bytes, fsl_dspi.o(i.DSPI_MasterInit))
 <BR><BR>[Stack]<UL><LI>Max Depth = 128<LI>Call Chain = DSPI_MasterInit &rArr; DSPI_MasterSetDelayTimes &rArr; DSPI_MasterSetDelayScaler
 </UL>
-<BR>[Calls]<UL><LI><a href="#[da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DSPI_SetDummyData
-<LI><a href="#[d9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DSPI_MasterSetDelayTimes
+<BR>[Calls]<UL><LI><a href="#[d9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DSPI_MasterSetDelayTimes
 <LI><a href="#[d8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DSPI_MasterSetBaudRate
 <LI><a href="#[d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DSPI_GetInstance
 <LI><a href="#[d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DSPI_StopTransfer
@@ -851,6 +851,7 @@ Global Symbols
 <LI><a href="#[d6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DSPI_SetMasterSlaveMode
 <LI><a href="#[d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DSPI_Enable
 <LI><a href="#[d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CLOCK_EnableClock
+<LI><a href="#[da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DSPI_SetDummyData
 </UL>
 <BR>[Called By]<UL><LI><a href="#[27c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;spi_falsh_hw_init
 </UL>
@@ -1369,9 +1370,9 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[107]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_WriteEP
 </UL>
-<BR>[Called By]<UL><LI><a href="#[138]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_EndPoint0_Setup_HID_ReqToIF
+<BR>[Called By]<UL><LI><a href="#[8c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_EndPoint0
+<LI><a href="#[138]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_EndPoint0_Setup_HID_ReqToIF
 <LI><a href="#[13a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_EndPoint0_Setup_CDC_ReqToIF
-<LI><a href="#[8c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_EndPoint0
 </UL>
 
 <P><STRONG><a name="[12e]"></a>USBD_DataOutStage</STRONG> (Thumb, 36 bytes, Stack size 8 bytes, usbd_core.o(i.USBD_DataOutStage))
@@ -1399,16 +1400,7 @@ Global Symbols
 <P><STRONG><a name="[8c]"></a>USBD_EndPoint0</STRONG> (Thumb, 776 bytes, Stack size 8 bytes, usbd_core.o(i.USBD_EndPoint0))
 <BR><BR>[Stack]<UL><LI>Max Depth = 228<LI>Call Chain = USBD_EndPoint0 &rArr; USBD_EndPoint0_Out_HID_ReqToIF &rArr; USBD_HID_SetReport &rArr; usbd_hid_set_report &rArr; DAP_ExecuteCommand &rArr; DAP_ProcessCommand &rArr; DAP_Transfer &rArr; DAP_SWD_Transfer &rArr; SWD_Transfer &rArr; SWD_TransferSlow
 </UL>
-<BR>[Calls]<UL><LI><a href="#[138]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_EndPoint0_Setup_HID_ReqToIF
-<LI><a href="#[13a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_EndPoint0_Setup_CDC_ReqToIF
-<LI><a href="#[13c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_EndPoint0_Out_HID_ReqToIF
-<LI><a href="#[13d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_EndPoint0_Out_CDC_ReqToIF
-<LI><a href="#[13e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_StatusOutStage
-<LI><a href="#[133]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_StatusInStage
-<LI><a href="#[12f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_SetupStage
-<LI><a href="#[12e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_DataOutStage
-<LI><a href="#[12d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_DataInStage
-<LI><a href="#[137]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetInterface
+<BR>[Calls]<UL><LI><a href="#[137]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetInterface
 <LI><a href="#[136]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetConfiguration
 <LI><a href="#[132]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetClrFeature
 <LI><a href="#[131]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqGetStatus
@@ -1418,16 +1410,25 @@ Global Symbols
 <LI><a href="#[130]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_DirCtrlEP
 <LI><a href="#[129]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ClrStallEP
 <LI><a href="#[139]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_EndPoint0_Setup_MSC_ReqToIF
+<LI><a href="#[138]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_EndPoint0_Setup_HID_ReqToIF
+<LI><a href="#[13a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_EndPoint0_Setup_CDC_ReqToIF
+<LI><a href="#[13c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_EndPoint0_Out_HID_ReqToIF
+<LI><a href="#[13d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_EndPoint0_Out_CDC_ReqToIF
+<LI><a href="#[13e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_StatusOutStage
+<LI><a href="#[133]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_StatusInStage
+<LI><a href="#[12f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_SetupStage
+<LI><a href="#[12e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_DataOutStage
+<LI><a href="#[12d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_DataInStage
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> usb_config.o(.constdata)
 </UL>
 <P><STRONG><a name="[13d]"></a>USBD_EndPoint0_Out_CDC_ReqToIF</STRONG> (Thumb, 100 bytes, Stack size 8 bytes, usbd_core_cdc.o(i.USBD_EndPoint0_Out_CDC_ReqToIF))
 <BR><BR>[Stack]<UL><LI>Max Depth = 68<LI>Call Chain = USBD_EndPoint0_Out_CDC_ReqToIF &rArr; USBD_CDC_ACM_SetLineCoding &rArr; USBD_CDC_ACM_PortSetLineCoding &rArr; uart_set_configuration &rArr; clear_buffers &rArr; circ_buf_init
 </UL>
-<BR>[Calls]<UL><LI><a href="#[133]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_StatusInStage
-<LI><a href="#[11f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CDC_ACM_SetLineCoding
+<BR>[Calls]<UL><LI><a href="#[11f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CDC_ACM_SetLineCoding
 <LI><a href="#[140]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CDC_ACM_SetCommFeature
 <LI><a href="#[13f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CDC_ACM_SendEncapsulatedCommand
+<LI><a href="#[133]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_StatusInStage
 </UL>
 <BR>[Called By]<UL><LI><a href="#[8c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_EndPoint0
 </UL>
@@ -1444,14 +1445,14 @@ Global Symbols
 <P><STRONG><a name="[13a]"></a>USBD_EndPoint0_Setup_CDC_ReqToIF</STRONG> (Thumb, 236 bytes, Stack size 8 bytes, usbd_core_cdc.o(i.USBD_EndPoint0_Setup_CDC_ReqToIF))
 <BR><BR>[Stack]<UL><LI>Max Depth = 196<LI>Call Chain = USBD_EndPoint0_Setup_CDC_ReqToIF &rArr; USBD_CDC_ACM_SendBreak &rArr; target_set_state &rArr; swd_set_target_state_hw &rArr; swd_init_debug &rArr; JTAG2SWD &rArr; swd_read_idcode &rArr; swd_read_dp &rArr; swd_transfer_retry &rArr; SWD_Transfer &rArr; SWD_TransferSlow
 </UL>
-<BR>[Calls]<UL><LI><a href="#[133]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_StatusInStage
-<LI><a href="#[12d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_DataInStage
-<LI><a href="#[119]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CDC_ACM_SendBreak
+<BR>[Calls]<UL><LI><a href="#[119]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CDC_ACM_SendBreak
 <LI><a href="#[11d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CDC_ACM_SetControlLineState
 <LI><a href="#[10c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CDC_ACM_GetLineCoding
 <LI><a href="#[142]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CDC_ACM_GetEncapsulatedResponse
 <LI><a href="#[143]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CDC_ACM_GetCommFeature
 <LI><a href="#[144]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CDC_ACM_ClearCommFeature
+<LI><a href="#[133]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_StatusInStage
+<LI><a href="#[12d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_DataInStage
 </UL>
 <BR>[Called By]<UL><LI><a href="#[8c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_EndPoint0
 </UL>
@@ -1591,12 +1592,12 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[158]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;protected_xor
 <LI><a href="#[159]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;protected_and
 </UL>
-<BR>[Called By]<UL><LI><a href="#[13e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_StatusOutStage
-<LI><a href="#[12f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_SetupStage
-<LI><a href="#[12e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_DataOutStage
-<LI><a href="#[128]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CLS_EP_BULKOUT_Event
+<BR>[Called By]<UL><LI><a href="#[128]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CLS_EP_BULKOUT_Event
 <LI><a href="#[109]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CDC_ACM_EP_BULKOUT_HandleData
 <LI><a href="#[14c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_HID_EP_INTOUT_Event
+<LI><a href="#[13e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_StatusOutStage
+<LI><a href="#[12f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_SetupStage
+<LI><a href="#[12e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_DataOutStage
 </UL>
 
 <P><STRONG><a name="[15c]"></a>USBD_ReqClrFeature_MSC</STRONG> (Thumb, 2 bytes, Stack size 0 bytes, usb_config.o(i.USBD_ReqClrFeature_MSC))
@@ -1670,11 +1671,11 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[107]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_WriteEP
 </UL>
-<BR>[Called By]<UL><LI><a href="#[138]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_EndPoint0_Setup_HID_ReqToIF
+<BR>[Called By]<UL><LI><a href="#[8c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_EndPoint0
+<LI><a href="#[138]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_EndPoint0_Setup_HID_ReqToIF
 <LI><a href="#[13a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_EndPoint0_Setup_CDC_ReqToIF
 <LI><a href="#[13c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_EndPoint0_Out_HID_ReqToIF
 <LI><a href="#[13d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_EndPoint0_Out_CDC_ReqToIF
-<LI><a href="#[8c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_EndPoint0
 </UL>
 
 <P><STRONG><a name="[13e]"></a>USBD_StatusOutStage</STRONG> (Thumb, 16 bytes, Stack size 8 bytes, usbd_core.o(i.USBD_StatusOutStage))
@@ -1698,11 +1699,11 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[158]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;protected_xor
 </UL>
-<BR>[Called By]<UL><LI><a href="#[133]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_StatusInStage
-<LI><a href="#[12d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_DataInStage
-<LI><a href="#[122]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CLS_DataInTransfer
+<BR>[Called By]<UL><LI><a href="#[122]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CLS_DataInTransfer
 <LI><a href="#[106]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CDC_ACM_EP_BULKIN_HandleData
 <LI><a href="#[14a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_HID_EP_INTIN_Event
+<LI><a href="#[133]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_StatusInStage
+<LI><a href="#[12d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_DataInStage
 </UL>
 
 <P><STRONG><a name="[161]"></a>__0sprintf$8</STRONG> (Thumb, 34 bytes, Stack size 24 bytes, printf8.o(i.__0sprintf$8), UNUSED)
@@ -3496,11 +3497,12 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[21e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;isp_unlock
 </UL>
 
-<P><STRONG><a name="[247]"></a>update_ofl_serial_number</STRONG> (Thumb, 70 bytes, Stack size 48 bytes, offline_app.o(i.update_ofl_serial_number))
+<P><STRONG><a name="[247]"></a>update_ofl_serial_number</STRONG> (Thumb, 78 bytes, Stack size 48 bytes, offline_app.o(i.update_ofl_serial_number))
 <BR><BR>[Stack]<UL><LI>Max Depth = 520<LI>Call Chain = update_ofl_serial_number &rArr; ofl_file_lseek_write &rArr; f_open &rArr; dir_register &rArr; dir_find &rArr; dir_next &rArr; create_chain &rArr; put_fat &rArr; move_window &rArr; sync_window &rArr; disk_write &rArr; spi_flash_write &rArr; sf_page_write &rArr; sf_wait_busy &rArr; flash_send_byte
 </UL>
 <BR>[Calls]<UL><LI><a href="#[1fb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fm24cxx_read
 <LI><a href="#[24c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ofl_file_lseek_write
+<LI><a href="#[160]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
 </UL>
 <BR>[Called By]<UL><LI><a href="#[72]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
@@ -3536,8 +3538,8 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[103]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy
 </UL>
-<BR>[Called By]<UL><LI><a href="#[145]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_HID_GetReport
-<LI><a href="#[14a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_HID_EP_INTIN_Event
+<BR>[Called By]<UL><LI><a href="#[14a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_HID_EP_INTIN_Event
+<LI><a href="#[145]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_HID_GetReport
 </UL>
 
 <P><STRONG><a name="[20e]"></a>usbd_hid_get_report_trigger</STRONG> (Thumb, 150 bytes, Stack size 16 bytes, usbd_hid.o(i.usbd_hid_get_report_trigger))
@@ -3564,8 +3566,8 @@ Global Symbols
 <LI><a href="#[b3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DAP_ExecuteCommand
 <LI><a href="#[103]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy
 </UL>
-<BR>[Called By]<UL><LI><a href="#[141]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_HID_SetReport
-<LI><a href="#[14c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_HID_EP_INTOUT_Event
+<BR>[Called By]<UL><LI><a href="#[14c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_HID_EP_INTOUT_Event
+<LI><a href="#[141]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_HID_SetReport
 </UL>
 
 <P><STRONG><a name="[248]"></a>usbd_init</STRONG> (Thumb, 22 bytes, Stack size 8 bytes, usbd_core.o(i.usbd_init))
@@ -3801,13 +3803,13 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[1d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prog_process_command
 </UL>
 
-<P><STRONG><a name="[266]"></a>es_read_config_word</STRONG> (Thumb, 142 bytes, Stack size 32 bytes, es_burner.o(i.es_read_config_word))
+<P><STRONG><a name="[266]"></a>es_read_config_word</STRONG> (Thumb, 140 bytes, Stack size 32 bytes, es_burner.o(i.es_read_config_word))
 <BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = es_read_config_word
 </UL>
 <BR>[Called By]<UL><LI><a href="#[1d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prog_process_command
 </UL>
 
-<P><STRONG><a name="[267]"></a>es_read_flash</STRONG> (Thumb, 162 bytes, Stack size 32 bytes, es_burner.o(i.es_read_flash))
+<P><STRONG><a name="[267]"></a>es_read_flash</STRONG> (Thumb, 160 bytes, Stack size 32 bytes, es_burner.o(i.es_read_flash))
 <BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = es_read_flash
 </UL>
 <BR>[Called By]<UL><LI><a href="#[1d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prog_process_command
