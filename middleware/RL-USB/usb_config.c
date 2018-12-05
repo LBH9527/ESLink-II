@@ -317,8 +317,8 @@
 #define USBD_CDC_ACM_HS_ENABLE1         0
 #define USBD_CDC_ACM_HS_WMAXPACKETSIZE1 64
 #define USBD_CDC_ACM_HS_BINTERVAL1      0
-#define USBD_CDC_ACM_CIF_STRDESC        L"mbed Serial Port"
-#define USBD_CDC_ACM_DIF_STRDESC        L"mbed Serial Port"
+#define USBD_CDC_ACM_CIF_STRDESC        L"Serial Port"
+#define USBD_CDC_ACM_DIF_STRDESC        L"Serial Port"
 #define USBD_CDC_ACM_SENDBUF_SIZE       64
 #define USBD_CDC_ACM_RECEIVEBUF_SIZE    64
 #if (((USBD_CDC_ACM_HS_ENABLE1) && (USBD_CDC_ACM_SENDBUF_SIZE    < USBD_CDC_ACM_HS_WMAXPACKETSIZE1)) || (USBD_CDC_ACM_SENDBUF_SIZE    < USBD_CDC_ACM_WMAXPACKETSIZE1))
@@ -351,7 +351,7 @@
 #define USBD_CLS_EP_BULKIN          1
 #define USBD_CLS_EP_BULKOUT         1
 #define USBD_CLS_WMAXPACKETSIZE     64
-#define USBD_CLS_STRDESC            L"ESSEMI_ICD"
+#define USBD_CLS_STRDESC            L"ES-Link II"
 //   </e>
 // </e>
 
@@ -515,7 +515,7 @@
 // --------------------------------------------------- 
 // added by 9527 for WinUSB
 #define	USBD_LEN_OS_DESC								0x12
-#define USBD_MS_OS_VENDOR_CODE                          0x97
+#define USBD_MS_OS_VENDOR_CODE                          0x97        
 #define USBD_WINUSB_STRING 'M',0,'S',0,'F',0,'T',0,'1',0,'0',0,'0',0, USBD_MS_OS_VENDOR_CODE, 0
 // --------------------------------------------------- 
 /*------------------------------------------------------------------------------

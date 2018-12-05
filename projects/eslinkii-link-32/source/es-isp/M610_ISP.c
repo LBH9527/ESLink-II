@@ -446,7 +446,7 @@ uint8_t isp_id_check(void)
     return TRUE;
 }
 //解锁
-uint8_t isp_unlock(void)
+uint8_t isp_unlock_check(void)
 {
 //    uint8_t ret;
     uint8_t check_val;
@@ -506,36 +506,9 @@ uint8_t isp_mode_check(void)
     return TRUE;
 
 }
-////isp 加密字加载并判断
-//uint8_t encrypt_check(void)
-//{
-//    uint16_t data;
-//    isp_rcv_bytes(ENCRYPT_CHECK_CMD,(uint8_t*)&data, 2) ;
-//    if(data != 0xA5A5)
-//        return FALSE;
-//    return TRUE;  
-//}
-//进入isp模式
-uint8_t isp_entry_isp_mode(void)
+
+
+uint8_t isp_encrypt_check(void)
 {
-    isp_reset();
-    if(isp_id_check() != TRUE)
-        return ERROR_IN_ISP_MODE;
-    if(isp_unlock() != TRUE)
-        return ERROR_ISP_UNLOCK;
-    if( isp_mode_set() != TRUE)
-        return ERROR_IN_ISP_MODE;
-//    if( encrypt_check() != TRUE)
-//        return ERROR_IN_ISP_MODE;
-    
-    return ERROR_SUCCESS; 
+
 }
-
-//退出isp模式
-uint8_t isp_out_isp_mode(void)
-{
-    isp_reset();     
-    return ERROR_SUCCESS; 
-}
-
-

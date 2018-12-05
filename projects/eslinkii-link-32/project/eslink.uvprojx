@@ -339,7 +339,7 @@
 </MiscControls>
               <Define>NDEBUG,CPU_MK22FN128VLH10,CDC_ENDPOINT,HID_ENDPOINT,ES_32BIT,</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\bsp;..\..\..\drivers;..\source;..\..\..\startup;..\..\..\utilities;..\..\..\CMSIS;..\..\..\common;..\..\..\gui;..\..\..\middleware\RL-USB\usb;..\..\..\middleware\RL-USB;..\..\..\middleware\RL-USB\usb\cls;..\..\..\middleware\RL_FlashFS\include;..\..\..\middleware\RL_FlashFS\Driver;..\..\..\iap;..\..\..\middleware\FatFS\src;..\source;..\source\cmsis-dap;..\source\es-bootisp;..\source\es-debug;..\source\es-isp;..\source\swd;..\source\target_chip;..\..\..\eslink;..\..\..\eslink\usb2uart;..\..\..\eslink\offline;..\source\offline;..\source\es-rtc</IncludePath>
+              <IncludePath>..\..\..\bsp;..\..\..\drivers;..\source;..\..\..\startup;..\..\..\utilities;..\..\..\CMSIS;..\..\..\common;..\..\..\gui;..\..\..\middleware\RL-USB\usb;..\..\..\middleware\RL-USB;..\..\..\middleware\RL-USB\usb\cls;..\..\..\middleware\RL_FlashFS\include;..\..\..\middleware\RL_FlashFS\Driver;..\..\..\iap;..\..\..\middleware\FatFS\src;..\source;..\source\cmsis-dap;..\source\es-bootisp;..\source\es-debug;..\source\es-isp;..\source\swd;..\source\target_chip;..\..\..\eslink;..\..\..\eslink\usb2uart;..\..\..\eslink\offline;..\source\offline;..\source\es-rtc;..\source\es-isp\M939_ISP</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -596,17 +596,12 @@
             <File>
               <FileName>isp_prog_intf.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\source\es-isp\isp_prog_intf.c</FilePath>
+              <FilePath>..\source\es-isp\M939_ISP\isp_prog_intf.c</FilePath>
             </File>
             <File>
-              <FileName>isp_prog_intf.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\source\es-isp\isp_prog_intf.h</FilePath>
-            </File>
-            <File>
-              <FileName>M620_ISP.c</FileName>
+              <FileName>M939_ISP.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\source\es-isp\M620_ISP.c</FilePath>
+              <FilePath>..\source\es-isp\M939_ISP\M939_ISP.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -618,6 +613,13 @@
         </Group>
         <Group>
           <GroupName>es-rtc</GroupName>
+          <Files>
+            <File>
+              <FileName>rtc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\es-rtc\rtc.c</FilePath>
+            </File>
+          </Files>
         </Group>
         <Group>
           <GroupName>swd-prg</GroupName>

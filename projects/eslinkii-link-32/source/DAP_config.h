@@ -438,12 +438,17 @@ static inline void DAP_SETUP(void)
     PIN_SWD_NOE_GPIO->PSOR  = 1 << PIN_SWD_NOE_BIT;                  /* High level */
     PIN_SWD_NOE_GPIO->PDDR |= 1 << PIN_SWD_NOE_BIT;                  /* Output */
     /* Configure I/O pin nRESET */
-    PIN_nRESET_PORT->PCR[PIN_nRESET_BIT]       = PORT_PCR_MUX(1)  |  /* GPIO */
-            PORT_PCR_PE_MASK |  /* Pull enable */
-            PORT_PCR_PS_MASK |  /* Pull-up */
-            PORT_PCR_ODE_MASK;  /* Open-drain */
-    PIN_nRESET_GPIO->PSOR  = 1 << PIN_nRESET_BIT;                    /* High level */
-    PIN_nRESET_GPIO->PDDR &= ~(1 << PIN_nRESET_BIT);                    /* Input */
+//    PIN_nRESET_PORT->PCR[PIN_nRESET_BIT]       = PORT_PCR_MUX(1)  |  /* GPIO */
+//            PORT_PCR_PE_MASK |  /* Pull enable */
+//            PORT_PCR_PS_MASK |  /* Pull-up */
+//            PORT_PCR_ODE_MASK;  /* Open-drain */
+//    PIN_nRESET_GPIO->PSOR  = 1 << PIN_nRESET_BIT;                    /* High level */
+//    PIN_nRESET_GPIO->PDDR &= ~(1 << PIN_nRESET_BIT);                    /* Input */
+    
+    PIN_nRESET_GPIO->PSOR = PIN_nRESET;
+    PIN_nRESET_GPIO->PDDR |= PIN_nRESET; //output
+    PIN_nRESET_PORT->PCR[PIN_nRESET_BIT] = PORT_PCR_PS_MASK | PORT_PCR_PE_MASK | PORT_PCR_PFE_MASK | PORT_PCR_MUX(1);
+    
     /* Configure LED */
 //    LED_CONNECTED_PORT->PCR[LED_CONNECTED_BIT] = PORT_PCR_MUX(1)  |  /* GPIO */
 //            PORT_PCR_ODE_MASK;  /* Open-drain */

@@ -266,10 +266,10 @@ static uint8_t program_and_check(uint8_t mode)
 /*******************************************************************************
 *函数名：program_word
 * 描述 ：字节编程。flash编程时间约为30us
-* 输入 ：mode:编程模式 CHIP_PROG_CMD/PLUS_PROG_CMD 。 addr：地址。data：数据。
+* 输入 ：mode:编程模式 CHIP_PROG_CMD/PLUS_PROG_CMD 。 addr：地址。data：数据。failed_offset:编程失败偏移地址
 * 输出 ：
 *******************************************************************************/
-static uint8_t program_data(uint32_t addr, uint32_t *data, uint32_t size, uint32_t *failed_addr) 
+static uint8_t program_data(uint32_t addr, uint32_t *data, uint32_t size, uint32_t *failed_offset) 
 {
     uint32_t i;
     
@@ -300,7 +300,7 @@ static uint8_t program_data(uint32_t addr, uint32_t *data, uint32_t size, uint32
          //编程并判断
         if(program_and_check(PLUS_PROG_CMD) != TRUE)    
         {
-             *failed_addr = addr + i*4;
+             *failed_offset = i;
             return FALSE; 
         }
                
@@ -336,10 +336,10 @@ static uint8_t read_data(uint32_t addr, uint32_t *data, uint32_t size)
 /*******************************************************************************
 *函数名：isp_target_program_code
 * 描述 ：isp编程。flash编程时间约为30us
-* 输入 ：addr：地址。data：数据。size：大小
+* 输入 ：addr：地址。data：数据。size：大小 failed_offset:编程失败偏移地址
 * 输出 ：
 *******************************************************************************/
-uint8_t isp_program_code(uint32_t addr, uint32_t *data, uint32_t size, uint32_t *failed_addr) 
+uint8_t isp_program_code(uint32_t addr, uint32_t *data, uint32_t size, uint32_t *failed_offset) 
 {
     uint8_t i;
     uint8_t retry;
@@ -348,7 +348,7 @@ uint8_t isp_program_code(uint32_t addr, uint32_t *data, uint32_t size, uint32_t 
     retry = 10;    
     for(i=0; i<retry; i++)
     {
-        if(program_data(addr, data, size, failed_addr) != FALSE)
+        if(program_data(addr, data, size, failed_offset) != FALSE)
             break;
     }
     if(i >= retry)
@@ -371,10 +371,10 @@ uint8_t isp_read_code(uint32_t addr, uint32_t *data, uint32_t size)
 /*******************************************************************************
 *函数名：
 * 描述 ：
-* 输入 ：addr：地址。data：数据。size：大小
+* 输入 ：addr：地址。data：数据。size：大小  failed_offset:编程失败偏移地址
 * 输出 ：
 *******************************************************************************/
-uint8_t isp_program_config(uint32_t addr, uint32_t *data, uint32_t size,uint32_t *failed_addr) 
+uint8_t isp_program_config(uint32_t addr, uint32_t *data, uint32_t size,uint32_t *failed_offset) 
 {
     uint8_t i;
     uint8_t retry;
@@ -383,7 +383,7 @@ uint8_t isp_program_config(uint32_t addr, uint32_t *data, uint32_t size,uint32_t
     retry = 10;    
     for(i=0; i<retry; i++)
     {
-        if(program_data(addr, data, size, failed_addr) != FALSE)
+        if(program_data(addr, data, size, failed_offset) != FALSE)
             break;
     }
     if(i >= retry)
@@ -515,7 +515,7 @@ uint8_t encrypt_check(void)
     return TRUE;  
 }
 //进入isp模式
-uint8_t isp_entry_isp_mode(void)
+uint8_t isp_entry_mode(void)
 {
     isp_reset();
     if(isp_id_check() != TRUE)
@@ -531,7 +531,7 @@ uint8_t isp_entry_isp_mode(void)
 }
 
 //退出isp模式
-uint8_t isp_out_isp_mode(void)
+uint8_t isp_out_mode(void)
 {      
     isp_reset(); 
     return ERROR_SUCCESS; 

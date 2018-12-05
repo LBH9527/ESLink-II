@@ -42,18 +42,22 @@ enum
 #define CMD_FAST_READ               (0x0B)  /* Fast Read */
 #define CMD_ERASE_4K                (0x20)  /* Sector Erase:4K */
 //#define CMD_RDSR2                   (0x35)  /* Read Status Register-2 */
-//#define CMD_ERASE_32K               (0x52)  /* 32KB Block Erase */
-#define CMD_JEDEC_ID                (0x9F)  /* Read JEDEC ID */
+#define CMD_ERASE_32K               (0x52)  /* 32KB Block Erase */
 #define CMD_ERASE_full              (0xC7)  /* Chip Erase */
 #define CMD_ERASE_64K               (0xD8)  /* 64KB Block Erase */
+
+#define CMD_JEDEC_ID                (0x9F)  /* Read JEDEC ID */
+
 #define CMD_MANU_ID                 (0x90)
 
 #define DUMMY                       (0xFF)
 
 #define FLASH_ERASE_CMD             CMD_ERASE_4K
 #define FLASH_BLOCK_SIZE            4096
-#define FLASH_PAGE_SIZE             256
 
+#define FLASH_PAGE_SIZE             256
+#define FLASH_BLOCK_32K_SIZE        (4096 * 8)
+#define FLASH_BLOCK_64K_SIZE        (4096 * 16)
 
 SPI_FLASH_t g_flash;
 
@@ -308,15 +312,14 @@ sf_err sf_erase_sector(uint32_t offset, uint32_t length)
     }      
     sf_write_disable();    
     return SF_SUCCESS    ;       
-}
+} 
 
-
-sf_err sf_erase_block(uint32_t offset, uint32_t length)
+sf_err sf_erase_block_64K(uint32_t offset, uint32_t length)
 {
     uint32_t erase_size = 0;
     
     //offset must be ROUND_DOWN to BLOCKSIZE
-    if(offset != ROUND_DOWN(offset,FLASH_BLOCK_SIZE))
+    if(offset != ROUND_DOWN(offset,FLASH_BLOCK_64K_SIZE))
         return SF_ERR_ADDR_OUT_BOUND;
     if((offset + length) > g_flash.block_end * FLASH_BLOCK_SIZE)
         return SF_ERR_ADDR_OUT_BOUND;
@@ -339,8 +342,37 @@ sf_err sf_erase_block(uint32_t offset, uint32_t length)
     }      
     sf_write_disable();    
     return SF_SUCCESS    ;      
-    
 }
+sf_err sf_erase_block_32K(uint32_t offset, uint32_t length)
+{
+    uint32_t erase_size = 0;
+    
+    //offset must be ROUND_DOWN to BLOCKSIZE
+    if(offset != ROUND_DOWN(offset,FLASH_BLOCK_32K_SIZE))
+        return SF_ERR_ADDR_OUT_BOUND;
+    if((offset + length) > g_flash.block_end * FLASH_BLOCK_SIZE)
+        return SF_ERR_ADDR_OUT_BOUND;
+
+    while (erase_size < length)
+    {
+        sf_write_enable();	    
+        sf_set_cs(0);
+        flash_send_byte(CMD_ERASE_32K);								/* 发送擦除命令 */
+        flash_send_byte((offset & 0xFF0000) >> 16);	/* 发送扇区地址的高8bit */
+        flash_send_byte((offset & 0xFF00) >> 8);		/* 发送扇区地址中间8bit */
+        flash_send_byte(offset & 0xFF);				/* 发送扇区地址低8bit */   
+        sf_set_cs(1);        
+        erase_size += 0x8000;
+        offset += 0x8000;       
+        sf_wait_busy();		
+    }      
+    sf_write_disable();    
+    return SF_SUCCESS    ;  
+
+
+}
+
+
 /*******************************************************************************
 *	函 数 名: spi_flash_write
 *	功能说明: 对FLASH写入数据，函数自动完成擦除工作

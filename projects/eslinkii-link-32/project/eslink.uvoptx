@@ -118,7 +118,6 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGUARM</Key>
-          <Name>仡#</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -133,7 +132,7 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>JL2CM3</Key>
-          <Name>-U269400321 -O78 -S4 -ZTIFSpeedSel2000 -A0 -C0 -JU1 -JI127.0.0.1 -JP0 -RST0 -N00("ARM CoreSight SW-DP") -D00(2BA01477) -L00(0) -TO18 -TC10000000 -TP21 -TDS8001 -TDT0 -TDC1F -TIEFFFFFFFF -TIP8 -TB1 -TFE0 -FO15 -FD20000000 -FC1000 -FN1 -FF0MK_P128.FLM -FS00 -FL020000 -FP0($$Device:MK22FN128xxx10$Flash\MK_P128.FLM)</Name>
+          <Name>-U269400321 -O78 -S5 -ZTIFSpeedSel1000 -A0 -C0 -JU1 -JI127.0.0.1 -JP0 -RST0 -N00("ARM CoreSight SW-DP") -D00(2BA01477) -L00(0) -TO18 -TC10000000 -TP21 -TDS8001 -TDT0 -TDC1F -TIEFFFFFFFF -TIP8 -TB1 -TFE0 -FO15 -FD20000000 -FC1000 -FN1 -FF0MK_P128.FLM -FS00 -FL020000 -FP0($$Device:MK22FN128xxx10$Flash\MK_P128.FLM)</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -155,66 +154,66 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>60</LineNumber>
+          <LineNumber>395</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>59998</Address>
+          <Address>93528</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>D:\DAPLink_Workspace\eslink-ii\projects\eslinkii-link-32\source\es-rtc\rtc.c</Filename>
+          <Filename>..\source\es-isp\M939_ISP\M939_ISP.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\output\../source/es-rtc/rtc.c\60</Expression>
+          <Expression>\\output\../source/es-isp/M939_ISP/M939_ISP.c\395</Expression>
         </Bp>
         <Bp>
           <Number>1</Number>
           <Type>0</Type>
-          <LineNumber>59</LineNumber>
+          <LineNumber>417</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>0</Address>
+          <Address>93636</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>0</BreakIfRCount>
-          <Filename>D:\DAPLink_Workspace\eslink-ii\projects\eslinkii-link-32\source\es-rtc\rtc.c</Filename>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>..\source\es-isp\M939_ISP\M939_ISP.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression></Expression>
+          <Expression>\\output\../source/es-isp/M939_ISP/M939_ISP.c\417</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
         <Ww>
           <count>0</count>
           <WinNumber>1</WinNumber>
-          <ItemText>prog_sn</ItemText>
+          <ItemText>read_addr</ItemText>
         </Ww>
         <Ww>
           <count>1</count>
           <WinNumber>1</WinNumber>
-          <ItemText>sn_info</ItemText>
+          <ItemText>addr</ItemText>
         </Ww>
         <Ww>
           <count>2</count>
           <WinNumber>1</WinNumber>
-          <ItemText>sn_info</ItemText>
+          <ItemText>data</ItemText>
         </Ww>
         <Ww>
           <count>3</count>
           <WinNumber>1</WinNumber>
-          <ItemText>sn_data</ItemText>
+          <ItemText>cmd</ItemText>
         </Ww>
         <Ww>
           <count>4</count>
           <WinNumber>1</WinNumber>
-          <ItemText>buf</ItemText>
+          <ItemText>read_addr</ItemText>
         </Ww>
         <Ww>
           <count>5</count>
           <WinNumber>1</WinNumber>
-          <ItemText>sn_data</ItemText>
+          <ItemText>read_size</ItemText>
         </Ww>
         <Ww>
           <count>6</count>
@@ -224,32 +223,22 @@
         <Ww>
           <count>7</count>
           <WinNumber>1</WinNumber>
-          <ItemText>buf[i]</ItemText>
+          <ItemText>es_target_device</ItemText>
         </Ww>
         <Ww>
           <count>8</count>
           <WinNumber>1</WinNumber>
-          <ItemText>sn_data</ItemText>
+          <ItemText>read_addr</ItemText>
         </Ww>
         <Ww>
           <count>9</count>
           <WinNumber>1</WinNumber>
-          <ItemText>buf</ItemText>
+          <ItemText>read_size</ItemText>
         </Ww>
         <Ww>
           <count>10</count>
           <WinNumber>1</WinNumber>
-          <ItemText>path</ItemText>
-        </Ww>
-        <Ww>
-          <count>11</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>chipid</ItemText>
-        </Ww>
-        <Ww>
-          <count>12</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>isp_target_dev</ItemText>
+          <ItemText>prog_data</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>
@@ -263,7 +252,7 @@
         <Mm>
           <WinNumber>1</WinNumber>
           <SubType>0</SubType>
-          <ItemText>0x20003EA0</ItemText>
+          <ItemText>0x1FFFE518</ItemText>
           <AccSizeX>0</AccSizeX>
         </Mm>
       </MemoryWindow1>
@@ -446,7 +435,7 @@
 
   <Group>
     <GroupName>bsp</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -630,7 +619,7 @@
 
   <Group>
     <GroupName>es-target</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -674,7 +663,7 @@
 
   <Group>
     <GroupName>offline</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -809,7 +798,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\source\es-isp\isp_prog_intf.c</PathWithFileName>
+      <PathWithFileName>..\source\es-isp\M939_ISP\isp_prog_intf.c</PathWithFileName>
       <FilenameWithoutPath>isp_prog_intf.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -817,24 +806,12 @@
     <File>
       <GroupNumber>7</GroupNumber>
       <FileNumber>38</FileNumber>
-      <FileType>5</FileType>
-      <tvExp>0</tvExp>
-      <tvExpOptDlg>0</tvExpOptDlg>
-      <bDave2>0</bDave2>
-      <PathWithFileName>..\source\es-isp\isp_prog_intf.h</PathWithFileName>
-      <FilenameWithoutPath>isp_prog_intf.h</FilenameWithoutPath>
-      <RteFlg>0</RteFlg>
-      <bShared>0</bShared>
-    </File>
-    <File>
-      <GroupNumber>7</GroupNumber>
-      <FileNumber>39</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\source\es-isp\M620_ISP.c</PathWithFileName>
-      <FilenameWithoutPath>M620_ISP.c</FilenameWithoutPath>
+      <PathWithFileName>..\source\es-isp\M939_ISP\M939_ISP.c</PathWithFileName>
+      <FilenameWithoutPath>M939_ISP.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -862,11 +839,23 @@
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
+    <File>
+      <GroupNumber>10</GroupNumber>
+      <FileNumber>39</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>..\source\es-rtc\rtc.c</PathWithFileName>
+      <FilenameWithoutPath>rtc.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
   </Group>
 
   <Group>
     <GroupName>swd-prg</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -922,7 +911,7 @@
 
   <Group>
     <GroupName>gui</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -978,7 +967,7 @@
 
   <Group>
     <GroupName>iap</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -1022,7 +1011,7 @@
 
   <Group>
     <GroupName>common</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -1126,7 +1115,7 @@
 
   <Group>
     <GroupName>CMSIS</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -1382,7 +1371,7 @@
 
   <Group>
     <GroupName>startup</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -1466,7 +1455,7 @@
 
   <Group>
     <GroupName>usb_driver</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>

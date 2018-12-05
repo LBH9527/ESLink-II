@@ -111,8 +111,7 @@ void rt_hw_hard_fault_exception(struct exception_stack_frame *exception_stack)
 
 void HardFault_Handler()
 {
-//    util_assert(0);
-    SystemSoftReset();
+//    SystemSoftReset();
 //     printf("\r\n HardFault_Handler interrupt!\r\n");
     rt_hw_hard_fault_exception((struct exception_stack_frame *)__get_PSP());
     while (1); // Wait for reset

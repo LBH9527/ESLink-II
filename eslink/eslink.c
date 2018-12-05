@@ -37,6 +37,7 @@ void es_delay_us(uint32_t delay)
 
 /*
  * 更新序列号到用户HEX中
+ * sn: 序列号  addr：填入序列号的地址   data： HEX数据   size：hex大小
  */
 void serial_number_intercept_write(serial_number_t *sn, uint32_t addr, uint8_t *data, uint32_t size)
 {

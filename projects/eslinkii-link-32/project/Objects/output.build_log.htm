@@ -22,26 +22,29 @@ Dialog DLL:      TCM.DLL V1.27.0.0
  
 <h2>Project:</h2>
 D:\DAPLink_Workspace\eslink-ii\projects\eslinkii-link-32\project\eslink.uvprojx
-Project File Date:  11/26/2018
+Project File Date:  12/04/2018
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 4 (build 422)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'es_link_II'
-compiling main.c...
+compiling M939_ISP.c...
+..\source\es-isp\M939_ISP\M939_ISP.c(218): warning:  #177-D: function "info0_unlock_set"  was declared but never referenced
+  static void info0_unlock_set(void)
+..\source\es-isp\M939_ISP\M939_ISP.c: 1 warning, 0 errors
 linking...
-Program Size: Code=59428 RO-data=8244 RW-data=636 ZI-data=16696  
+Program Size: Code=60212 RO-data=8224 RW-data=632 ZI-data=16696  
 FromELF: creating hex file...
 After Build - User command #1: .\CopyHex_Flash.bat
 D:\DAPLink_Workspace\eslink-ii\projects\eslinkii-link-32\project>copy Objects\output.hex ..\..\ES8PXXX 
 已复制         1 个文件。
-".\Objects\output.axf" - 0 Error(s), 0 Warning(s).
+".\Objects\output.axf" - 0 Error(s), 1 Warning(s).
 
 <h2>Collection of Component include folders:</h2>
   .\RTE\_es_link_II
   C:\Keil_v5\ARM\PACK\NXP\MK22F12810_DFP\10.0.0
 
 <h2>Collection of Component Files used:</h2>
-Build Time Elapsed:  00:00:03
+Build Time Elapsed:  00:00:02
 </pre>
 </body>
 </html>

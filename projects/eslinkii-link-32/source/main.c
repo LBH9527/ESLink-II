@@ -58,6 +58,8 @@ uint32_t  task_flags = 0;
 ///*******************************************************************************
 //							函数声明
 //*******************************************************************************/
+void oline_app(void);
+void ofl_app(void);
 extern void cdc_process_event(void);
 // Start CDC processing
 void main_cdc_send_event(void)
@@ -96,9 +98,6 @@ void gui_refresh(void)
 
 int main (void) 
 {	
-    uint8_t key_value = 0;
-    uint8_t menu_msg = MSG_NULL;
-//	__set_PRIMASK(0); 
     SCB->VTOR = SCB_VTOR_TBLOFF_Msk & ESLINK_ROM_LINK_START;    
     /* Init board hardware. */
     BOARD_InitPins();
@@ -116,122 +115,49 @@ int main (void)
     ofl_file_init();     
     msg_init();   	
     bsp_init_systick();
-    menu_init();
+   
     
 //    rtc_Init();
     
     LED_GREEN_ON();  
-    //脱机模式
+    
     if(get_link_mode() == LINK_OFFLINE_MODE)
     {    
-        static  ofl_prog_state_t state = IN_MODE_CHECK;
-        ofl_prog_error_t  prog_error ;
-           
-        ofl_prog_init();           
-        while(1)
-        {
-            switch(state)
-            {
-                case IN_MODE_CHECK :
-                    //保证信号正确，LED应该存在问题
-                    LED_RED_ERROR_ON();  
-                    LED_GREEN_PASS_ON(); 
-                    LED_YELLOW_BUSY_ON();  
-                    if(ofl_in_prog_mode() == TRUE)
-                    {                       
-                         state = OFL_PROG_ING;
-                         menu_msg = MSG_PROG_ING;
-                         msg_write_data(&menu_msg) ;    
-                    }
-                    break;
-                case OFL_PROG_ING:   
-                    //busy 信号
-                    LED_YELLOW_BUSY_OFF();  
-                    //
-                    prog_error = ofl_prog() ;
-                    
-                    LED_YELLOW_BUSY_OFF();
-                    switch(prog_error)
-                    {
-                        case OFL_SUCCESS:                              
-                             menu_msg = MSG_PROG_OK;
-                            break;
-                        case OFL_COUNT_FULL:
-                            beep_prog_fail();
-                             menu_msg = MSG_PROG_COUNT_FULL;
-                             break;
-                        case OFL_PROG_FAIL:                             
-                             menu_msg = MSG_PROG_FAILE;
-                             break;
-                         default:
-                            menu_msg = MSG_NULL;
-                            break;                    
-                    }  
-                    if( prog_error != OFL_SUCCESS)      //编程失败
-                    {
-                        //error灯(红灯)
-                        beep_prog_fail();
-                        LED_RED_ERROR_OFF();   
-                    }
-                    else
-                    {
-                       //pass灯(绿灯)
-                        LED_GREEN_PASS_OFF();                          
-                        beep_prog_success();
-                    }
-                        
-                    state = OUT_MODE_CHECK; 
-                    msg_write_data(&menu_msg);
-                    break;
-                case OUT_MODE_CHECK:
-                    if(ofl_out_prog_mode() == TRUE)
-                    {
-                        state = IN_MODE_CHECK; 
-                        menu_msg = MSG_PROG_MODE_CHECK;
-                        msg_write_data(&menu_msg);                     
-                    }
-                    break; 
-                 default:
-                    break;
-            }  
-            if( flag_recv(task_flags, FLAGS_GUI_REFRESH))
-            {
-                flag_clr(task_flags, FLAGS_GUI_REFRESH);
-                menu_display(); 
-            }
-            
-            if(key_read_data(&key_value) != 0)        //有按键按下
-            {
-                switch (key_value)
-                {
-                    case KEY_DOWN:
-                        menu_msg = MSG_KEY_DOWN;                
-                    break;
-                    case KEY_ENTER: 
-                        beep_key_press();
-                        update_ofl_serial_number();    
-                        menu_msg = MSG_KEY_ENTER; 
-                    break;
-                    default:
-                    break;
-                }  
-                msg_write_data(&menu_msg);
-            }           
-        }           
+         menu_init(1);
+         ofl_app();          
     }   
 	else
 	{    
-        DAP_Setup(); 
-        // Get a reference to this task
-        //  main_task_id = os_tsk_self();    
-        usbd_init();                          /* USB Device Initialization          */
-        usbd_connect(__TRUE);                 /* USB Device Connect                 */
-        while (!usbd_configured ());          /* Wait for device to configure        */  
-        // Update versions and IDs
-        //    info_init();    
-        es_burner_init(PRG_INTF_ISP);  //上电默认ISp烧录 
-        while (1) 
-        {         
+        
+        oline_app();
+    }        
+}
+
+//联机模式
+void oline_app(void)
+{
+    uint8_t key_value = 0;
+    uint8_t menu_msg = MSG_NULL;
+    DAP_Setup(); 
+    menu_init(0);
+ 
+    usbd_init();                        /* USB Device Initialization          */
+    usbd_connect(1);                    /* USB Device Connect                 */
+
+    // Update versions and IDs
+    //    info_init();    
+    es_burner_init(PRG_INTF_ISP);  //上电默认ISp烧录 
+    while (1) 
+    {    
+        // 检测usb是否联机
+        if(!usbd_configured () )
+        {
+            //未联机
+        
+        }
+        else
+        {
+            //usb已经联机
             if( flag_recv(task_flags, FLAGS_MAIN_RESET) )
             {
                 flag_clr(task_flags, FLAGS_MAIN_RESET);
@@ -240,44 +166,145 @@ int main (void)
                 bsp_delay_ms(10);       //延时，USB回复数据。
                 SystemSoftReset();           
             }
-            if( flag_recv(task_flags, FLAGS_MAIN_RESET_TARGET)  )
+            if( flag_recv(task_flags, FLAGS_MAIN_RESET_TARGET) )
             {
                 flag_clr(task_flags, FLAGS_MAIN_RESET_TARGET);
             //            target_set_state(RESET_RUN);
             }
-            if( flag_recv(task_flags, FLAGS_MAIN_CDC_EVENT)) 
+            if( flag_recv(task_flags, FLAGS_MAIN_CDC_EVENT)  ) 
             {
                 flag_clr(task_flags, FLAGS_MAIN_CDC_EVENT);
                 cdc_process_event();
-            }
-            if( flag_recv(task_flags, FLAGS_GUI_REFRESH))
-            {
-                flag_clr(task_flags, FLAGS_GUI_REFRESH);
-                menu_display(); 
-            }
-            
-            if(key_read_data(&key_value) != 0)        //有按键按下
-            {
-                switch (key_value)
-                {
-                    case KEY_DOWN:
-                    menu_msg = MSG_KEY_DOWN; 
-//                    beep_prog_success();                    
-                        break;
-                    case KEY_ENTER:     //长按
-                        beep_key_press();
-                        menu_msg = MSG_KEY_ENTER; 
-                    
-                        break;
-                    default:
-                        break;
-                }  
-                msg_write_data(&menu_msg);
-            }          
-        }        
-    }        
-}
+            }  
+        }
 
+        if( flag_recv(task_flags, FLAGS_GUI_REFRESH))
+        {
+            flag_clr(task_flags, FLAGS_GUI_REFRESH);
+            menu_display(); 
+        }          
+        
+        if(key_read_data(&key_value) != 0)        //有按键按下
+        {
+            switch (key_value)
+            {
+                case KEY_DOWN:
+                menu_msg = MSG_KEY_DOWN; 
+//                    beep_prog_success();                    
+                    break;
+                case KEY_ENTER:     //长按
+                    beep_key_press();
+                    menu_msg = MSG_KEY_ENTER; 
+                
+                    break;
+                default:
+                    break;
+            }  
+            msg_write_data(&menu_msg);
+        }  
+        
+    }  
+}
+//脱机模式
+void ofl_app(void)
+{
+    uint8_t key_value = 0;
+    uint8_t menu_msg = MSG_NULL;
+    static  ofl_prog_state_t state = IN_MODE_CHECK;
+    ofl_prog_error_t  prog_error ;
+       
+    ofl_prog_init();           
+    while(1)
+    {
+        switch(state)
+        {
+            case IN_MODE_CHECK :
+                //保证信号正确，LED应该存在问题
+                LED_RED_ERROR_ON();  
+                LED_GREEN_PASS_ON(); 
+                LED_YELLOW_BUSY_ON();  
+                if(ofl_in_prog_mode() == TRUE)
+                {                       
+                     state = OFL_PROG_ING;
+                     menu_msg = MSG_PROG_ING;
+                     msg_write_data(&menu_msg) ;    
+                }
+                break;
+            case OFL_PROG_ING:   
+                //busy 信号
+                LED_YELLOW_BUSY_OFF();  
+                //
+                prog_error = ofl_prog() ;
+                
+                LED_YELLOW_BUSY_OFF();
+                switch(prog_error)
+                {
+                    case OFL_SUCCESS:                              
+                         menu_msg = MSG_PROG_OK;
+                        break;
+                    case OFL_COUNT_FULL:
+                        beep_prog_fail();
+                         menu_msg = MSG_PROG_COUNT_FULL;
+                         break;
+                    case OFL_PROG_FAIL:                             
+                         menu_msg = MSG_PROG_FAILE;
+                         break;
+                     default:
+                        menu_msg = MSG_NULL;
+                        break;                    
+                }  
+                if( prog_error != OFL_SUCCESS)      //编程失败
+                {
+                    //error灯(红灯)
+                    beep_prog_fail();
+                    LED_RED_ERROR_OFF();   
+                }
+                else
+                {
+                   //pass灯(绿灯)
+                    LED_GREEN_PASS_OFF();                          
+                    beep_prog_success();
+                }
+                    
+                state = OUT_MODE_CHECK; 
+                msg_write_data(&menu_msg);
+                break;
+            case OUT_MODE_CHECK:
+                if(ofl_out_prog_mode() == TRUE)
+                {
+                    state = IN_MODE_CHECK; 
+                    menu_msg = MSG_PROG_MODE_CHECK;
+                    msg_write_data(&menu_msg);                     
+                }
+                break; 
+             default:
+                break;
+        }  
+        if( flag_recv(task_flags, FLAGS_GUI_REFRESH))
+        {
+            flag_clr(task_flags, FLAGS_GUI_REFRESH);
+            menu_display(); 
+        }
+        
+        if(key_read_data(&key_value) != 0)        //有按键按下
+        {
+            switch (key_value)
+            {
+                case KEY_DOWN:
+                    menu_msg = MSG_KEY_DOWN;                
+                break;
+                case KEY_ENTER: 
+                    beep_key_press();
+                    update_ofl_serial_number();    
+                    menu_msg = MSG_KEY_ENTER; 
+                break;
+                default:
+                break;
+            }  
+            msg_write_data(&menu_msg);
+        }           
+    }   
+}
 void main_10ms_task(void)
 {
     static uint8_t count = 0;
@@ -285,7 +312,7 @@ void main_10ms_task(void)
 	key_scan();
     // 蜂鸣器扫描
     beep_scan();
-    if (!(count++ % 10))        //100ms刷新 oled
+    if (!(count++ % 20))        //200ms刷新 oled
     {
         gui_refresh();
     }
@@ -317,9 +344,8 @@ void rt_hw_hard_fault_exception(struct exception_stack_frame *exception_stack)
 
 
 void HardFault_Handler()
-{
-
-    SystemSoftReset();
+{   
+//    SystemSoftReset();
 //     printf("\r\n HardFault_Handler interrupt!\r\n");
     rt_hw_hard_fault_exception((struct exception_stack_frame *)__get_PSP());
     rt_hw_hard_fault_exception((struct exception_stack_frame *)__get_MSP());

@@ -49,7 +49,9 @@ void spi_flash_init(void);
 int sf_read_info(void);
 sf_err sf_erase_chip(void);
 sf_err sf_erase_sector(uint32_t offset, uint32_t length);
-sf_err sf_erase_block(uint32_t offset, uint32_t length);
+sf_err sf_erase_block_64K(uint32_t offset, uint32_t length);
+sf_err sf_erase_block_32K(uint32_t offset, uint32_t length);
+
 sf_err spi_flash_read( uint32_t _uiReadAddr, uint8_t * _pBuf,uint32_t _uiSize );
 sf_err spi_flash_write( uint32_t _uiWriteAddr, const uint8_t* _pBuf, uint32_t _usWriteSize);
 sf_err sf_page_write(uint32_t addr,const uint8_t * _pBuf, uint32_t _usSize);

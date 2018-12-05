@@ -16,18 +16,16 @@ typedef void (* menu_func)(void );
 
 #define PAGE_DISP_NUM   3    //每屏显示菜单数
 
-struct ofl_menu_state
-{
-//    uint8_t ExitMark;             // 退出菜单(0-不退出，1-退出)
-    uint8_t disp_num;                // 每页显示的菜单项个数    
-    uint8_t item_index;		        //当前选定菜单对应的索引号
-    uint8_t cur_line ;              //当前选择的行
-    uint8_t first_line;             //屏幕第一行显示的索引号
-
-//    uint8_t MaxPage;               // 最大页数(最大有多少种显示页)    
-    
-} ;
-struct ofl_menu_state ofl_state;
+//struct ofl_menu_state
+//{
+//    uint8_t disp_num;                // 每页显示的菜单项个数    
+//    uint8_t item_index;		        //当前选定菜单对应的索引号
+//    uint8_t cur_line ;              //当前选择的行
+//    uint8_t first_line;             //屏幕第一行显示的索引号   
+////    uint8_t MaxPage;               // 最大页数(最大有多少种显示页)    
+//    
+//} ;
+//struct ofl_menu_state ofl_state;
 
 struct menu_item
 {
@@ -68,74 +66,47 @@ struct menu_t ofl_prog_menu =
 struct menu_t logo_menu = 
 {  
 	logo_display,
-	&ofl_prog_menu,
+	NULL,
 } ;
 
 
-void logo_display(void)
-{
-	uint8_t msg = MSG_NULL;
-	FONT_T Font16;
-	static uint8_t disp_init = 0 ;
-	
-	if(disp_init == 0)
-	{  
-        oled_clr_scr(0x00);	/* 清屏，0x00表示黑底； 0xFF 表示白底 */
-		Font16.FontCode = FC_ST_16;	/* 字体代码 16点阵 */
-		Font16.FrontColor = 1;		/* 字体颜色 0 或 1 */
-		Font16.BackColor = 0;		/* 文字背景颜色 0 或 1 */
-		Font16.Space = 2;			/* 文字间距，单位 = 像素 */	
-		oled_display_str(35,12,"ESSEMI", &Font16);
-        Font16.FrontColor = 0;		/* 字体颜色 0 或 1 */
-        Font16.BackColor = 1;		/* 文字背景颜色 0 或 1 */
-        Font16.Space = 0;	
-        oled_display_str(0,32,"   EsLink_II    ", &Font16);	
-		disp_init = 1;
-	}
-    msg_read_data(&msg);
-	if(msg ==  MSG_KEY_ENTER)       //有按键按下
-    {
-        cur_menu  = cur_menu-> next_menu;	
-        set_app_update(UPDATE_OFFLINE_APP);
-        SystemSoftReset();  
-    }
-}  
+ 
 
-//ofl字符串显示
-static void ofl_diplay_str(uint8_t i, char *str)
-{
-    FONT_T Font16;
-    
-    Font16.FontCode = FC_ST_16;	/* 字体代码 16点阵 */
-    Font16.FrontColor = 1;		/* 字体颜色 0 或 1 */
-    Font16.BackColor = 0;		/* 文字背景颜色 0 或 1 */
-    Font16.Space = 0;			/* 文字间距，单位 = 像素 */	
-    oled_display_str(0, i, str, &Font16);  
-}
-//ofl反白显示
-static void ofl_diplay_str_inv(uint8_t i, char *str)
-{
-    FONT_T Font16;
-    
-    Font16.FontCode = FC_ST_16;	/* 字体代码 16点阵 */
-    Font16.FrontColor = 0;		/* 字体颜色 0 或 1 */
-    Font16.BackColor = 1;		/* 文字背景颜色 0 或 1 */
-    Font16.Space = 0;			/* 文字间距，单位 = 像素 */	
-    oled_display_str(0, i, str, &Font16);  
-} 
+////ofl字符串显示
+//static void ofl_diplay_str(uint8_t i, char *str)
+//{
+//    FONT_T Font16;
+//    
+//    Font16.FontCode = FC_ST_16;	/* 字体代码 16点阵 */
+//    Font16.FrontColor = 1;		/* 字体颜色 0 或 1 */
+//    Font16.BackColor = 0;		/* 文字背景颜色 0 或 1 */
+//    Font16.Space = 0;			/* 文字间距，单位 = 像素 */	
+//    oled_display_str(0, i, str, &Font16);  
+//}
+////ofl反白显示
+//static void ofl_diplay_str_inv(uint8_t i, char *str)
+//{
+//    FONT_T Font16;
+//    
+//    Font16.FontCode = FC_ST_16;	/* 字体代码 16点阵 */
+//    Font16.FrontColor = 0;		/* 字体颜色 0 或 1 */
+//    Font16.BackColor = 1;		/* 文字背景颜色 0 或 1 */
+//    Font16.Space = 0;			/* 文字间距，单位 = 像素 */	
+//    oled_display_str(0, i, str, &Font16);  
+//} 
 
-void ofl_display (void)
-{
-	uint8_t i;
-	for(i=0; i<ofl_state.disp_num; i++)
-    {
-        if(i== ofl_state.cur_line)
-            ofl_diplay_str_inv((i+1)*16,ofl_item.str[i+ofl_state.first_line]); 
-        else
-            ofl_diplay_str((i+1)*16,ofl_item.str[i+ofl_state.first_line]); 
-    } 	
-}
-
+//static void ofl_display (void)
+//{
+//	uint8_t i;
+//	for(i=0; i<ofl_state.disp_num; i++)
+//    {
+//        if(i== ofl_state.cur_line)
+//            ofl_diplay_str_inv((i+1)*16,ofl_item.str[i+ofl_state.first_line]); 
+//        else
+//            ofl_diplay_str((i+1)*16,ofl_item.str[i+ofl_state.first_line]); 
+//    } 	
+//}
+//8位机序列号 显示
 static void serial_number_8bit_display(uint16_t y,uint8_t *buf, uint8_t size)
 {
     uint8_t i;
@@ -153,6 +124,7 @@ static void serial_number_8bit_display(uint16_t y,uint8_t *buf, uint8_t size)
          oled_display_str( i*16, y, disp_temp, &Font16);  
     } 
 }
+//32位机序列号 显示
 static void serial_number_32bit_display(uint16_t y,uint8_t *buf, uint8_t size)
 {
     uint8_t i;
@@ -179,7 +151,7 @@ static void serial_number_32bit_display(uint16_t y,uint8_t *buf, uint8_t size)
     }
 }
 //脱机序列号显示
-void ofl_sn_display(uint8_t state)
+static void ofl_sn_display(uint8_t state)
 {
     char display_temp[16+1] = {'\0'};
     ofl_serial_number_t sn_info;                //序列号信息
@@ -212,7 +184,13 @@ void ofl_sn_display(uint8_t state)
         oled_display_str(24,48, display_temp  , &Font16);      
     }       
 } 
-            
+ 
+/*******************************************************************************
+*	函 数 名: ofl_program_display
+*	功能说明: 
+*	形    参: 
+*	返 回 值: None
+*******************************************************************************/ 
 void ofl_program_display(void)
 {
     static uint8_t disp_init = 0 ;  	
@@ -232,8 +210,7 @@ void ofl_program_display(void)
         online_file_read(OFL_PROG_INFO, 0,(uint8_t*) &ofl_prj_info, sizeof(ofl_prj_info_t));
         oled_clr_scr(0x00);	
         sprintf(display_temp,"%s", (char*)ofl_prj_info.chip_name);
-        oled_display_str(0,0,display_temp  , &Font16);             //芯片名称
-
+        oled_display_str(0,0,display_temp  , &Font16);             //芯片名称  
         
         oled_display_str(0,16,"S:      C:    ", &Font16);        //配置字和flash数据累加和 与 CRC校验和
         Font16.FrontColor = 0;		/* 字体颜色 0 或 1 */
@@ -276,8 +253,7 @@ void ofl_program_display(void)
         case MSG_PROG_ING:
             oled_clr_scr(0x00);	
             oled_display_str(0,16,"  programing  ", &Font16); 
-            ofl_sn_display(0x01);      
-            
+            ofl_sn_display(0x01);             
             break;
         case MSG_PROG_OK:
             oled_clr_scr(0x00);	            
@@ -299,58 +275,64 @@ void ofl_program_display(void)
                  //TODO：设置失败
             }
             else
-            {
-                
+            {                    
                 SystemSoftReset(); 
             }
         default:
             break;
-    }
-    
-    
-}
-
+    }     
+}  
 
 /*******************************************************************************
 *	函 数 名: get_ofl_menu
-*	功能说明: 
+*	功能说明: 联机时，获取脱机工程信息
 *	形    参: 
 *	返 回 值: None
 *******************************************************************************/
-void get_ofl_menu(void)
+void logo_display(void)
 {
-    uint8_t i;
-    //获取带显示的表项
-    get_ofl_file_num(&ofl_item.item_num);
-    for(i = 0; i < ofl_item.item_num; i++)
+	uint8_t msg = MSG_NULL;
+	FONT_T Font16;
+	static uint8_t disp_init = 0 ;
+	
+	if(disp_init == 0)
+	{  
+        oled_clr_scr(0x00);	/* 清屏，0x00表示黑底； 0xFF 表示白底 */
+		Font16.FontCode = FC_ST_16;	/* 字体代码 16点阵 */
+		Font16.FrontColor = 1;		/* 字体颜色 0 或 1 */
+		Font16.BackColor = 0;		/* 文字背景颜色 0 或 1 */
+		Font16.Space = 2;			/* 文字间距，单位 = 像素 */	
+		oled_display_str(35,12,"ESSEMI", &Font16);
+        Font16.FrontColor = 0;		/* 字体颜色 0 或 1 */
+        Font16.BackColor = 1;		/* 文字背景颜色 0 或 1 */
+        Font16.Space = 0;	
+        oled_display_str(0,32,"   ESLink-II    ", &Font16);	
+		disp_init = 1;
+	}
+    msg_read_data(&msg);
+	if(msg ==  MSG_KEY_ENTER)       //有按键按下
     {
-        get_ofl_file_name (i, ofl_item.str[i]); 
-    } 
-    //设置参数
-    if( ofl_item.item_num >= PAGE_DISP_NUM)
-			 ofl_state.disp_num = PAGE_DISP_NUM;
-		else
-			 ofl_state.disp_num =  ofl_item.item_num;
-    ofl_state.item_index = 0;
-    ofl_state.cur_line = 0;
-    ofl_state.first_line = 0;        
-}
+        cur_menu  = cur_menu-> next_menu;	
+        set_app_update(UPDATE_OFFLINE_APP);
+        SystemSoftReset();  
+    }
+} 
 /*******************************************************************************
 *	函 数 名: menu_init
 *	功能说明: 菜单初始化
 *	形    参: None
 *	返 回 值: None
 *******************************************************************************/
-void menu_init(void)
-{
-    
-    if(get_link_mode() == LINK_OFFLINE_MODE)
-        cur_menu  = &ofl_prog_menu;
-    else
+void menu_init(uint8_t mode)
+{         
+    if(mode == 1)
+    {
+         cur_menu  = &ofl_prog_menu;
+//         get_ofl_menu();
+    }
+        
+    else if(mode == 0)
         cur_menu  = &logo_menu;
-	
-	get_ofl_menu();
-//	msg_init();
 }
 /*******************************************************************************
 *	函 数 名: menu_display

@@ -6,7 +6,7 @@
 //ES_RTC_IN  目标芯片RTC 输入，采用PWM输入捕获，测量时间
 //RTC_OUT   pwm输出，接校准台
 //CLK_IN    timer 时钟输入
-#define RTC_OUT_HZ      1       //
+#define RTC_OUT_HZ      10       // 100ms
 #define RTC_PULSE_WIDTH 50U;        //占空比
 /*******************************************************************************
  * Definitions
@@ -14,8 +14,8 @@
 /* The Flextimer base address/channel used for board */
 #define FTM_BASEADDR FTM1
 /* Get source clock for FTM driver */
-#define FTM_SOURCE_CLOCK (CLOCK_GetFreq(kCLOCK_BusClk)/128)
-
+#define FTM_SOURCE_CLOCK (CLOCK_GetFreq(kCLOCK_BusClk)/1)
+//#define FTM_SOURCE_CLOCK    20000000
 
 /* Interrupt number and interrupt handler for the FTM base address used */
 #define FTM_INTERRUPT_NUMBER FTM0_IRQn
@@ -49,6 +49,7 @@ static void Init_FTM(void)
      * ftmConfigStruct.useGlobalTimeBase = false;
      */
     FTM_GetDefaultConfig(&ftmConfigStruct);
+    ftmConfigStruct.prescale = kFTM_Prescale_Divide_128;
     FTM_Init(FTM_BASEADDR, &ftmConfigStruct);
 
     /* FTM config */
@@ -59,7 +60,9 @@ static void Init_FTM(void)
     
     FTM_SetupPwm(FTM_BASEADDR, &ftmParam, 1U, kFTM_EdgeAlignedPwm, RTC_OUT_HZ, FTM_SOURCE_CLOCK);
 
-    FTM_StartTimer(FTM_BASEADDR, kFTM_SystemClock);
+   FTM_StartTimer(FTM_BASEADDR, kFTM_SystemClock);
+// FTM_StartTimer(FTM_BASEADDR, kFTM_ExternalClock);
+    
 }
 
 

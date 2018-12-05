@@ -1,12 +1,10 @@
 #ifndef __ISP_M939_H
 #define __ISP_M939_H
 
-#define ID_CHECK_CMD                0x699655FA 
-#define ID_CHECK_VAL                0x4D93914F   
 
 #define STATUS_CHECK_CMD            0xF0        //ISP状态读取
 #define ISP_MODE_CMD                0xF1        //设置ISP模式
-#define ENCRYPT_CHECK_CMD           0xF2       //加密字加载
+#define ENCRYPT_CHECK_CMD           0xFF       //加密字加载
 #define UNLOCK_CHECK_VAL     		0xA0                                                //Unlock Success Value
 #define ISP_MODE_CHECK_VAL       	0xA1                                                //ISP Mode Check Value
 
@@ -21,10 +19,11 @@
 #define INFO_WRITE_CMD              0xEF            //info数据缓冲器设置
 
 #define FLASH_READ_CMD              0xE8            //flash数据bit31-0读取  
-#define FLASH_READ_PLUS_CMD         0xEA            //flash数据bit31-0读取，完成后地址+4字节
+#define FLASH_READ_PLUS_CMD         0xEA            //flash数据bit31-0读取，完成后地址+8字节
 #define FLASH_READ1_CMD             0xEC            //flash数据bit63-32读取  
 
 //ISP模式
+#define UNLOCK_SET_CMD              0xB1            //info0区操作保护解锁设置
 #define ERASE_CHECK_CMD             0xC0            //flash擦除完成判断 
 #define ERASE_ING_VAL               0x96            //正在擦除中
 #define ERASE_OK_VAL                0x69            //擦除完成

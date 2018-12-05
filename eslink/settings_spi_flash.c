@@ -40,9 +40,18 @@ error_t online_file_erase(oline_data_type_t type, uint32_t size )
             return ERROR_OUT_OF_BOUNDS;
 //        break;   
     }
-    erase_size = ES_ROUND_UP(size, 4096);
-    if(sf_erase_sector(erase_addr , erase_size)  != 0)
-        return ERROR_SPI_FLASH_ERASE; 
+    if(size < 0x4000)       //小于16K
+    {
+        erase_size = ES_ROUND_UP(size, 0x1000);
+        if(sf_erase_sector(erase_addr , erase_size)  != 0)
+            return ERROR_SPI_FLASH_ERASE;      
+    }
+    else
+    {
+        erase_size = ES_ROUND_UP(size, 0x10000);
+        if(sf_erase_block_64K(erase_addr , erase_size)  != 0)
+            return ERROR_SPI_FLASH_ERASE;     
+    }    
     return ERROR_SUCCESS;
 }
 

@@ -182,7 +182,7 @@ static void addr_set(uint32_t addr)
 }
 //0xE4   设置数据缓冲器
 //data0：flash 低32位  data1：flash 高2位
-static void flash_data_write_set(uint32_t data0, uint32_t data1)
+static void data_write_set(uint32_t data0, uint32_t data1)
 {
     uint8_t byte[4];
     
@@ -196,19 +196,9 @@ static void flash_data_write_set(uint32_t data0, uint32_t data1)
     byte[1] = (data1 & 0x00FF0000) >> 16;
     byte[2] = (data1 & 0x0000FF00) >> 8;
     byte[3] = (data1 & 0x000000FF) ;
-    isp_send_bytes(DATA0_WRITE_CMD, byte, 4);          
+    isp_send_bytes(DATA1_WRITE_CMD, byte, 4);          
 } 
-//info区数据设置
-static void info_data_write_set(uint32_t data)
-{
-    uint8_t byte[2];
-    
-//    byte[0] = (data & 0xFF000000) >> 24;
-//    byte[1] = (data & 0x00FF0000) >> 16;
-    byte[0] = (data & 0x0000FF00) >> 8;
-    byte[1] = (data & 0x000000FF) ;
-    isp_send_bytes(INFO_WRITE_CMD, byte, 2); 
-}  
+ 
 //获取编程状态   0xC5
 uint8_t get_prog_status(void)
 {
@@ -299,56 +289,81 @@ static uint8_t program_and_check(uint8_t mode)
 static uint8_t code_program(uint32_t addr, uint32_t *data, uint32_t size, uint32_t *failed_offset) 
 {
     uint32_t i;
-    
+        
     //设置地址缓冲器
-     addr_set(addr);          
+     addr_set(addr);      
     //设置数据缓冲器
-     flash_data_write_set(*data, *(data+1));
+     data_write_set(*data, *(data+1));
      
      //编程并判断
     if(program_and_check(PROG_CMD) != TRUE)    
-       return FALSE;   
+       return FALSE;         
 
     for(i=2; i<size; i+=2)
     {
+        data += 2;
          //设置数据缓冲器
-         flash_data_write_set(*data, *(data+1));
+         data_write_set(*data, *(data+1));
          //编程并判断
         if(program_and_check(PLUS_PROG_CMD) != TRUE)    
         {
              *failed_offset = i;
             return FALSE; 
         } 
-        data += 2;
     }
     return TRUE;  
 }
 
 //info区编程
+//仅支持从0x10对齐的地址开始编程
 static uint8_t info_program(uint32_t addr, uint32_t *data, uint32_t size, uint32_t *failed_offset) 
 {
     uint32_t i;
+    uint32_t read_size;
+    uint32_t remain_size;   
+    uint32_t remain_data;
     
+    if(addr & 0x08)         //需要从0x10地址对齐的地方开始编程
+          return FALSE;
     //设置地址缓冲器
-     addr_set(addr);          
+    addr_set(addr); 
+    
+    remain_size = size % 2;
+    read_size = size - remain_size;     
+    
     //设置数据缓冲器
-     info_data_write_set(*data) ;
+    data_write_set(*data, *(data+1));
      
-     //编程并判断
+    //编程并判断
     if(program_and_check(PROG_CMD) != TRUE)    
        return FALSE;   
 
-    for(i=1; i<size; i++)
+    for(i=2; i<read_size; i+=2)
     {
-         //设置数据缓冲器
-         info_data_write_set(*data);
+        data += 2;
+        //设置数据缓冲器
+        data_write_set(*data, *(data+1));
          //编程并判断
         if(program_and_check(PLUS_PROG_CMD) != TRUE)    
         {
              *failed_offset = i;
             return FALSE; 
         }  
-        data++;
+    }
+    
+    data += 2;
+    if( remain_size)
+    {
+        remain_data = 0xffffffff;       //填充0xff
+        //设置数据缓冲器
+        data_write_set(*data, remain_data);
+         //编程并判断
+        if(program_and_check(PLUS_PROG_CMD) != TRUE)    
+        {
+             *failed_offset = i;
+            return FALSE; 
+        }      
+    
     }
     return TRUE;  
 }
@@ -359,25 +374,76 @@ static uint8_t info_program(uint32_t addr, uint32_t *data, uint32_t size, uint32
 * 输入 ：
 * 输出 ：
 *******************************************************************************/
-static uint8_t read_data(uint32_t addr, uint32_t *data, uint32_t size) 
+static uint8_t code_read(uint32_t addr, uint32_t *data, uint32_t size) 
 {
      uint32_t i;
      uint8_t tmp_data[4];
 
     //设置地址缓冲器
     addr_set(addr);  
-    for( i=0; i<size; i++)
+    
+    for( i=0; i<size; i+=2)
     {
          isp_rcv_bytes(FLASH_READ_PLUS_CMD, tmp_data, 4);   
          *data = (  (tmp_data[0] << 24) |
                     (tmp_data[1] << 16) | 
                     (tmp_data[2] << 8)  |
                     (tmp_data[3] )  )  ;
-         data++;               
+         data++;    
+         isp_rcv_bytes(FLASH_READ1_CMD, tmp_data, 4);   
+         *data = (  (tmp_data[0] << 24) |
+                    (tmp_data[1] << 16) | 
+                    (tmp_data[2] << 8)  |
+                    (tmp_data[3] )  )  ;
+         data++;    
     } 
     return TRUE;
 }
-
+//读info区
+//注意：只支持从0地址开始读的情况
+static uint8_t info_read(uint32_t addr, uint32_t *data, uint32_t size) 
+{
+    uint32_t i;
+    uint8_t tmp_data[4];
+    uint32_t read_size;
+    uint32_t remain_size;    //剩下的    
+    
+    //设置地址缓冲器
+    addr_set(addr);  
+    remain_size = size % 2;
+    read_size = size - remain_size;      
+    if(read_size)
+    {    
+        if(addr & 0x08)         //读双字节需要从0x10地址对齐的地方开始读
+            return FALSE;
+        for( i=0; i<read_size; i += 2)
+        {
+             isp_rcv_bytes(FLASH_READ_PLUS_CMD, tmp_data, 4);   
+             *data = (  (tmp_data[0] << 24) |
+                        (tmp_data[1] << 16) | 
+                        (tmp_data[2] << 8)  |
+                        (tmp_data[3] )  )  ;
+             data++;    
+             isp_rcv_bytes(FLASH_READ1_CMD, tmp_data, 4);   
+             *data = (  (tmp_data[0] << 24) |
+                        (tmp_data[1] << 16) | 
+                        (tmp_data[2] << 8)  |
+                        (tmp_data[3] )  )  ;
+             data++;    
+        }   
+    }       
+    remain_size = size % 2;
+    if( remain_size)
+    {
+        isp_rcv_bytes(FLASH_READ_PLUS_CMD, tmp_data, 4);   
+        *data = (  (tmp_data[0] << 24) |
+                    (tmp_data[1] << 16) | 
+                    (tmp_data[2] << 8)  |
+                    (tmp_data[3] )  )  ;     
+    }
+   
+    return TRUE;
+}
 /*******************************************************************************
 *函数名：isp_target_program_code
 * 描述 ：isp编程。flash编程时间约为30us
@@ -412,9 +478,12 @@ uint8_t isp_program_code(uint32_t addr, uint32_t *data, uint32_t size, uint32_t 
 *******************************************************************************/
 uint8_t isp_read_code(uint32_t addr, uint32_t *data, uint32_t size) 
 {
-     area_set(CODE_AREA_VAL);
-     read_data(addr, data, size);
-     return TRUE; 
+        //双字节编程
+    if(size &0x01)
+        return FALSE;
+    area_set(CODE_AREA_VAL);
+    code_read(addr, data, size);
+    return TRUE; 
 }
 /*******************************************************************************
 *函数名：isp_program_config 
@@ -447,8 +516,8 @@ uint8_t isp_program_config(uint32_t addr, uint32_t *data, uint32_t size,uint32_t
 *******************************************************************************/
 uint8_t isp_read_config(uint32_t addr, uint32_t *data, uint32_t size) 
 {    
-    area_set(INFO_AREA_VAL);    
-    read_data(read_addr, data, read_size);
+    area_set(INFO_AREA_VAL);
+    info_read(addr, data, size);
     return TRUE; 
 }
 
@@ -469,17 +538,19 @@ uint8_t isp_erase_chip(void)
     //擦除info1 
     result = erase_and_check(ERASE_M2_CMD, INFO_1_AREA, 2);
     if(result != TRUE)
-        return FALSE;  
+        return FALSE; 
+
+    //擦除info2    
+    result = erase_and_check(ERASE_M3_CMD, INFO_2_AREA, 2);
+    if(result != TRUE)
+        return FALSE;         
 #if 0
     //擦除info0 
     info0_unlock_set();
     result = erase_and_check(ERASE_M1_CMD, INFO_0_AREA, 2);
     if(result != TRUE)
         return FALSE;  
-    //擦除info2    
-    result = erase_and_check(ERASE_M3_CMD, INFO_2_AREA, 2);
-    if(result != TRUE)
-        return FALSE;  
+ 
     //擦除info3
     result = erase_and_check(ERASE_M4_CMD, INFO_3_AREA, 2);
     if(result != TRUE)
