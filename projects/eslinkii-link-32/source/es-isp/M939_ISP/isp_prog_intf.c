@@ -46,7 +46,6 @@ struct  es_prog_ops isp_prog_intf = {
     isp_prog_verify_flash,
 };
 
-#define ISP_PRG_MINI_SIZE  1024 
 
 static const es_target_cfg *isp_target_dev;   
 
