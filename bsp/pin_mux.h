@@ -42,96 +42,82 @@ void BOARD_InitBootPins(void);
 #define SOPT5_UART1TXSRC_UART_TX 0x00u /*!<@brief UART 1 transmit data source select: UART1_TX pin */
 
 /*! @name PORTC4 (number 49), ES_RST
-  @{ */
-#define BOARD_ES_RST_PERIPHERAL GPIOC                   /*!<@brief Device name: GPIOC */
-#define BOARD_ES_RST_SIGNAL GPIO                        /*!<@brief GPIOC signal: GPIO */
-#define BOARD_ES_RST_GPIO GPIOC                         /*!<@brief GPIO device name: GPIOC */
-#define BOARD_ES_RST_GPIO_PIN 4U                        /*!<@brief PORTC pin index: 4 */
-#define BOARD_ES_RST_PORT PORTC                         /*!<@brief PORT device name: PORTC */
-#define BOARD_ES_RST_PIN 4U                             /*!<@brief PORTC pin index: 4 */
-#define BOARD_ES_RST_CHANNEL 4                          /*!<@brief GPIOC GPIO channel: 4 */
-#define BOARD_ES_RST_PIN_NAME PTC4                      /*!<@brief Pin name */
-#define BOARD_ES_RST_LABEL "ES_RST"                     /*!<@brief Label */
-#define BOARD_ES_RST_NAME "ES_RST"                      /*!<@brief Identifier name */
-#define BOARD_ES_RST_DIRECTION kPIN_MUX_DirectionOutput /*!<@brief Direction */
-                                                        /* @} */
+//  @{ */
+//#define BOARD_ES_RST_PERIPHERAL GPIOC                   /*!<@brief Device name: GPIOC */
+//#define BOARD_ES_RST_SIGNAL GPIO                        /*!<@brief GPIOC signal: GPIO */
+//#define BOARD_ES_RST_GPIO GPIOC                         /*!<@brief GPIO device name: GPIOC */
+//#define BOARD_ES_RST_GPIO_PIN 4U                        /*!<@brief PORTC pin index: 4 */
+//#define BOARD_ES_RST_PORT PORTC                         /*!<@brief PORT device name: PORTC */
+//#define BOARD_ES_RST_PIN 4U                             /*!<@brief PORTC pin index: 4 */
+//#define BOARD_ES_RST_CHANNEL 4                          /*!<@brief GPIOC GPIO channel: 4 */
+//#define BOARD_ES_RST_PIN_NAME PTC4                      /*!<@brief Pin name */
+//#define BOARD_ES_RST_LABEL "ES_RST"                     /*!<@brief Label */
+//#define BOARD_ES_RST_NAME "ES_RST"                      /*!<@brief Identifier name */
+//#define BOARD_ES_RST_DIRECTION kPIN_MUX_DirectionOutput /*!<@brief Direction */
+//                                                        /* @} */
 
-/*! @name PORTC8 (number 53), ES_SCK_EN
-  @{ */
-#define BOARD_ES_SCK_EN_PERIPHERAL GPIOC                   /*!<@brief Device name: GPIOC */
-#define BOARD_ES_SCK_EN_SIGNAL GPIO                        /*!<@brief GPIOC signal: GPIO */
-#define BOARD_ES_SCK_EN_GPIO GPIOC                         /*!<@brief GPIO device name: GPIOC */
-#define BOARD_ES_SCK_EN_GPIO_PIN 8U                        /*!<@brief PORTC pin index: 8 */
-#define BOARD_ES_SCK_EN_PORT PORTC                         /*!<@brief PORT device name: PORTC */
-#define BOARD_ES_SCK_EN_PIN 8U                             /*!<@brief PORTC pin index: 8 */
-#define BOARD_ES_SCK_EN_CHANNEL 8                          /*!<@brief GPIOC GPIO channel: 8 */
-#define BOARD_ES_SCK_EN_PIN_NAME PTC8                      /*!<@brief Pin name */
-#define BOARD_ES_SCK_EN_LABEL "ES_SCK_EN"                  /*!<@brief Label */
-#define BOARD_ES_SCK_EN_NAME "ES_SCK_EN"                   /*!<@brief Identifier name */
-#define BOARD_ES_SCK_EN_DIRECTION kPIN_MUX_DirectionOutput /*!<@brief Direction */
-                                                           /* @} */
+///*! @name PORTC8 (number 53), ES_SCK_EN
+//  @{ */
+//#define BOARD_ES_SCK_EN_PERIPHERAL GPIOC                   /*!<@brief Device name: GPIOC */
+//#define BOARD_ES_SCK_EN_SIGNAL GPIO                        /*!<@brief GPIOC signal: GPIO */
+//#define BOARD_ES_SCK_EN_GPIO GPIOC                         /*!<@brief GPIO device name: GPIOC */
+//#define BOARD_ES_SCK_EN_GPIO_PIN 8U                        /*!<@brief PORTC pin index: 8 */
+//#define BOARD_ES_SCK_EN_PORT PORTC                         /*!<@brief PORT device name: PORTC */
+//#define BOARD_ES_SCK_EN_PIN 8U                             /*!<@brief PORTC pin index: 8 */
+//#define BOARD_ES_SCK_EN_CHANNEL 8                          /*!<@brief GPIOC GPIO channel: 8 */
+//#define BOARD_ES_SCK_EN_PIN_NAME PTC8                      /*!<@brief Pin name */
+//#define BOARD_ES_SCK_EN_LABEL "ES_SCK_EN"                  /*!<@brief Label */
+//#define BOARD_ES_SCK_EN_NAME "ES_SCK_EN"                   /*!<@brief Identifier name */
+//#define BOARD_ES_SCK_EN_DIRECTION kPIN_MUX_DirectionOutput /*!<@brief Direction */
+//                                                           /* @} */
 
-/*! @name PORTC9 (number 54), ES_DO_EN
-  @{ */
-#define BOARD_ES_DO_EN_PERIPHERAL GPIOC                   /*!<@brief Device name: GPIOC */
-#define BOARD_ES_DO_EN_SIGNAL GPIO                        /*!<@brief GPIOC signal: GPIO */
-#define BOARD_ES_DO_EN_GPIO GPIOC                         /*!<@brief GPIO device name: GPIOC */
-#define BOARD_ES_DO_EN_GPIO_PIN 9U                        /*!<@brief PORTC pin index: 9 */
-#define BOARD_ES_DO_EN_PORT PORTC                         /*!<@brief PORT device name: PORTC */
-#define BOARD_ES_DO_EN_PIN 9U                             /*!<@brief PORTC pin index: 9 */
-#define BOARD_ES_DO_EN_CHANNEL 9                          /*!<@brief GPIOC GPIO channel: 9 */
-#define BOARD_ES_DO_EN_PIN_NAME PTC9                      /*!<@brief Pin name */
-#define BOARD_ES_DO_EN_LABEL "ES_DO_EN"                   /*!<@brief Label */
-#define BOARD_ES_DO_EN_NAME "ES_DO_EN"                    /*!<@brief Identifier name */
-#define BOARD_ES_DO_EN_DIRECTION kPIN_MUX_DirectionOutput /*!<@brief Direction */
-                                                          /* @} */
-
-/*! @name PORTC10 (number 55), ES_CTL_IO
-  @{ */
-#define BOARD_ES_CTL_IO_PERIPHERAL GPIOC                   /*!<@brief Device name: GPIOC */
-#define BOARD_ES_CTL_IO_SIGNAL GPIO                        /*!<@brief GPIOC signal: GPIO */
-#define BOARD_ES_CTL_IO_GPIO GPIOC                         /*!<@brief GPIO device name: GPIOC */
-#define BOARD_ES_CTL_IO_GPIO_PIN 10U                       /*!<@brief PORTC pin index: 10 */
-#define BOARD_ES_CTL_IO_PORT PORTC                         /*!<@brief PORT device name: PORTC */
-#define BOARD_ES_CTL_IO_PIN 10U                            /*!<@brief PORTC pin index: 10 */
-#define BOARD_ES_CTL_IO_CHANNEL 10                         /*!<@brief GPIOC GPIO channel: 10 */
-#define BOARD_ES_CTL_IO_PIN_NAME PTC10                     /*!<@brief Pin name */
-#define BOARD_ES_CTL_IO_LABEL "ES_CTL_IO"                  /*!<@brief Label */
-#define BOARD_ES_CTL_IO_NAME "ES_CTL_IO"                   /*!<@brief Identifier name */
-#define BOARD_ES_CTL_IO_DIRECTION kPIN_MUX_DirectionOutput /*!<@brief Direction */
-                                                           /* @} */                                                    /* @} */
+///*! @name PORTC9 (number 54), ES_DO_EN
+//  @{ */
+//#define BOARD_ES_DO_EN_PERIPHERAL GPIOC                   /*!<@brief Device name: GPIOC */
+//#define BOARD_ES_DO_EN_SIGNAL GPIO                        /*!<@brief GPIOC signal: GPIO */
+//#define BOARD_ES_DO_EN_GPIO GPIOC                         /*!<@brief GPIO device name: GPIOC */
+//#define BOARD_ES_DO_EN_GPIO_PIN 9U                        /*!<@brief PORTC pin index: 9 */
+//#define BOARD_ES_DO_EN_PORT PORTC                         /*!<@brief PORT device name: PORTC */
+//#define BOARD_ES_DO_EN_PIN 9U                             /*!<@brief PORTC pin index: 9 */
+//#define BOARD_ES_DO_EN_CHANNEL 9                          /*!<@brief GPIOC GPIO channel: 9 */
+//#define BOARD_ES_DO_EN_PIN_NAME PTC9                      /*!<@brief Pin name */
+//#define BOARD_ES_DO_EN_LABEL "ES_DO_EN"                   /*!<@brief Label */
+//#define BOARD_ES_DO_EN_NAME "ES_DO_EN"                    /*!<@brief Identifier name */
+//#define BOARD_ES_DO_EN_DIRECTION kPIN_MUX_DirectionOutput /*!<@brief Direction */
+//                                                          /* @} */
+                                                                       
 
 
 
-/*! @name PORTD0 (number 57), SELECT_5V
-  @{ */
-#define BOARD_SELECT_5V_PERIPHERAL GPIOD                   /*!<@brief Device name: GPIOD */
-#define BOARD_SELECT_5V_SIGNAL GPIO                        /*!<@brief GPIOD signal: GPIO */
-#define BOARD_SELECT_5V_GPIO GPIOD                         /*!<@brief GPIO device name: GPIOD */
-#define BOARD_SELECT_5V_GPIO_PIN 0U                        /*!<@brief PORTD pin index: 0 */
-#define BOARD_SELECT_5V_PORT PORTD                         /*!<@brief PORT device name: PORTD */
-#define BOARD_SELECT_5V_PIN 0U                             /*!<@brief PORTD pin index: 0 */
-#define BOARD_SELECT_5V_CHANNEL 0                          /*!<@brief GPIOD GPIO channel: 0 */
-#define BOARD_SELECT_5V_PIN_NAME PTD0                      /*!<@brief Pin name */
-#define BOARD_SELECT_5V_LABEL "SELECT_5V"                  /*!<@brief Label */
-#define BOARD_SELECT_5V_NAME "SELECT_5V"                   /*!<@brief Identifier name */
-#define BOARD_SELECT_5V_DIRECTION kPIN_MUX_DirectionOutput /*!<@brief Direction */
-                                                           /* @} */
+///*! @name PORTD0 (number 57), SELECT_5V
+//  @{ */
+//#define BOARD_SELECT_5V_PERIPHERAL GPIOD                   /*!<@brief Device name: GPIOD */
+//#define BOARD_SELECT_5V_SIGNAL GPIO                        /*!<@brief GPIOD signal: GPIO */
+//#define BOARD_SELECT_5V_GPIO GPIOD                         /*!<@brief GPIO device name: GPIOD */
+//#define BOARD_SELECT_5V_GPIO_PIN 0U                        /*!<@brief PORTD pin index: 0 */
+//#define BOARD_SELECT_5V_PORT PORTD                         /*!<@brief PORT device name: PORTD */
+//#define BOARD_SELECT_5V_PIN 0U                             /*!<@brief PORTD pin index: 0 */
+//#define BOARD_SELECT_5V_CHANNEL 0                          /*!<@brief GPIOD GPIO channel: 0 */
+//#define BOARD_SELECT_5V_PIN_NAME PTD0                      /*!<@brief Pin name */
+//#define BOARD_SELECT_5V_LABEL "SELECT_5V"                  /*!<@brief Label */
+//#define BOARD_SELECT_5V_NAME "SELECT_5V"                   /*!<@brief Identifier name */
+//#define BOARD_SELECT_5V_DIRECTION kPIN_MUX_DirectionOutput /*!<@brief Direction */
+//                                                           /* @} */
 
-/*! @name PORTD1 (number 58), SELECT_3V3
-  @{ */
-#define BOARD_SELECT_3V3_PERIPHERAL GPIOD                   /*!<@brief Device name: GPIOD */
-#define BOARD_SELECT_3V3_SIGNAL GPIO                        /*!<@brief GPIOD signal: GPIO */
-#define BOARD_SELECT_3V3_GPIO GPIOD                         /*!<@brief GPIO device name: GPIOD */
-#define BOARD_SELECT_3V3_GPIO_PIN 1U                        /*!<@brief PORTD pin index: 1 */
-#define BOARD_SELECT_3V3_PORT PORTD                         /*!<@brief PORT device name: PORTD */
-#define BOARD_SELECT_3V3_PIN 1U                             /*!<@brief PORTD pin index: 1 */
-#define BOARD_SELECT_3V3_CHANNEL 1                          /*!<@brief GPIOD GPIO channel: 1 */
-#define BOARD_SELECT_3V3_PIN_NAME PTD1                      /*!<@brief Pin name */
-#define BOARD_SELECT_3V3_LABEL "SELECT_3V3"                 /*!<@brief Label */
-#define BOARD_SELECT_3V3_NAME "SELECT_3V3"                  /*!<@brief Identifier name */
-#define BOARD_SELECT_3V3_DIRECTION kPIN_MUX_DirectionOutput /*!<@brief Direction */
-                                                            /* @} */
+///*! @name PORTD1 (number 58), SELECT_3V3
+//  @{ */
+//#define BOARD_SELECT_3V3_PERIPHERAL GPIOD                   /*!<@brief Device name: GPIOD */
+//#define BOARD_SELECT_3V3_SIGNAL GPIO                        /*!<@brief GPIOD signal: GPIO */
+//#define BOARD_SELECT_3V3_GPIO GPIOD                         /*!<@brief GPIO device name: GPIOD */
+//#define BOARD_SELECT_3V3_GPIO_PIN 1U                        /*!<@brief PORTD pin index: 1 */
+//#define BOARD_SELECT_3V3_PORT PORTD                         /*!<@brief PORT device name: PORTD */
+//#define BOARD_SELECT_3V3_PIN 1U                             /*!<@brief PORTD pin index: 1 */
+//#define BOARD_SELECT_3V3_CHANNEL 1                          /*!<@brief GPIOD GPIO channel: 1 */
+//#define BOARD_SELECT_3V3_PIN_NAME PTD1                      /*!<@brief Pin name */
+//#define BOARD_SELECT_3V3_LABEL "SELECT_3V3"                 /*!<@brief Label */
+//#define BOARD_SELECT_3V3_NAME "SELECT_3V3"                  /*!<@brief Identifier name */
+//#define BOARD_SELECT_3V3_DIRECTION kPIN_MUX_DirectionOutput /*!<@brief Direction */
+//                                                            /* @} */
 
 /*!
  * @brief Configures pin routing and optionally pin electrical features.

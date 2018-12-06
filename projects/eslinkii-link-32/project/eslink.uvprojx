@@ -589,19 +589,19 @@
           <GroupName>es-isp</GroupName>
           <Files>
             <File>
-              <FileName>isp.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\source\es-isp\isp.h</FilePath>
+              <FileName>M610_ISP.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\es-isp\M610_ISP\M610_ISP.c</FilePath>
             </File>
             <File>
               <FileName>isp_prog_intf.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\source\es-isp\M939_ISP\isp_prog_intf.c</FilePath>
+              <FilePath>..\source\es-isp\M610_ISP\isp_prog_intf.c</FilePath>
             </File>
             <File>
-              <FileName>M939_ISP.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\source\es-isp\M939_ISP\M939_ISP.c</FilePath>
+              <FileName>isp.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\source\es-isp\M610_ISP\isp.h</FilePath>
             </File>
           </Files>
         </Group>

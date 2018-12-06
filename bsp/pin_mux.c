@@ -1,6 +1,3 @@
-
-
-
 #include "eslink_gpio.h"
 
 
@@ -102,7 +99,7 @@ void BOARD_InitPins(void)
     PORT_SetPinMux(PORTC, 0U, kPORT_PinDisabledOrAnalog);
 
     /* PORTC10 (pin 55) is configured as PTC10 */
-    PORT_SetPinMux(BOARD_ES_CTL_IO_PORT, BOARD_ES_CTL_IO_PIN, kPORT_MuxAsGpio);
+    PORT_SetPinMux(PIN_CTL_PORT, PIN_CTL_BIT, kPORT_MuxAsGpio);
 
     /* PORTC2 (pin 45) is configured as PTC2 */
     PORT_SetPinMux(PIN_OLED_SCK_PORT, PIN_OLED_SCK_BIT, kPORT_MuxAsGpio);
@@ -111,23 +108,24 @@ void BOARD_InitPins(void)
     PORT_SetPinMux(PIN_OLED_SDA_PORT, PIN_OLED_SDA_BIT, kPORT_MuxAsGpio);
 
     /* PORTC4 (pin 49) is configured as PTC4 */
-    PORT_SetPinMux(BOARD_ES_RST_PORT, BOARD_ES_RST_PIN, kPORT_MuxAsGpio);
+    PORT_SetPinMux(PIN_RST_PORT, PIN_RST_BIT, kPORT_MuxAsGpio);
 
     /* PORTC8 (pin 53) is configured as PTC8 */
-    PORT_SetPinMux(BOARD_ES_SCK_EN_PORT, BOARD_ES_SCK_EN_PIN, kPORT_MuxAsGpio);
+    PORT_SetPinMux(PIN_ISPSCK_NOE_PORT, PIN_ISPSCK_NOE_BIT, kPORT_MuxAsGpio);
 
     /* PORTC9 (pin 54) is configured as PTC9 */
-    PORT_SetPinMux(BOARD_ES_DO_EN_PORT, BOARD_ES_DO_EN_PIN, kPORT_MuxAsGpio);
+    PORT_SetPinMux(PIN_SWDIO_NOE_PORT, PIN_SWDIO_NOE_BIT, kPORT_MuxAsGpio);
 
     /* PORTD0 (pin 57) is configured as PTD0 */
-    PORT_SetPinMux(BOARD_SELECT_5V_PORT, BOARD_SELECT_5V_PIN, kPORT_MuxAsGpio);
+    PORT_SetPinMux(PIN_SELECT_5V_PORT, PIN_SELECT_5V_BIT, kPORT_MuxAsGpio);
 
     /* PORTD1 (pin 58) is configured as PTD1 */
-    PORT_SetPinMux(BOARD_SELECT_3V3_PORT, BOARD_SELECT_3V3_PIN, kPORT_MuxAsGpio);
+    PORT_SetPinMux(PIN_SELECT_3V3_PORT, PIN_SELECT_3V3_BIT, kPORT_MuxAsGpio);
 
     /* PORTD2 (pin 59) is configured as UART2_RX */
-    PORT_SetPinMux(PORTD, 2U, kPORT_MuxAlt3);
-
+//    PORT_SetPinMux(PORTD, 2U, kPORT_MuxAlt3);
+    PORT_SetPinMux(PIN_SWO_PORT, PIN_SWO_BIT, kPORT_MuxAsGpio);
+    
     /* PORTD3 (pin 60) is configured as PTD3 */
     PORT_SetPinMux(BEEP_PORT, BEEP_PIN, kPORT_MuxAsGpio);
 

@@ -17,9 +17,13 @@ void gpio_init(void)
     PIN_OLED_RST_GPIO->PCOR = 1UL << PIN_OLED_RST_BIT;
     PIN_OLED_RST_GPIO->PDDR = 1UL << PIN_OLED_RST_BIT;
     
-    // led on
-//    LED_CONNECTED_GPIO->PCOR = 1UL << LED_CONNECTED_BIT;
+    //CTL IO
+    PIN_CTL_GPIO->PCOR = 1UL << PIN_CTL_BIT;
+    PIN_CTL_GPIO->PDDR = 1UL << PIN_CTL_BIT;
     
+    CLT_INIT(1);
+    //SWO TEST
+    PIN_SWO_GPIO->PDDR &= ~PIN_SWO_BIT;
     
     V33_SELECT_INIT(1);         //connfig pin as 3.3V select  
     V5_SELECT_INIT(1);         //connfig pin as 5V select  

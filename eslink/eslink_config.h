@@ -131,6 +131,7 @@ static __forceinline void     PIN_ISPSDA_OUT_DISABLE(void)
 static __forceinline uint32_t PIN_RST_IN(void)
 {
     return ((PIN_RST_GPIO->PDIR >> PIN_RST_BIT) & 1);
+//    return ((PIN_SWO_GPIO->PDIR >> PIN_SWO_BIT) & 1);
 }
 
 /** nRESET I/O pin: Set Output.
@@ -141,6 +142,7 @@ static __forceinline uint32_t PIN_RST_IN(void)
 static __forceinline void     PIN_RST_OUT(uint32_t bit)
 {
     BITBAND_REG(PIN_RST_GPIO->PDOR, PIN_RST_BIT) = bit;
+//     BITBAND_REG(PIN_CTL_GPIO->PDOR, PIN_CTL_BIT) = bit;
 }
 
 //CMSIS-DAP Hardware I/O and LED Pins are initialized with the function \ref DAP_SETUP.

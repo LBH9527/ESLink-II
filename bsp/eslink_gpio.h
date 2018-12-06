@@ -31,12 +31,8 @@ extern "C" {
 //#define PIN_CDC_LED_BIT         (2)
 //#define PIN_CDC_LED             (1<<PIN_CDC_LED_BIT)
 
-
-
-
 //OLED Port I/O Pins 
-/******************************************************************************/
-
+/******************************************************************************/ 
 // OLED_CS  PTB19
 #define PIN_OLED_CS_PORT        PORTB
 #define PIN_OLED_CS_GPIO        PTB
@@ -92,57 +88,7 @@ extern "C" {
 #define PIN_nRESET_PORT         PORTC
 #define PIN_nRESET_GPIO         PTC
 #define PIN_nRESET_BIT          4
-#define PIN_nRESET              (1 << PIN_nRESET_BIT)    
-
-// Debug Unit LEDs
-// 机台信号和led
-// PORTA5 (number 27), LED_G/PASS_OUT
-#define LED_G_PASS_PORT     PORTA 
-#define LED_G_PASS_GPIO     GPIOA 
-#define LED_G_PASS_PIN      5U  
-
-// PORTB3 (number 38), LED_Y/BUSY_OUT
-#define LED_Y_BUSY_PORT     PORTB 
-#define LED_Y_BUSY_GPIO     GPIOB 
-#define LED_Y_BUSY_PIN      3U   
-
-// ERROR OUT/ LED_RED    PTB2
-#define LED_R_ERROR_PORT     PORTB 
-#define LED_R_ERROR_GPIO     GPIOB 
-#define LED_R_ERROR_PIN      2U  
-
-// Connected LED   PORTA5 (number 27), LED_G/PASS_OUT
-#define LED_CONNECTED_PORT      PORTA
-#define LED_CONNECTED_GPIO      PTA
-#define LED_CONNECTED_BIT       5U
-
-// Target Running LED           Not available   //busy
-
-
-
-//START_IN Pin   PTB17
-#define PIN_START_IN_PORT        PORTB
-#define PIN_START_IN_GPIO         PTB
-#define PIN_START_IN_BIT          17
-#define PIN_START_IN              (1 << PIN_START_IN_BIT) 
-
-
-//name PORTC1 (number 60), BEEP   
-#define BEEP_PORT           PORTC 
-#define BEEP_GPIO           GPIOC 
-#define BEEP_PIN            1  
-
-
-//KEY Port I/O Pins
-/******************************************************************************/
-// KEY0 PTA4
-#define PIN_KEY0_PORT       PORTA
-#define PIN_KEY0_GPIO       PTA
-#define PIN_KEY0_BIT        (4)
-#define PIN_KEY0            (1<<PIN_KEY0_BIT)
-
-
-    
+#define PIN_nRESET              (1 << PIN_nRESET_BIT)  
 /******************************************************************************/
 /*
  * ESSEMI-ISP IO define
@@ -182,6 +128,58 @@ extern "C" {
 #define PIN_CTL_PORT            PORTC
 #define PIN_CTL_GPIO            PTC
 #define PIN_CTL_BIT             10
+
+//ES_SWO    PTD2
+#define PIN_SWO_PORT            PORTD
+#define PIN_SWO_GPIO            PTD
+#define PIN_SWO_BIT             (2)
+#define PIN_SWO                 (1<<PIN_SWO_BIT)      
+
+/******************************************************************************/
+// Debug Unit LEDs
+// 机台信号和led
+// PORTA5 (number 27), LED_G/PASS_OUT
+#define LED_G_PASS_PORT     PORTA 
+#define LED_G_PASS_GPIO     GPIOA 
+#define LED_G_PASS_PIN      5U  
+
+// PORTB3 (number 38), LED_Y/BUSY_OUT
+#define LED_Y_BUSY_PORT     PORTB 
+#define LED_Y_BUSY_GPIO     GPIOB 
+#define LED_Y_BUSY_PIN      3U   
+
+// ERROR OUT/ LED_RED    PTB2
+#define LED_R_ERROR_PORT     PORTB 
+#define LED_R_ERROR_GPIO     GPIOB 
+#define LED_R_ERROR_PIN      2U  
+
+// Connected LED   PORTA5 (number 27), LED_G/PASS_OUT
+#define LED_CONNECTED_PORT      PORTA
+#define LED_CONNECTED_GPIO      PTA
+#define LED_CONNECTED_BIT       5U
+
+// Target Running LED           Not available   //busy    
+
+//START_IN Pin   PTB17
+#define PIN_START_IN_PORT        PORTB
+#define PIN_START_IN_GPIO         PTB
+#define PIN_START_IN_BIT          17
+#define PIN_START_IN              (1 << PIN_START_IN_BIT) 
+
+
+//name PORTC1 (number 60), BEEP   
+#define BEEP_PORT           PORTC 
+#define BEEP_GPIO           GPIOC 
+#define BEEP_PIN            1  
+
+
+//KEY Port I/O Pins
+/******************************************************************************/
+// KEY0 PTA4
+#define PIN_KEY0_PORT       PORTA
+#define PIN_KEY0_GPIO       PTA
+#define PIN_KEY0_BIT        (4)
+#define PIN_KEY0            (1<<PIN_KEY0_BIT)
 
 // 5V Select pin 
 #define PIN_SELECT_5V_PORT      PORTD

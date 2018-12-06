@@ -22,17 +22,22 @@ Dialog DLL:      TCM.DLL V1.27.0.0
  
 <h2>Project:</h2>
 D:\DAPLink_Workspace\eslink-ii\projects\eslinkii-link-32\project\eslink.uvprojx
-Project File Date:  12/04/2018
+Project File Date:  12/05/2018
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 4 (build 422)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'es_link_II'
-compiling M939_ISP.c...
-..\source\es-isp\M939_ISP\M939_ISP.c(218): warning:  #177-D: function "info0_unlock_set"  was declared but never referenced
-  static void info0_unlock_set(void)
-..\source\es-isp\M939_ISP\M939_ISP.c: 1 warning, 0 errors
+compiling DAP.c...
+compiling SW_DP.c...
+compiling JTAG_DP.c...
+compiling SWO.c...
+compiling swd_host.c...
+..\source\swd\swd_host.c(57): warning:  #47-D: incompatible redefinition of macro "SCB_AIRCR_PRIGROUP_Pos"  (declared at line 526 of "..\..\..\CMSIS\core_cm4.h")
+  #define SCB_AIRCR_PRIGROUP_Pos              8                                             /*!< SCB AIRCR: PRIGROUP Position */
+..\source\swd\swd_host.c: 1 warning, 0 errors
+compiling usbd_user_hid.c...
 linking...
-Program Size: Code=60212 RO-data=8224 RW-data=632 ZI-data=16696  
+Program Size: Code=59672 RO-data=8224 RW-data=632 ZI-data=16696  
 FromELF: creating hex file...
 After Build - User command #1: .\CopyHex_Flash.bat
 D:\DAPLink_Workspace\eslink-ii\projects\eslinkii-link-32\project>copy Objects\output.hex ..\..\ES8PXXX 
@@ -44,7 +49,7 @@ D:\DAPLink_Workspace\eslink-ii\projects\eslinkii-link-32\project>copy Objects\ou
   C:\Keil_v5\ARM\PACK\NXP\MK22F12810_DFP\10.0.0
 
 <h2>Collection of Component Files used:</h2>
-Build Time Elapsed:  00:00:02
+Build Time Elapsed:  00:00:06
 </pre>
 </body>
 </html>

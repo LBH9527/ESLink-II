@@ -1,9 +1,9 @@
 #ifndef _ISP_H_
 #define _ISP_H_
 
-#define M939
+//#define M939
 //#define M620 
-//#define M610 
+#define M610 
 
 #ifdef M620  
 #define CHIP_CHECKSUM_ADDR      0x2C            //根据IDE Space 修改
