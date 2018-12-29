@@ -58,13 +58,13 @@ uint8_t config_rom_set(config_set_t *new_cfg)
     addr = (uint32_t)&config_rom;
 
     status = iap_erase_sector(addr);  
-    if (status != 0) 
-        return 1;
+    if (status != TRUE) 
+        return FALSE;
     memset(write_buffer, 0xFF, sizeof(write_buffer));
     memcpy(write_buffer, new_cfg, sizeof(config_set_t));  
     status = iap_flash_program(addr,write_buffer, sizeof(write_buffer) ); 
-    if (0 != status) 
-        return 1;   
+    if (status != TRUE) 
+        return FALSE;
     
     return TRUE;
 } 
@@ -195,8 +195,8 @@ uint8_t clear_timing_info(void)
 
 typedef struct __attribute__((__packed__))  {
     uint32_t key;               // Magic key to indicate a valid record
-    uint32_t hardware_id;       //硬件芯片信息
-    uint32_t version;           //脱机固件版本
+//    uint32_t hw_version;       //硬件信息
+//    uint32_t version;           //脱机固件版本
     // Configurable values
     uint32_t app_update;       //app 跳转标志位
     uint32_t link_mode;          //脱机/联机模式标志位
@@ -210,8 +210,8 @@ static eslink_info_set_t info_rom_copy;
 // info defaults in flash
 static const eslink_info_set_t info_default = {
     .key = 0,
-    .hardware_id = 0,
-    .version = 0,
+//    .hw_version = 0,
+//    .version = 0,
     .app_update = 0,
     .link_mode = 0,    
 };  
@@ -232,13 +232,13 @@ uint8_t info_rom_set(eslink_info_set_t *new_cfg)
     addr = (uint32_t)&info_rom;
 
     status = iap_erase_sector(addr);  
-    if (status != 0) 
-        return 1;
+    if (status != TRUE) 
+        return FALSE;
     memset(write_buffer, 0xFF, sizeof(write_buffer));
     memcpy(write_buffer, new_cfg, sizeof(eslink_info_set_t));  
     status = iap_flash_program(addr,write_buffer, sizeof(write_buffer) ); 
-    if (TRUE != status) 
-        return FALSE;   
+    if (status != TRUE) 
+        return FALSE;  
     
     return TRUE;
 }  
@@ -252,11 +252,7 @@ uint32_t get_update_app(void)
 {
     return  info_rom_copy.app_update;           
 } 
-//获取硬件版本（MCU型号：MK22  或 自研芯片）
-uint32_t get_hardware_id(void)
-{
-     return  info_rom_copy.hardware_id;
-}
+
 
 //更新app 标志
 //UPDATE_LINK_APP    UPDATE_OFFLINE_APP
@@ -304,10 +300,28 @@ void settings_rom_init(void)
     if (CFG_KEY == info_rom.key) 
         memcpy(&info_rom_copy, (void *)&info_rom, sizeof(info_rom));        
     info_rom_copy.key = CFG_KEY;   
-    info_rom_copy.hardware_id =  HARDWARE_VERSION;
+//    info_rom_copy.hw_version =  ESLINK_VERSION;
 }
       
 
  
+ //固件版本号定义在固件升级程序中的中断向量表中。
+#define VERSION_INFO_OFFSET         0x20
+//固件版本号
+uint32_t get_offlink_app_version(void)
+{
+    uint32_t ofl_version = *((uint32_t *)(ESLINK_ROM_OFFLINE_START + VERSION_INFO_OFFSET)) ;
+    if(ofl_version == 0xffffffff)
+         ofl_version = 0;
+    return ofl_version;
+} 
 
+//获取硬件版本
+uint32_t get_hardware_version(void)
+{
+    uint32_t hw_version = *((uint32_t *)(ESLINK_ROM_BL_START + VERSION_INFO_OFFSET)) ;
+    if(hw_version == 0xffffffff)
+         hw_version = 0;
+    return hw_version;  
+}
 

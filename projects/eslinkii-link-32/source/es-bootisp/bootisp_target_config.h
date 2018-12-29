@@ -25,52 +25,38 @@
 #define BOOTISP_CHECKSUM_CRC32          0
 #define BOOTISP_CHECKSUM_CRC32_ECC      1
 #define BOOTISP_CHECKSUM_CUSUM16        2
-#define BOOTISP_CHECKSUM_CUSUM32        3
+#define BOOTISP_CHECKSUM_CUSUM32        3    
 
-
-
-//info属性
+/******************************************************************************/
+//info区信息。参考《BootROM应用笔记》
+//info区最大数量，暂定为4
+#define CHIP_INFO_LEN_MAX       4   
+//info区属性
 #define INFO_ATTR_NONE          0   //无属性
 #define INFO_ATTR_RDP           1   //info区包含全加密字
 #define INFO_ATTR_CPROP         2   //info区包含私有代码保护配置字  
-//芯片信息区
-typedef struct {
-    const uint32_t start;
-    const uint32_t size;
-    const uint16_t index;
-    const uint16_t attr; 
-}chip_info_t;
 
-
-
-//info区最大数量，暂定为4
-#define CHIP_INFO_LEN_MAX       4    
+//芯片info区信息
+typedef struct 
+{
+    const uint32_t start;       //info起始地址   
+    const uint32_t size;        //info区大小
+    const uint32_t index;       //info区索引值
+    const uint32_t attr;        //info区属性
+}chip_info_t;  
+ 
 //目标芯片信息
 typedef struct  {
-    uint32_t flash_start;         
-    uint32_t flash_size;
-    uint8_t reset_suppot;
-    uint8_t ack ;
+    uint32_t flash_start;       //flash起始地址     
+    uint32_t flash_size;        //flash大小
+    uint8_t reset_suppot;       //是否支持
+    uint8_t ack ;               //应答
     uint8_t start ;
     uint8_t checksum;
     uint8_t packet_size;
 
     const chip_info_t* chip_info; 
     int chip_info_length;
-    
-
-//    uint32_t timing_id;             /*时序号*/   
-//    uint32_t timing_version;        /*时序版本*/
-//    uint32_t timing_checksum;       //时序校验和
-//    
-//    uint32_t code_start;            //主程序区起始地址
-//    uint32_t code_size;             //主程序区容量
-//    uint32_t config_start;          //配置字信息区起始地址
-//    uint32_t config_size;           //配置字信息区容量
-//    uint32_t encrypt_addr;           //加密字地址
-//    uint32_t encrypt_value;          //加密字值
-//    uint32_t chipid_addr;           //芯片ID地址
-//    uint32_t chipid_value;          //芯片ID值
     
 } bootisp_target_cfg_t;
 

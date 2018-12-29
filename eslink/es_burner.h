@@ -1,6 +1,7 @@
 #ifndef __ES_BURNER_H__
 #define __ES_BURNER_H__   
 
+#include "errno.h"
 #include "es_burner_def.h"
 
 

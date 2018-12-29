@@ -1,8 +1,6 @@
-
-#include "stdbool.h"
-
-#include "es_target_set.h"
-
+#include "eslink.h"
+//#include "stdbool.h" 
+#include "target_program_config.h"  
 
 void config_set_auto_rst(bool on)
 {
@@ -34,8 +32,10 @@ bool config_get_overflow_detect()
     return false;
 }
 
-
+//是否编程校验
 bool config_isp_verify_program()
 {
     return false;
 }
+
+

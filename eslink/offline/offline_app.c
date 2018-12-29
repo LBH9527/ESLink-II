@@ -3,13 +3,10 @@
 #include "offline_file.h" 
 #include "isp_prog_intf.h"  
 #include "settings_rom.h"
-#include "settings_spi_flash.h"
+#include "sflash_port.h"
 #include "offline_app.h"
-#include "eeprom.h"
+#include "eeprom_port.h"
 #include "menu.h"
-
-static error_t ofl_program_flash(uint8_t sn_enable) ;
-static error_t ofl_program_verify(uint8_t sn_enable);
 
 static struct es_prog_ops *ofl_prog_intf;   //脱机编程接口
 static es_target_cfg ofl_target_device;     //目标芯片信息    
@@ -21,7 +18,13 @@ static error_t  update_serial_number_32bit(uint64_t sn_data, uint8_t *buf, uint8
 static error_t  get_serial_number_8bit(uint64_t *sn_data, uint8_t *buf, uint8_t size);
 static error_t  get_serial_number_32bit(uint64_t *sn_data, uint8_t *buf, uint8_t size);
 
-error_t ofl_prog_init(void)
+/*******************************************************************************
+*	函 数 名: ofl_prog_init
+*	功能说明: 脱机编程初始化
+*	形    参: 无
+*	返 回 值: 无
+*******************************************************************************/
+ofl_error_t ofl_prog_init(void)
 {
     error_t ret = ERROR_SUCCESS;
     
@@ -30,7 +33,7 @@ error_t ofl_prog_init(void)
     //获取方案信息
     online_file_read(OFL_PROG_INFO, 0,(uint8_t*) &ofl_prj_info, sizeof(ofl_prj_info_t)); 
     //获取脱机序列号
-    fm24cxx_read(EE_SERIAL_NUMBER_ADDR,(uint8_t*) &sn_info, sizeof(ofl_serial_number_t) );
+    get_offline_serial_number((uint8_t*) &sn_info, sizeof(ofl_serial_number_t) );
     
     //脱机烧录接口
     if(PRG_INTF_ISP == ofl_prj_info.intf )
@@ -49,19 +52,22 @@ error_t ofl_prog_init(void)
     {
         //todo 接口类型错误
         while(1);
-        return ERROR_PROG_INTF;
+        return OFL_ERR_PROG_INTF;
     } 
     //获取目标芯片信息
 	get_target_info((uint8_t*)&ofl_target_device); 
     //烧录接口初始化
 	ofl_prog_intf->init(&ofl_target_device);    
     
-    return  ret;
+    return  OFL_SUCCESS;
 }
 
-
-//判断编程模式
-//TRUE 进模式成功 FALSE 进模式失败
+/*******************************************************************************
+*	函 数 名: ofl_in_prog_mode
+*	功能说明: 判断编程模式
+*	形    参: 无
+*	返 回 值: TRUE 进模式成功 FALSE 进模式失败
+*******************************************************************************/
 uint8_t ofl_in_prog_mode(void)
 {
     static uint8_t check_time = 0;
@@ -97,7 +103,12 @@ uint8_t ofl_in_prog_mode(void)
     
     return FALSE;    
 }
-//出模式判断
+/*******************************************************************************
+*	函 数 名: ofl_out_prog_mode
+*	功能说明: 出编程模式判断
+*	形    参: 无
+*	返 回 值: TRUE 进模式成功 FALSE 进模式失败
+*******************************************************************************/
 uint8_t ofl_out_prog_mode(void)
 {
     static uint8_t check_time = 0;
@@ -131,53 +142,73 @@ uint8_t ofl_out_prog_mode(void)
     }
     
     return FALSE;   
-
 }
 
 //根据脱机步骤进行脱机编程
-ofl_prog_error_t ofl_prog(void)
+ofl_error_t ofl_prog(void)
 {
     error_t ret;
     uint32_t faildata,failaddr;
     uint32_t i = 0;
     if(sn_info.success_count >=  sn_info.total_size)
-        return OFL_COUNT_FULL;
+        return OFL_ERR_COUNT_FULL;           
         
-    ret = ofl_prog_intf->chipid_check(); 
-    if(ERROR_SUCCESS != ret)
-        return OFL_PROG_FAIL;
     for(i = 0; i<ofl_prj_info.step; i++)
     {
         switch(ofl_prj_info.item[i])
         {
             case OFL_STEP_ERASE:
-                ret = ofl_prog_intf->erase_chip(0);    //全擦
+                ret = ofl_prog_intf->erase_chip(0);    //全擦                 
+                if(ret != ERROR_SUCCESS)
+                {                  
+                    return  OFL_ERR_ERASE;
+                }
                 break;
             case OFL_STEP_CHECK_EMPTY :
                 ret = ofl_prog_intf->check_empty(&failaddr, &faildata);
+                if(ret != ERROR_SUCCESS)
+                {                  
+                    return  OFL_ERR_CHECK_EMPTY;
+                }
                 break;
             case OFL_STEP_PROG:                   
                 if(sn_info.state !=  OFL_SERIALNUM_DISABLE)
-                {
-                     ret = ofl_program_flash(1);
-                }                    
+                    ret = ofl_prog_intf->program_all(ENABLE, &sn_info.sn, &failaddr);                   
                 else
-                    ret = ofl_program_flash(0);
-                
+                    ret = ofl_prog_intf->program_all(DISABLE, NULL, &failaddr);
+                if(ret != ERROR_SUCCESS)
+                {                  
+                    return  OFL_ERR_PROG;
+                }                   
                 break;
             case OFL_STEP_VERIFY:
                 if(sn_info.state !=  OFL_SERIALNUM_DISABLE)
-                    ret = ofl_program_verify(1);
+                    ret = ofl_prog_intf->verify_all(ENABLE, &sn_info.sn, &failaddr , &faildata);
                 else
-                    ret = ofl_program_verify(0);
+                    ret = ofl_prog_intf->verify_all(DISABLE, NULL, &failaddr, &faildata);
+                if(ret != ERROR_SUCCESS)
+                {                  
+                    return  OFL_ERR_VERIFY;
+                }     
                 break;
             case OFL_STEP_ENCRYPT :
                 ret = ofl_prog_intf->encrypt_chip(); 
+                 if(ret != ERROR_SUCCESS)
+                {                  
+                    return  OFL_ERR_ENCRYPT;
+                }  
                 break;
+#if ESLINK_RTC_ENABLE   
+            case OFL_STEP_RTC_CALI :
+//                rtc_calibration_handler();
+                break;
+            case OFL_STEP_RTC_VERIFY :
+                break;
+#endif
+            default:
+                break;
+                
         }  
-        //编程失败 返回
-        if(ret != ERROR_SUCCESS)
-            return OFL_PROG_FAIL;
     }
     //编程成功
     sn_info.success_count ++;       //烧录成功+1
@@ -195,177 +226,15 @@ ofl_prog_error_t ofl_prog(void)
             get_serial_number_8bit(&data, sn_info.sn.data, sn_info.sn.size);
             data += sn_info.sn_step;  
             update_serial_number_8bit(data, sn_info.sn.data, sn_info.sn.size);
-        }  
-  
+        }     
     }  
-    fm24cxx_write(EE_SERIAL_NUMBER_ADDR,(uint8_t*) &sn_info, sizeof(ofl_serial_number_t) );
+//    fm24cxx_write(EE_SERIAL_NUMBER_ADDR, );
+    //更新序列号
+    set_offline_serial_number((uint8_t*) &sn_info, sizeof(ofl_serial_number_t));
     return OFL_SUCCESS;
 }
 
 
-
-static error_t ofl_program_flash(uint8_t sn_enable)
-{
-    error_t ret = ERROR_SUCCESS;
-    uint32_t i;
-    
-    uint32_t failaddr;
-    uint32_t code_addr;	
-	uint32_t code_size;	
-    uint32_t cfg_word_addr;	
-	uint32_t cfg_word_size;	   
-    
-    uint32_t copy_size;      
-    uint32_t read_addr;
-    uint8_t read_buf[FLASH_PRG_MIN_SIZE];
-    
-    code_addr =  ofl_target_device.code_start;
-	code_size =  ofl_target_device.code_size;
-    read_addr =  0; 
-    
-    ret = ofl_prog_intf->prog_init();
-    if(ERROR_SUCCESS != ret)
-        return  ret;
-        
-    while(true)
-    {
-        copy_size = MIN(code_size, sizeof(read_buf) );    
-        
-        ret = online_file_read(USER_HEX, read_addr, read_buf , copy_size);
-        if(ERROR_SUCCESS != ret)
-            return ret;
-        if(sn_enable == 1)     //序列号代码使能
-            serial_number_intercept_write(&sn_info.sn, code_addr, read_buf, copy_size);	//填入序列号
-            
-        for(i=0; i<copy_size; i++)
-        {
-            if(read_buf[i] != 0xFF)
-                break;
-        }
-        if(i < copy_size)      //数据段都为0xFF,不进行编程
-        {
-            ret = ofl_prog_intf->program_flash(code_addr, read_buf, copy_size, &failaddr); 
-            if( ret !=  ERROR_SUCCESS)   //编程失败，返回编程失败地址
-            {
-                 return ret;   
-            }                          
-        }           
-        // Update variables
-        code_addr  += copy_size;
-        code_size  -= copy_size;
-        read_addr += copy_size;
-        // Check for end
-        if (code_size <= 0) 
-            break;       
-    }
-    cfg_word_addr =  ofl_target_device.config_word_start;
-	cfg_word_size =  ofl_target_device.config_word_size;
-    read_addr =  0;
-    while(true)
-    {
-        copy_size = MIN(cfg_word_size, sizeof(read_buf) );          
-        ret = online_file_read(CFG_WORD, read_addr, read_buf , copy_size);
-        if(ERROR_SUCCESS != ret)
-            return ret; 		
-        ret = ofl_prog_intf->program_config_word(cfg_word_addr, read_buf, copy_size, NULL); 
-        if( ret !=  ERROR_SUCCESS)
-        {
-            return ret; 
-        }                  
-        // Update variables
-        cfg_word_addr  += copy_size;
-        cfg_word_size  -= copy_size;
-        read_addr += copy_size;
-        // Check for end
-        if (cfg_word_size <= 0) 
-            break;       
-    }
-    return  ERROR_SUCCESS;  
-}
-
-static error_t ofl_program_verify(uint8_t sn_enable)
-{
-    error_t ret = ERROR_SUCCESS;
-    uint32_t faildata,failaddr;
-    uint32_t checksum = 0;  
-    uint32_t sf_checksum = 0;   //spi保存的校验和
-    
-    uint32_t code_addr;	
-	uint32_t code_size;	
-    uint32_t cfg_word_addr;	
-	uint32_t cfg_word_size;	   
-//    uint8_t read_buf[FLASH_PRG_MIN_SIZE];
-    
-    uint32_t verify_size; 
-    uint32_t sf_addr;  
-    uint8_t sf_buf[FLASH_PRG_MIN_SIZE];   
-    
-    ret = ofl_prog_intf->prog_init();
-    if(ERROR_SUCCESS != ret)
-        return  ret;
-        
-    code_addr =  ofl_target_device.code_start;
-	code_size =  ofl_target_device.code_size;
-    sf_addr = 0;
-    while(true)
-    {
-        verify_size = MIN(code_size, sizeof(sf_buf) );
-       
-        ret = online_file_read(USER_HEX, sf_addr, sf_buf , verify_size);
-        if(ERROR_SUCCESS != ret)
-            return ret;
-        checksum += check_sum(verify_size, sf_buf);     //计算原始数据校验和
-        if( sn_enable == 1)
-            serial_number_intercept_write(&sn_info.sn, code_addr, sf_buf, verify_size);	//填入序列号  
-            
-        ret = ofl_prog_intf->verify_flash(code_addr, sf_buf, verify_size, &failaddr, &faildata);                        
-        if( ret !=  ERROR_SUCCESS)
-        {    
-            return  ret;                       
-        }   
-        // Update variables
-        code_addr  += verify_size;
-        code_size  -= verify_size;
-        sf_addr += verify_size;
-        // Check for end
-        if (code_size <= 0) 
-            break;       
-    }  
-    online_file_read(HEX_CHECKSUM, 0,(uint8_t*)&sf_checksum, 4);        
-    if((sf_checksum&0x0000ffff) != (checksum&0x0000ffff))
-        return ERROR_USER_HEX_CHECKSUM;
-    
-    cfg_word_addr =  ofl_target_device.config_word_start;
-	cfg_word_size =  ofl_target_device.config_word_size;
-    sf_addr =  0;
-    checksum = 0;
-    while(true)
-    {
-        verify_size = MIN(cfg_word_size, sizeof(sf_buf) );          
-        ret = online_file_read(CFG_WORD, sf_addr, sf_buf , verify_size);
-        if(ERROR_SUCCESS != ret)
-            return ret; 
-        checksum += check_sum(verify_size, sf_buf);     //计算原始数据校验和
-        
-        ret = ofl_prog_intf->verify_config_word(cfg_word_addr, sf_buf, verify_size, &failaddr, &faildata); 
-        if( ret !=  ERROR_SUCCESS)
-        {    
-            return  ret;                       
-        }   
-        // Update variables
-        cfg_word_addr  += verify_size;
-        cfg_word_size  -= verify_size;
-        sf_addr += verify_size;
-        // Check for end
-        if (cfg_word_size <= 0) 
-            break;       
-    }
-    online_file_read(CFG_WORD_CHECKSUM, 0,(uint8_t*)&sf_checksum, 4);        
-    if(sf_checksum != (checksum&0x0000ffff))
-        return ERROR_CFG_WORD_CHECKSUM;
-    
-    return  ERROR_SUCCESS;
-}
 
 //获取8位芯片的序列号
 static error_t  get_serial_number_8bit(uint64_t *sn_data, uint8_t *buf, uint8_t size)
@@ -424,7 +293,7 @@ static error_t  get_serial_number_32bit(uint64_t *sn_data, uint8_t *buf, uint8_t
     }
     return  ERROR_SUCCESS;
 }
-//更新序列号
+//更新32位芯片序列号
 static error_t  update_serial_number_32bit(uint64_t sn_data, uint8_t *buf, uint8_t size)
 {
     uint8_t i;
@@ -449,25 +318,27 @@ static error_t  update_serial_number_32bit(uint64_t sn_data, uint8_t *buf, uint8
 
 
 //退出脱机模式时，更新脱机序列号信息
-error_t update_ofl_serial_number(void)
+ofl_error_t update_ofl_serial_number(void)
 {  
     error_t ret = ERROR_SUCCESS;
     char path[16+1] = {'\0'};
     partition_t part; 
     
     if(sn_info.state ==  OFL_SERIALNUM_DISABLE)
-        return  ERROR_SUCCESS;
+        return  OFL_SUCCESS;
     
     //读文件名
-    fm24cxx_read(EE_OFL_PRJ_NAME, (uint8_t*)path, 16 );   
-    //读分区信息        
-    fm24cxx_read(EE_OFL_SERIAL_NUMBER_PARTITION, (uint8_t*)&part, sizeof(partition_t) );      
-    //    
-    fm24cxx_read(EE_SERIAL_NUMBER_ADDR,(uint8_t*) &sn_info, sizeof(ofl_serial_number_t) );
-
+    get_offline_proget_name((uint8_t*)path, 16);  
+//    fm24cxx_read(EE_OFL_PRJ_NAME, (uint8_t*)path, 16 );   
+    //读脱机序列号分区信息 
+    get_offline_partition((uint8_t*)&part, sizeof(partition_t));    
+//    fm24cxx_read(EE_OFL_SERIAL_NUMBER_PARTITION, (uint8_t*)&part, sizeof(partition_t) );      
+    //读脱机序列号    
+//    fm24cxx_read(EE_SERIAL_NUMBER_ADDR,(uint8_t*) &sn_info, sizeof(ofl_serial_number_t) );
+    get_offline_serial_number((uint8_t*) &sn_info, sizeof(ofl_serial_number_t) );
     ret = ofl_file_lseek_write( path, part.start, (uint8_t*) &sn_info, part.size );
     
-    return ret ;
+    return OFL_SUCCESS ;
 
 }
 

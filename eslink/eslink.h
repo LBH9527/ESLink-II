@@ -1,15 +1,19 @@
 #ifndef __ESLINK_H__
 #define __ESLINK_H__
 
-
+#include "errno.h"
 #include "MK22f12810.h"             // Debug Unit Cortex-M Processor Header File
-#include "es_common.h"
-#include "errno.h"  
+#include "eslink_app_addr.h"
 #include "eslink_gpio.h"
 #include "eslink_config.h"
 #include "eslink_def.h"
 #include "es_burner.h"
 #include "es_debug.h"
+#include "es_common.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define ES_DEBUG   0
 
@@ -20,9 +24,6 @@
 #define printf      (...)
 #endif
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 //******************************************************************************  
 //es_link 调用函数    
 
@@ -55,13 +56,17 @@ static __forceinline void ES_DELAY_FAST (void) {
 #if (ES_DELAY_FAST_CYCLES >= 3U)
   __nop();
 #endif
-}    
+}   
 
 void es_delay_us(uint32_t delay);
 void es_delay_ms(uint32_t delay);  
-
+uint8_t eslink_is_mini(void);
+uint8_t eslink_is_offline_mode(void) ;
+void es_set_trget_power(trget_power_t power);
+uint8_t ofl_start_in_low(void);
 void serial_number_intercept_write(serial_number_t *sn, uint32_t addr, uint8_t *data, uint32_t size);
-
+void eslink_set_target_hold_reset(void);
+void eslink_set_target_reset_run(uint8_t delay_ms);
    
 #ifdef __cplusplus
 }

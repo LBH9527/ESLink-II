@@ -39,36 +39,6 @@ typedef enum
 #define SF_FATFS_OFFSET                 512         //512*4096 = 2M
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-//Debug 操作相关数据地址
-///////////////////flash中的常量定义/////////////////////////////
-#define SHIXU_CODE_Fth                  0x2800                      //固件程序(Application program)  0x2800~0xA000 30K
-
-#define VOLTAGE_SET_INFO				0xF400						 
-
-#define SCHEDULE_CHECKSUM_Fth           0xF602                       //时序代码校验和
-#define RESET_LEVEL_Fth  		        0xF607                       //复位电平00：低电平复位；01：高电平复位
-#define BURNER_SCHEDULE_No              0xF610
-#define MEM_BYTE_CNT_Fth                0xF612
-
-#define CHIP_INFO_Fth                   0x3FE000                       //0.5k//芯片信息
-
-#define ICD_CHIP_INFO_LEN               512
-//#define SF_ICD_CHIP_INFO_START                   0x3FE000                       //0.5k//芯片信息
-//#define SF_ICD_CHIP_INFO_SIZE                    512                              //0.5k//芯片信息
-
-
 error_t online_file_erase(oline_data_type_t type, uint32_t size );
 error_t online_file_write(oline_data_type_t type, uint32_t addr, const uint8_t *buf, uint32_t size );
 error_t online_file_read(oline_data_type_t type, uint32_t addr, uint8_t *buf, uint32_t size );

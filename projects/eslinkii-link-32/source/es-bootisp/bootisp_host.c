@@ -1,6 +1,6 @@
 #include <stdbool.h>        //for bool 
 #include "eslink.h"
-#include "bootisp_target_flash.h"
+#include "bootisp_host.h"
 #include "bootisp_target_config.h"
 #include "uart.h"
 

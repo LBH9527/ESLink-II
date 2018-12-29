@@ -92,7 +92,7 @@ static __forceinline void     PIN_ISPSDA_CLR(void)
 /** ISPSDA I/O pin: Get Input (used in SWD mode only).
 \return Current status of the SWDIO DAP hardware I/O pin.
 */
-//static __forceinline uint32_t PIN_ISPSDA_IN(void)
+// static __forceinline uint32_t PIN_ISPSDA_IN(void)
 //{
 //    return (BITBAND_REG(PIN_ISPSDA_IN_GPIO->PDIR, PIN_ISPSDA_IN_BIT));
 //}

@@ -26,7 +26,7 @@ void target_before_init_debug(void)
 {
     // any target specific sequences needed before attaching
     //	to the DAP across JTAG or SWD
-    
+//    swd_set_target_reset(1);
     return;
 }
 

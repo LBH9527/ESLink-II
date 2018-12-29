@@ -3,8 +3,8 @@
 #include "eslink.h"
 #include "errno.h"
 
-#include "bootisp_prg_intf.h"
-#include "bootisp_target_flash.h"
+#include "bootisp_prog_intf.h"
+#include "bootisp_host.h"
 #include "bootisp_target_config.h"
 
 typedef enum {

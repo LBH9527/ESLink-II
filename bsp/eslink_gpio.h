@@ -11,49 +11,6 @@
 extern "C" {
 #endif
 
-
-/******************************************************************************/
-// HID_LED PTA5
-//#define PIN_HID_LED_PORT        PORTA
-//#define PIN_HID_LED_GPIO        PTA
-//#define PIN_HID_LED_BIT         (5)
-//#define PIN_HID_LED             (1<<PIN_HID_LED_BIT)
-
-//// MSC_LED PTB3
-//#define PIN_MSC_LED_PORT        PORTB
-//#define PIN_MSC_LED_GPIO        PTB
-//#define PIN_MSC_LED_BIT         (3)
-//#define PIN_MSC_LED             (1<<PIN_MSC_LED_BIT)
-
-//// CDC_LED PTB2
-//#define PIN_CDC_LED_PORT        PORTB
-//#define PIN_CDC_LED_GPIO        PTB
-//#define PIN_CDC_LED_BIT         (2)
-//#define PIN_CDC_LED             (1<<PIN_CDC_LED_BIT)
-
-//OLED Port I/O Pins 
-/******************************************************************************/ 
-// OLED_CS  PTB19
-#define PIN_OLED_CS_PORT        PORTB
-#define PIN_OLED_CS_GPIO        PTB
-#define PIN_OLED_CS_BIT         (19)
-#define PIN_OLED_CS             (1<<PIN_OLED_CS_BIT)
-// OLED_RST  PTB18
-#define PIN_OLED_RST_PORT       PORTB
-#define PIN_OLED_RST_GPIO       PTB
-#define PIN_OLED_RST_BIT        (18)
-#define PIN_OLED_RST            (1<<PIN_OLED_RST_BIT)
-// OLED_SCK  PTC2
-#define PIN_OLED_SCK_PORT       PORTC
-#define PIN_OLED_SCK_GPIO       PTC
-#define PIN_OLED_SCK_BIT        (2)
-#define PIN_OLED_SCK            (1<<PIN_OLED_SCK_BIT)
-// OLED_SDA  PTC3
-#define PIN_OLED_SDA_PORT       PORTC
-#define PIN_OLED_SDA_GPIO       PTC
-#define PIN_OLED_SDA_BIT        (3)
-#define PIN_OLED_SDA            (1<<PIN_OLED_SDA_BIT)  
-
 // Debug Port I/O Pins
 /******************************************************************************/
 /*
@@ -118,11 +75,17 @@ extern "C" {
 #define PIN_ISPSCK_NOE_GPIO     PTC
 #define PIN_ISPSCK_NOE_BIT      8
 
-// RST Pin                      PTC4
+// RST out Pin                      PTC4
 #define PIN_RST_PORT            PORTC
 #define PIN_RST_GPIO            PTC
 #define PIN_RST_BIT             4
 #define PIN_RST                 (1 << PIN_RST_BIT)
+
+//// RST in Pin                      PTC11
+//#define PIN_RST_PORT            PORTC
+//#define PIN_RST_GPIO            PTC
+//#define PIN_RST_BIT             4
+//#define PIN_RST                 (1 << PIN_RST_BIT)
 
 // Control Pin PTC10
 #define PIN_CTL_PORT            PORTC
@@ -161,37 +124,36 @@ extern "C" {
 // Target Running LED           Not available   //busy    
 
 //START_IN Pin   PTB17
-#define PIN_START_IN_PORT        PORTB
-#define PIN_START_IN_GPIO         PTB
-#define PIN_START_IN_BIT          17
-#define PIN_START_IN              (1 << PIN_START_IN_BIT) 
-
+#define PIN_START_IN_PORT       PORTB
+#define PIN_START_IN_GPIO       PTB
+#define PIN_START_IN_BIT        (17)
+#define PIN_START_IN            (1 << PIN_START_IN_BIT) 
 
 //name PORTC1 (number 60), BEEP   
-#define BEEP_PORT           PORTC 
-#define BEEP_GPIO           GPIOC 
-#define BEEP_PIN            1  
+#define BEEP_PORT               PORTC 
+#define BEEP_GPIO               GPIOC 
+#define BEEP_PIN                1    
 
-
-//KEY Port I/O Pins
 /******************************************************************************/
+//KEY Port I/O Pins
 // KEY0 PTA4
-#define PIN_KEY0_PORT       PORTA
-#define PIN_KEY0_GPIO       PTA
-#define PIN_KEY0_BIT        (4)
-#define PIN_KEY0            (1<<PIN_KEY0_BIT)
+#define PIN_KEY0_PORT           PORTA
+#define PIN_KEY0_GPIO           PTA
+#define PIN_KEY0_BIT            (4)
+#define PIN_KEY0                (1<<PIN_KEY0_BIT)
 
+/******************************************************************************/
 // 5V Select pin 
 #define PIN_SELECT_5V_PORT      PORTD
 #define PIN_SELECT_5V_GPIO      PTD
-#define PIN_SELECT_5V_BIT       0
-
+#define PIN_SELECT_5V_BIT       0 
 
 // 3.3V Select pin 
 #define PIN_SELECT_3V3_PORT     PORTD
 #define PIN_SELECT_3V3_GPIO     PTD
 #define PIN_SELECT_3V3_BIT      1
 
+/******************************************************************************/
 //EEPROM 
 // EEPROM SCL Pin                PTB0
 #define PIN_IIC_SCL_PORT         PORTB
@@ -204,7 +166,39 @@ extern "C" {
 #define PIN_IIC_SDA_BIT          1
 #define PIN_IIC_SDA              (1 << PIN_IIC_SDA_BIT)
 
+//OLED Port I/O Pins 
+/******************************************************************************/ 
+// OLED_CS  PTB19
+#define PIN_OLED_CS_PORT        PORTB
+#define PIN_OLED_CS_GPIO        PTB
+#define PIN_OLED_CS_BIT         (19)
+#define PIN_OLED_CS             (1<<PIN_OLED_CS_BIT)
+// OLED_RST  PTB18
+#define PIN_OLED_RST_PORT       PORTB
+#define PIN_OLED_RST_GPIO       PTB
+#define PIN_OLED_RST_BIT        (18)
+#define PIN_OLED_RST            (1<<PIN_OLED_RST_BIT)
+// OLED_SCK  PTC2
+#define PIN_OLED_SCK_PORT       PORTC
+#define PIN_OLED_SCK_GPIO       PTC
+#define PIN_OLED_SCK_BIT        (2)
+#define PIN_OLED_SCK            (1<<PIN_OLED_SCK_BIT)
+// OLED_SDA  PTC3
+#define PIN_OLED_SDA_PORT       PORTC
+#define PIN_OLED_SDA_GPIO       PTC
+#define PIN_OLED_SDA_BIT        (3)
+#define PIN_OLED_SDA            (1<<PIN_OLED_SDA_BIT)  
 
+/******************************************************************************/
+/*
+ * RTC OUT Pin
+ */
+// RTC_OUT  PTA12
+#define PIN_RTC_OUT_PORT        PORTA
+#define PIN_RTC_OUT_GPIO        PTA
+#define PIN_RTC_OUT_BIT         (12)
+#define PIN_RTC_OUT             (1<<PIN_PTC_OUT_BIT) 
+ 
 /*******************************************************************************
 *   LED SET       led灯逻辑错误
 *******************************************************************************/ 
@@ -405,10 +399,6 @@ uint8_t gpio_get_reset_btn_no_fwrd(void);
 uint8_t gpio_key0_down(void);
 //uint8_t gpio_key1_down(void);
 //uint8_t gpio_key2_down(void);
-void es_set_trget_power(trget_power_t power);
-uint8_t ofl_start_in_low(void);
-
-
 
 #ifdef __cplusplus
 }

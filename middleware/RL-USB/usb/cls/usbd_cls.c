@@ -277,9 +277,7 @@ void USBD_CLS_BulkOut()
     {
         send_offset = 0;
         USBD_CLS_DataInTransfer();  
-    }
-          
-    
+    }      
 }
 
 void USBD_CLS_EP_BULKOUT_Event(uint32_t event)

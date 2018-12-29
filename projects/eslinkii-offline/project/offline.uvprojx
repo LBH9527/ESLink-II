@@ -310,7 +310,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>2</Optim>
+            <Optim>1</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
@@ -366,7 +366,7 @@
             <TextAddressRange>0x00000000</TextAddressRange>
             <DataAddressRange>0x1FFFE000</DataAddressRange>
             <pXoBase></pXoBase>
-            <ScatterFile>..\source\MK22FN128xxx10_flash.scf</ScatterFile>
+            <ScatterFile>..\startup\MK22FN128xxx10_flash.scf</ScatterFile>
             <IncludeLibs></IncludeLibs>
             <IncludeLibsPath></IncludeLibsPath>
             <Misc>--predefine="-I..\..\..\eslink"</Misc>
@@ -380,24 +380,24 @@
           <GroupName>eslink</GroupName>
           <Files>
             <File>
-              <FileName>eslink_addr.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\eslink\eslink_addr.h</FilePath>
-            </File>
-            <File>
               <FileName>errno.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\..\eslink\errno.h</FilePath>
             </File>
             <File>
-              <FileName>settings_spi_flash.h</FileName>
+              <FileName>eslink_app_addr.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\..\..\eslink\settings_spi_flash.h</FilePath>
+              <FilePath>..\..\..\eslink\eslink_app_addr.h</FilePath>
             </File>
             <File>
-              <FileName>settings_spi_flash.c</FileName>
+              <FileName>sflash_port.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\eslink\settings_spi_flash.c</FilePath>
+              <FilePath>..\..\..\eslink\sflash_port.c</FilePath>
+            </File>
+            <File>
+              <FileName>eeprom_port.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\eslink\eeprom_port.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -530,14 +530,19 @@
               <FilePath>..\..\..\gui\oled.c</FilePath>
             </File>
             <File>
-              <FileName>ofl_menu.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\gui\ofl_menu.c</FilePath>
-            </File>
-            <File>
               <FileName>message.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\gui\message.c</FilePath>
+            </File>
+            <File>
+              <FileName>update_menu.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\gui\update_menu.c</FilePath>
+            </File>
+            <File>
+              <FileName>update_menu.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\gui\update_menu.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -583,6 +588,11 @@
               <FileName>es_types.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\..\common\es_types.h</FilePath>
+            </File>
+            <File>
+              <FileName>ustdlib.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\common\ustdlib.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -657,15 +667,12 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>utilites</GroupName>
-        </Group>
-        <Group>
           <GroupName>starup</GroupName>
           <Files>
             <File>
               <FileName>startup_MK22F12810.s</FileName>
               <FileType>2</FileType>
-              <FilePath>..\..\..\startup\startup_MK22F12810.s</FilePath>
+              <FilePath>..\startup\startup_MK22F12810.s</FilePath>
             </File>
           </Files>
         </Group>
@@ -696,6 +703,13 @@
         </Group>
         <Group>
           <GroupName>doc</GroupName>
+          <Files>
+            <File>
+              <FileName>说明.txt</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\doc\说明.txt</FilePath>
+            </File>
+          </Files>
         </Group>
       </Groups>
     </Target>

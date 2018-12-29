@@ -76,23 +76,28 @@ typedef struct{
 }debug_comm_frame_t;  
 
 
-////编程操作接口
-//struct es_prog_ops {
-//    void    (*init) (es_target_cfg *target) ;
-//    error_t (*prog_init) (void);
-//    error_t (*prog_uninit) (void);
-//    error_t (*erase_chip) ( uint8_t *para);
-//    error_t (*check_empty) (uint32_t *addr, uint32_t *data);  
-//    error_t (*read_chipid) (uint32_t *data);  
-//    error_t (*read_chip_chksum) (uint32_t *data);
-//    error_t (*encrypt_chip) (void);    
-//    error_t (*program_config_word) (uint32_t adr, uint8_t *buf, uint32_t size,uint32_t *failed_addr);
-//    error_t (*read_config_word) (uint32_t adr, uint8_t *buf, uint32_t size); 
-//    error_t (*verify_config_word) (uint32_t addr,  uint8_t *data, uint32_t size, uint32_t *failed_addr, uint32_t *failed_data); 
-//    error_t (*program_flash) (uint32_t adr, uint8_t *buf, uint32_t size,uint32_t *failed_addr);
-//    error_t (*read_flash) (uint32_t adr, uint8_t *buf, uint32_t size);   
-//    error_t (*verify_flash) (uint32_t addr,  uint8_t *data, uint32_t size, uint32_t *failed_addr, uint32_t *failed_data);    
-//};
+//编程操作接口
+struct es_prog_ops {
+    void    (*init) (es_target_cfg *target) ;
+    error_t (*prog_init) (void);
+    error_t (*prog_uninit) (void);
+    error_t (*erase_chip) ( uint8_t para);
+    error_t (*check_empty) (uint32_t *addr, uint32_t *data);  
+    error_t (*read_chipid) (uint32_t *data);  
+//    error_t (*chipid_check) (void);
+    error_t (*read_chip_chksum) (uint32_t *data);
+    error_t (*encrypt_chip) (void);    
+    error_t (*program_info) (uint32_t adr, uint8_t *buf, uint32_t size,uint32_t *failed_addr);
+    error_t (*read_info) (uint32_t adr, uint8_t *buf, uint32_t size); 
+    error_t (*verify_info) (uint32_t addr,  uint8_t *data, uint32_t size, uint32_t *failed_addr, uint32_t *failed_data); 
+    error_t (*program_flash) (uint32_t adr, uint8_t *buf, uint32_t size,uint32_t *failed_addr);
+    error_t (*read_flash) (uint32_t adr, uint8_t *buf, uint32_t size);   
+    error_t (*verify_flash) (uint32_t addr,  uint8_t *data, uint32_t size, uint32_t *failed_addr, uint32_t *failed_data);    
+    error_t (*program_info_all)   (uint32_t *failed_addr);
+    error_t (*program_all) (uint8_t sn_enable, serial_number_t *sn , uint32_t *failed_addr); 
+    error_t (*verify_all)  (uint8_t sn_enable, serial_number_t *sn , uint32_t *failed_addr, uint32_t *failed_data);
+};
+
 
 
 #endif

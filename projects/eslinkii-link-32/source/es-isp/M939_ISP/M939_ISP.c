@@ -1,6 +1,6 @@
 #include "eslink.h"
-#include "M939_ISP.h"
-
+#include "es_isp.h"
+#include "M939_ISP.h"   
 
 #define PIN_DELAY(n)    ES_DELAY_SLOW(n)
 //#define PIN_DELAY(n)    ES_DELAY_FAST(n)
@@ -323,7 +323,7 @@ static uint8_t info_program(uint32_t addr, uint32_t *data, uint32_t size, uint32
     uint32_t remain_size;   
     uint32_t remain_data;
     
-    if(addr & 0x08)         //需要从0x10地址对齐的地方开始编程
+    if(addr & 0x07)         //需要从0x08地址对齐的地方开始编程
           return FALSE;
     //设置地址缓冲器
     addr_set(addr); 
@@ -414,7 +414,7 @@ static uint8_t info_read(uint32_t addr, uint32_t *data, uint32_t size)
     read_size = size - remain_size;      
     if(read_size)
     {    
-        if(addr & 0x08)         //读双字节需要从0x10地址对齐的地方开始读
+        if(addr & 0x07)         //读双字节需要从0x08地址对齐的地方开始读
             return FALSE;
         for( i=0; i<read_size; i += 2)
         {
@@ -478,9 +478,6 @@ uint8_t isp_program_code(uint32_t addr, uint32_t *data, uint32_t size, uint32_t 
 *******************************************************************************/
 uint8_t isp_read_code(uint32_t addr, uint32_t *data, uint32_t size) 
 {
-        //双字节编程
-    if(size &0x01)
-        return FALSE;
     area_set(CODE_AREA_VAL);
     code_read(addr, data, size);
     return TRUE; 
@@ -555,9 +552,30 @@ uint8_t isp_erase_chip(void)
     result = erase_and_check(ERASE_M4_CMD, INFO_3_AREA, 2);
     if(result != TRUE)
         return FALSE; 
-#endif        
+#endif   
+#if ESLINK_RTC_ENABLE  
+    //擦除info4        
+    result = erase_and_check(ERASE_M5_CMD, INFO_4_AREA, 2);
+    if(result != TRUE)
+        return FALSE;        
+    return TRUE;
+#endif
+     
     return TRUE;
 }
+
+#if ESLINK_RTC_ENABLE  
+uint8_t rtc_info_erase(void)
+{
+    uint8_t result;  
+    
+    result = erase_and_check(ERASE_M5_CMD, INFO_4_AREA, 2);
+    if(result != TRUE)
+        return FALSE;        
+    return TRUE;
+
+}
+#endif
 
 //isp复位
 void isp_reset(void)

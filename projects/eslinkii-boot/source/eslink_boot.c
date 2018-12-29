@@ -174,7 +174,7 @@ uint32_t prog_process_command(uint8_t *request, uint8_t *response)
     switch(prog_data.fun_code){   
         case ID_HANDSHAKE:
             prog_data.data_length = 0;
-            break;
+            break;          
         //------------------------Boot判断--------------------------------
         case ID_READ_OFL_VERSION:           //0xD7 读脱机工程版本 
             #if 1

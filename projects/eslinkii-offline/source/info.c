@@ -1,5 +1,5 @@
 #include "es_common.h"
-#include "eslink_addr.h"
+#include "eslink_app_addr.h"
 #include "info.h"
 #include "settings_rom.h"
 #include "iap_flash_intf.h"
@@ -14,7 +14,7 @@
 //    uint32_t version;
 //} offline_info_t;
 
-//const uint32_t key __attribute__((section(".ARM.__at_0x0001F800"))) = CFG_KEY;
+//const uint32_t key __attribute__((section(".ARM.__at_0x0000BF60"))) = 0x6b766c64;
 //const   uint32_t key __attribute__((at(0x0000BFF0))) =   
 
 //{

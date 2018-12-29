@@ -1,5 +1,5 @@
-#ifndef ESLINK_ADDR_H
-#define ESLINK_ADDR_H
+#ifndef _ESLINK_APP_ADDR_H
+#define _ESLINK_APP_ADDR_H
  
 /* Device sizes */
 //芯片地址信息

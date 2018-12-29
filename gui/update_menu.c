@@ -2,7 +2,7 @@
 #include "oled.h"
 
 #include "offline_file.h" 
-#include "menu.h"
+#include "update_menu.h"
 #include "fonts.h"
 #include "main.h"
 #include "update.h"
@@ -160,7 +160,7 @@ void ofl_display (void)
     char display_temp[16+1] = {'\0'};
 	for(i=0; i<ofl_state.disp_num; i++)
     {
-        sprintf(display_temp,"%-16s",ofl_item.str[i+ofl_state.first_line]);
+        usprintf(display_temp,"%-16s",ofl_item.str[i+ofl_state.first_line]);
         if(i== ofl_state.cur_line)
             ofl_diplay_str_inv((i+1)*16,display_temp); 
         else
@@ -195,9 +195,9 @@ void ofl_select_display(void)
 		oled_display_str(0,0,data, &Font16);  
 //		oled_display_str(0,0,"方案选择", &Font16);      	
 		oled_display_str(64,0,"(00/  )", &Font16);
-        sprintf(display_temp,"%02d",ofl_item.item_num-1);  
+        usprintf(display_temp,"%02d",ofl_item.item_num-1);  
         oled_display_str(96,0,display_temp, &Font16); 
-        sprintf(display_temp,"%02d",ofl_state.item_index) ; 
+        usprintf(display_temp,"%02d",ofl_state.item_index) ; 
         oled_display_str(72,0,display_temp, &Font16); 
 		disp_init = 0;	
         ofl_display();
@@ -235,11 +235,11 @@ void ofl_select_display(void)
 				}
                 if(ofl_state.item_index == ofl_item.item_num)
                 {                  
-                     sprintf(display_temp,"%02d",ofl_state.item_index-1);
+                     usprintf(display_temp,"%02d",ofl_state.item_index-1);
                 } 
                 else
                 {
-                    sprintf(display_temp,"%02d",ofl_state.item_index);
+                    usprintf(display_temp,"%02d",ofl_state.item_index);
                 }                   
                 oled_display_str(72,0,display_temp, &Font16);    
 		        ofl_display();

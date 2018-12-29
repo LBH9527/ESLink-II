@@ -1,11 +1,13 @@
-MCU 60MHZ
-BSP
-IAP程序过程
-1、下载APP程序。
+//硬件版本信息
+#define HARDWARE_VERSION_MCU  0x00            //主芯片信息。mk22 为0 
+#define HARDWARE_VERSION_FORM  0x00           //设备信息。mini还是完整的  mini是01
+#define HARDWARE_VERSION_PCB  0x00            //PCB信息。
+#define HARDWARE_VERSION_MINOR  0x01          //固件版本                     
+                                   
+#define HARDWARE_VERSION         ((HARDWARE_VERSION_MCU << 24U) | \
+                                (HARDWARE_VERSION_FORM << 16U)  | \
+                                (HARDWARE_VERSION_PCB << 8U)  | \
+                                   HARDWARE_VERSION_MINOR  )   
 
 
-
-
-TODO：
-1、添加硬件版本。
-
+HARDWARE_VERSION = 0x00010001	//mini

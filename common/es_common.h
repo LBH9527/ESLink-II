@@ -17,38 +17,6 @@ extern "C" {
 /******************************************************************************/
 
 /**
- * \name 通用常量定义
- * @{
- */
-#define ES_OK               0         /**< \brief OK               */
-#define ES_ERROR          (-1)        /**< \brief 一般错误         */
-
-#define ES_NO_WAIT          0         /**< \brief 超时：不等待     */
-#define ES_WAIT_FOREVER   (-1)        /**< \brief 超时：永远等待   */
-
-#ifndef EOF
-#define EOF               (-1)        /**< \brief 文件结束         */
-#endif
-
-#define NONE              (-1)        /**< \brief 每当为空时不执行 */
-#define EOS               '\0'        /**< \brief C字符串结束      */
-
-#ifndef NULL
-#define NULL             ((void *)0)  /**< \brief 空指针           */
-#endif
-
-#define ES_LITTLE_ENDIAN  1234        /**< \brief 小端模式         */
-#define ES_BIG_ENDIAN     3412        /**< \brief 大端模式         */
-
-typedef enum {RESET = 0, SET = !RESET} FlagStatus, ITStatus;
-
-typedef enum {DISABLE = 0, ENABLE = !DISABLE} FunctionalState;
-
-/** @} */
-
-/******************************************************************************/
-
-/**
  * \name 常用宏定义
  * @{
  */
@@ -69,7 +37,7 @@ typedef enum {DISABLE = 0, ENABLE = !DISABLE} FunctionalState;
  *  offset_m2 = ES_OFFSET(struct my_struct, m2);
  * \endcode
  */
-#define ES_OFFSET(structure, member)    ((size_t)(&(((structure *)0)->member)))
+#define OFFSET(structure, member)    ((size_t)(&(((structure *)0)->member)))
 
 /** \brief 求结构体成员的偏移，同 \ref ES_OFFSET 一样 */
 #ifndef offsetof
@@ -94,7 +62,7 @@ typedef enum {DISABLE = 0, ENABLE = !DISABLE} FunctionalState;
  *  struct my_struct *p_st = ES_CONTAINER_OF(p_m2, struct my_struct, m2);
  * \endcode
  */
-#define ES_CONTAINER_OF(ptr, type, member) \
+#define CONTAINER_OF(ptr, type, member) \
             ((type *)((char *)(ptr) - offsetof(type,member)))
 
 /**
@@ -123,7 +91,7 @@ typedef enum {DISABLE = 0, ENABLE = !DISABLE} FunctionalState;
  *  size_m2 = ES_MEMBER_SIZE(a, m2);   //size_m2 = 4
  * \endcode
  */
-#define ES_MEMBER_SIZE(structure, member)  (sizeof(((structure *)0)->member))
+#define MEMBER_SIZE(structure, member)  (sizeof(((structure *)0)->member))
 
 /**
  * \brief 计算数组元素个数
@@ -133,7 +101,7 @@ typedef enum {DISABLE = 0, ENABLE = !DISABLE} FunctionalState;
  *  int element_a = ES_NELEMENTS(a);    // element_a = 4
  * \endcode
  */
-#define ES_NELEMENTS(array)               (sizeof (array) / sizeof ((array) [0]))
+#define NELEMENTS(array)               (sizeof (array) / sizeof ((array) [0]))
 
 /**
  * \brief 永久循环
@@ -188,10 +156,10 @@ typedef enum {DISABLE = 0, ENABLE = !DISABLE} FunctionalState;
  * \param align 对齐因素，必须为2的乘方
  *
  * \code
- * int size = ES_ROUND_UP(15, 4);   // size = 16
+ * int size = ROUND_UP(15, 4);   // size = 16
  * \endcode
  */
-#define ES_ROUND_UP(x, align)   (((int) (x) + (align - 1)) & ~(align - 1))
+#define ROUND_UP(x, align)   (((int) (x) + (align - 1)) & ~(align - 1))
 
 /**
  * \brief 向下舍入
@@ -200,13 +168,13 @@ typedef enum {DISABLE = 0, ENABLE = !DISABLE} FunctionalState;
  * \param align 对齐因素，必须为2的乘方
  *
  * \code
- * int size = ES_ROUND_DOWN(15, 4);   // size = 12
+ * int size = ROUND_DOWN(15, 4);   // size = 12
  * \endcode
  */
-#define ES_ROUND_DOWN(x, align) ((int)(x) & ~(align - 1))
+#define ROUND_DOWN(x, align) ((int)(x) & ~(align - 1))
 
 /** \brief 倍数向上舍入 */
-#define ES_DIV_ROUND_UP(n, d)   (((n) + (d) - 1) / (d))
+#define DIV_ROUND_UP(n, d)   (((n) + (d) - 1) / (d))
 
 /**
  * \brief 测试是否对齐
@@ -222,7 +190,7 @@ typedef enum {DISABLE = 0, ENABLE = !DISABLE} FunctionalState;
  * }
  * \endcode
  */
-#define ES_ALIGNED(x, align)    (((int)(x) & (align - 1)) == 0)
+#define ALIGNED(x, align)    (((int)(x) & (align - 1)) == 0)
 
 /******************************************************************************/
 
@@ -235,10 +203,10 @@ typedef enum {DISABLE = 0, ENABLE = !DISABLE} FunctionalState;
 /******************************************************************************/
 
 /** \brief 将1字节BCD数据转换为16进制数据 */
-#define ES_BCD_TO_HEX(val)     (((val) & 0x0f) + ((val) >> 4) * 10)
+#define BCD_TO_HEX(val)     (((val) & 0x0f) + ((val) >> 4) * 10)
 
 /** \brief 将1字节16进制数据转换为BCD数据 */
-#define ES_HEX_TO_BCD(val)     ((((val) / 10) << 4) + (val) % 10)
+#define HEX_TO_BCD(val)     ((((val) / 10) << 4) + (val) % 10)
 
 /******************************************************************************/
 #define ELEMENTS_IN_ARRAY(array)        (sizeof(array)/sizeof(array[0]))
@@ -247,9 +215,6 @@ typedef enum {DISABLE = 0, ENABLE = !DISABLE} FunctionalState;
 
 #define KB(size)                        ((size) * 1024)
 
-#define ROUND_UP(value, boundary)       ((value) + ((boundary) - (value)) % (boundary))
-
-#define ROUND_DOWN(value, boundary)     ((value) - ((value) % (boundary)))
 
 //发送事件
 #define flag_send(c,b)			( (c) |= (b) ) 
@@ -296,7 +261,7 @@ typedef enum {DISABLE = 0, ENABLE = !DISABLE} FunctionalState;
 //#include "am_errno.h"
 #include "es_types.h"
 #include "es_list.h"
-
+#include "ustdlib.h"
 
 /*******************************************************************************
   函数声明

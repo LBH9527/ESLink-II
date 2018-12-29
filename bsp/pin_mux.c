@@ -32,8 +32,8 @@ void BOARD_InitPins(void)
                      /* Pull Enable: Internal pullup or pulldown resistor is not enabled on the corresponding pin. */
                      | PORT_PCR_PE(kPORT_PullDisable));
 
-    /* PORTA12 (pin 28) is configured as FTM1_CH0 */
-    PORT_SetPinMux(PORTA, 12U, kPORT_MuxAlt3);
+    /* PORTA12 (pin 28) is configured as gpio */
+    PORT_SetPinMux(PIN_RTC_OUT_PORT, PIN_RTC_OUT_BIT, kPORT_MuxAsGpio);
 
     /* PORTA13 (pin 29) is configured as FTM1_CH1 */
     PORT_SetPinMux(PORTA, 13U, kPORT_MuxAlt3);

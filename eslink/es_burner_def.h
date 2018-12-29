@@ -1,24 +1,6 @@
 #ifndef __BURNER_DEF_H__
 #define __BURNER_DEF_H__  
 
-//编程操作接口
-struct es_prog_ops {
-    void    (*init) (es_target_cfg *target) ;
-    error_t (*prog_init) (void);
-    error_t (*prog_uninit) (void);
-    error_t (*erase_chip) ( uint8_t *para);
-    error_t (*check_empty) (uint32_t *addr, uint32_t *data);  
-    error_t (*read_chipid) (uint32_t *data);  
-    error_t (*chipid_check) (void);
-    error_t (*read_chip_chksum) (uint32_t *data);
-    error_t (*encrypt_chip) (void);    
-    error_t (*program_config_word) (uint32_t adr, uint8_t *buf, uint32_t size,uint32_t *failed_addr);
-    error_t (*read_config_word) (uint32_t adr, uint8_t *buf, uint32_t size); 
-    error_t (*verify_config_word) (uint32_t addr,  uint8_t *data, uint32_t size, uint32_t *failed_addr, uint32_t *failed_data); 
-    error_t (*program_flash) (uint32_t adr, uint8_t *buf, uint32_t size,uint32_t *failed_addr);
-    error_t (*read_flash) (uint32_t adr, uint8_t *buf, uint32_t size);   
-    error_t (*verify_flash) (uint32_t addr,  uint8_t *data, uint32_t size, uint32_t *failed_addr, uint32_t *failed_data);    
-};
 
 //编程接口定义
 typedef enum 
@@ -63,6 +45,9 @@ typedef struct {
 #define ID_DL_OFL_HEX                      0xD9    //下载脱机工程HEX'  （1024）
 #define ID_DL_OFL_HEX_END                  0xDA    //脱机下载结束 
 
+#define ID_READ_SERIAL_NUMBER               0xDE    //读产品序列号
+#define ID_DL_SERIAL_NUMBER                 0xDF    //下载产品序列号
+
 //#define ID_DL_TIMING                        0x19    //时序下载(1024)
 //#define ID_DL_TIMING_START                  0x1B    //时序下载开始    
 //#define ID_DL_TIMING_END                    0x1C	//时序下载结束
@@ -98,8 +83,12 @@ typedef struct {
 #define ID_DL_TIMING_END                    0x33    //时序结束
 #define ID_DL_OFFLINE_CONFIG_WORD           0x34    //脱机方案配置字下载
 #define ID_DL_OFFLINE_CONFIG_WORD_END       0x3B    //脱机方案配置字下载完成
-#define ID_DL_OFFLINE_HEX               0x35    //脱机方案用户HEX  （1024）
-#define ID_DL_OFFLINE_HEX_END           0x36    //脱机方案用户HEX下载完成
-#define ID_DL_OFFLINE_END           0x3C    //脱机方案下载完成///////////////////////////////////////////////
-
+#define ID_DL_OFFLINE_HEX                   0x35    //脱机方案用户HEX  （1024）
+#define ID_DL_OFFLINE_HEX_END               0x36    //脱机方案用户HEX下载完成
+#define ID_DL_OFFLINE_END                   0x3C    //脱机方案下载完成///////////////////////////////////////////////
+#define ID_RTC_START_SELF_CALIBRATE         0x3D
+#define ID_RTC_WRITE_CALIBRATE              0x3E      //写RTC自校正值
+#define ID_RTC_READ_CALIBRATE               0x3F      //读RTC自校正值  
+#define ID_RTC_CALI                         0x40     //RTC调校
+#define ID_RTC_CALI_VERIFY                  0x41     //RTC验证
 #endif

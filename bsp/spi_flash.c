@@ -1,17 +1,3 @@
-/**
-  **************************************************************************************
-  * @file    bsp_flash.c
-  * @brief   flash File.
-  *
-  * @version V0.01
-  * @data    4/3/2018
-  * @author  Eastsoft AE Team
-  * @note
-  *
-  * Copyright (C) 2018 Shanghai Eastsoft Microelectronics Co., Ltd. ALL rights reserved.
-  *
-  **************************************************************************************
-  */
 //SPI FLASH信息    
 //MX25L64  总容量 = 64M bit = 8M bytes      地址范围： 0 --- 7F FFFF    
  
@@ -550,12 +536,12 @@ uint8_t sf_cmp_data(uint32_t _uiSrcAddr, const uint8_t *_ucpTar, uint32_t _uiSiz
 	/* 如果读取的数据长度为0或者超出串行Flash地址空间，则直接返回 */
 	if ((_uiSrcAddr + _uiSize) > g_flash.block_end * FLASH_BLOCK_SIZE)
 	{
-		return 1;
+		return FALSE;
 	}
 
 	if (_uiSize == 0)
 	{
-		return 0;
+		return TRUE;
 	}
 
 	sf_set_cs(0);									/* 使能片选 */
@@ -570,12 +556,12 @@ uint8_t sf_cmp_data(uint32_t _uiSrcAddr, const uint8_t *_ucpTar, uint32_t _uiSiz
 		if (*_ucpTar++ != ucValue)
 		{
 			sf_set_cs(1);
-			return 1;
+			return FALSE;
 		}
 	}
 	sf_set_cs(1);
     
-	return 0;
+	return TRUE;
 }
 
 ///*
@@ -885,8 +871,8 @@ int sf_read_info(void)
     g_flash.block_end = 2048;
     g_flash.capacity = g_flash.block_size * g_flash.block_end ;
     if( chip_id == MX25L64_ID)
-        return 0;
-    return -1;
+        return TRUE;
+    return FALSE;
 }
 
 

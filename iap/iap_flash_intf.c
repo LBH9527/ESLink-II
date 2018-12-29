@@ -3,7 +3,7 @@
 #include "cortex_m.h"
 #include "fsl_flash.h"
 #include "iap_flash_intf.h"
-#include "eslink_addr.h" 
+#include "eslink_app_addr.h" 
 #include "update.h"
 
 
@@ -72,7 +72,7 @@ uint32_t iap_erase_sector(uint32_t adr)
     }
     cortex_int_restore(state);
     if( status != kStatus_Success)
-        return 1;
+        return FALSE;
     return TRUE;
 }
 
@@ -116,11 +116,11 @@ uint32_t iap_erase_chip(uint32_t updt_start, uint32_t updt_size)
     for (uint32_t size = 0; size < updt_size; size += ESLINK_SECTOR_SIZE) 
     {
         addr = updt_start + size;
-        if( iap_erase_sector(addr))
-            return 1;         
+        if( iap_erase_sector(addr) != TRUE)
+            return FALSE;         
     }
 
-    return 0;
+    return TRUE;
 }
 uint32_t iap_flash_checksum( uint32_t addr, uint32_t size)
 {

@@ -15,7 +15,7 @@
 #include "board.h" 
 #include "clock_config.h" 
 #include "cortex_m.h"
-#include "eslink_addr.h" 
+//#include "eslink_addr.h" 
 #include "main.h" 
 #include "RTL.h"
 #include "rl_usb.h"
@@ -26,17 +26,19 @@
 #include "pin_mux.h"
 #include "uart.h"
 #include "spi_flash.h" 
-#include "eeprom.h"
+#include "eeprom_port.h"
 #include "key.h"  
 #include "oled.h"   
 #include "beep.h" 
+#include "eeprom.h"
 #include "DAP.h"
 #include "eslink.h"
 #include "menu.h"
 #include "offline_app.h"
 #include "offline_file.h" 
-#include "systick.h"
-//#include "rtc.h"
+#include "systick.h" 
+#include "target_program_config.h"
+#include "rtc_calibrate.h"
 
 /*******************************************************************************
 								变量
@@ -45,15 +47,14 @@
 uint32_t  task_flags = 0;
 /* 事件标志 */
 // Event flags for main task
-// Timers events
-#define FLAGS_MAIN_30MS         (1 << 0)
 // Reset events
-#define FLAGS_MAIN_RESET        (1 << 1)
-#define FLAGS_MAIN_RESET_TARGET (1 << 2)
-#define FLAGS_MAIN_CDC_EVENT    (1 << 3)
-// Used by msd when flashing a new binary
-#define FLAGS_LED_BLINK_30MS    (1 << 4)
-#define FLAGS_GUI_REFRESH       (1 << 5)
+#define FLAGS_MAIN_RESET        (1 << 0)
+#define FLAGS_MAIN_RESET_TARGET (1 << 1)
+#define FLAGS_MAIN_CDC_EVENT    (1 << 2)
+
+#define FLAGS_GUI_REFRESH       (1 << 3) 
+#define FLAGS_RTC_OUT           (1 << 4)        //RTC自校正
+#define FLAGS_RTC_HANDLER       (1 << 5)            
 
 ///*******************************************************************************
 //							函数声明
@@ -95,6 +96,23 @@ void gui_refresh(void)
     flag_send(task_flags, FLAGS_GUI_REFRESH);
 } 
 
+#if ESLINK_RTC_ENABLE  
+static uint8_t  rtc_out_activity = DISABLE;
+uint8_t rtc_out_mode(uint8_t enable)
+{   
+     rtc_out_activity = enable;
+     flag_send(task_flags, FLAGS_RTC_OUT);
+
+     return TRUE;
+}
+void rtc_handler_event(void)
+{
+    flag_send(task_flags, FLAGS_RTC_HANDLER);
+    return;
+}
+
+
+#endif
 
 int main (void) 
 {	
@@ -104,31 +122,37 @@ int main (void)
     BOARD_BootClockRUN();
     BOARD_InitDebugConsole();   
     settings_rom_init();
-    
-    gpio_init();
-    es_set_trget_power(TRGET_POWER_ENABLE);     
-    oled_init();
-    key_init(); 
-    fm24cxx_init();     
-    spi_flash_init(); 
-    //    sf_erase_chip();  
-    ofl_file_init();     
-    msg_init();   	
     bsp_init_systick();
-   
+    gpio_init();
     
-//    rtc_Init();
+    es_set_trget_power(TRGET_POWER_ENABLE);  
+    key_init();  
+    if(eslink_is_mini() != TRUE)
+    {
+        oled_init();   
+    }    
+             
+    spi_flash_init(); 
+    ofl_file_init();  
+        
+    fm24cxx_init();  
+    msg_init();   	
+   
+#if ESLINK_RTC_ENABLE    
+    rtc_Init();
+#endif
     
     LED_GREEN_ON();  
     
-    if(get_link_mode() == LINK_OFFLINE_MODE)
+    if(eslink_is_offline_mode() == TRUE)
     {    
-         menu_init(1);
-         ofl_app();          
+        menu_init(1);
+        ofl_app();          
     }   
 	else
 	{    
-        
+        menu_init(0);   //联机
+        menu_display(); 
         oline_app();
     }        
 }
@@ -138,8 +162,7 @@ void oline_app(void)
 {
     uint8_t key_value = 0;
     uint8_t menu_msg = MSG_NULL;
-    DAP_Setup(); 
-    menu_init(0);
+    DAP_Setup();       
  
     usbd_init();                        /* USB Device Initialization          */
     usbd_connect(1);                    /* USB Device Connect                 */
@@ -153,7 +176,7 @@ void oline_app(void)
         if(!usbd_configured () )
         {
             //未联机
-        
+            bsp_delay_ms(1000); 
         }
         else
         {
@@ -176,6 +199,22 @@ void oline_app(void)
                 flag_clr(task_flags, FLAGS_MAIN_CDC_EVENT);
                 cdc_process_event();
             }  
+#if ESLINK_RTC_ENABLE  
+            //rtc_out
+            if( flag_recv(task_flags, FLAGS_RTC_OUT)  ) 
+            {
+                flag_clr(task_flags, FLAGS_RTC_OUT);
+                rtc_pwm_out(rtc_out_activity); 
+            }  
+            if( flag_recv(task_flags, FLAGS_RTC_HANDLER)  ) 
+            {
+                flag_clr(task_flags, FLAGS_RTC_HANDLER);
+                es_burner_init(PRG_INTF_ISP);  //RTC烧录默认为ISP烧录
+                
+                rtc_calibration_handler();
+            }  
+            
+#endif            
         }
 
         if( flag_recv(task_flags, FLAGS_GUI_REFRESH))
@@ -189,7 +228,7 @@ void oline_app(void)
             switch (key_value)
             {
                 case KEY_DOWN:
-                menu_msg = MSG_KEY_DOWN; 
+                    menu_msg = MSG_KEY_DOWN;  
 //                    beep_prog_success();                    
                     break;
                 case KEY_ENTER:     //长按
@@ -211,7 +250,7 @@ void ofl_app(void)
     uint8_t key_value = 0;
     uint8_t menu_msg = MSG_NULL;
     static  ofl_prog_state_t state = IN_MODE_CHECK;
-    ofl_prog_error_t  prog_error ;
+    ofl_error_t  prog_error ;
        
     ofl_prog_init();           
     while(1)
@@ -236,28 +275,13 @@ void ofl_app(void)
                 //
                 prog_error = ofl_prog() ;
                 
-                LED_YELLOW_BUSY_OFF();
-                switch(prog_error)
-                {
-                    case OFL_SUCCESS:                              
-                         menu_msg = MSG_PROG_OK;
-                        break;
-                    case OFL_COUNT_FULL:
-                        beep_prog_fail();
-                         menu_msg = MSG_PROG_COUNT_FULL;
-                         break;
-                    case OFL_PROG_FAIL:                             
-                         menu_msg = MSG_PROG_FAILE;
-                         break;
-                     default:
-                        menu_msg = MSG_NULL;
-                        break;                    
-                }  
+                LED_YELLOW_BUSY_OFF();                
                 if( prog_error != OFL_SUCCESS)      //编程失败
                 {
                     //error灯(红灯)
-                    beep_prog_fail();
                     LED_RED_ERROR_OFF();   
+                    beep_prog_fail();
+                    
                 }
                 else
                 {
@@ -265,7 +289,40 @@ void ofl_app(void)
                     LED_GREEN_PASS_OFF();                          
                     beep_prog_success();
                 }
-                    
+                //menu显示
+                switch(prog_error)
+                {
+                    case OFL_SUCCESS:                              
+                        menu_msg = MSG_PROG_OK;
+                        break;
+                    case OFL_ERR_CHIPID_CHECK:       //ID检测失败
+                        menu_msg = MSG_PROG_OK;
+                        break;
+                    case OFL_ERR_ERASE:              //擦除失败
+                        menu_msg = MSG_PROG_OK;
+                        break;      
+                    case OFL_ERR_CHECK_EMPTY:        //查空
+                        menu_msg = MSG_ERR_CHECK_EMPTY;
+                        break;
+                    case OFL_ERR_PROG:               //编程失败
+                        menu_msg = MSG_ERR_PROG;
+                        break;
+                    case OFL_ERR_VERIFY:             //校验
+                        menu_msg = MSG_ERR_VERIFY;
+                        break;
+                    case OFL_ERR_ENCRYPT:            //加密
+                        menu_msg = MSG_ERR_ENCRYPT;
+                        break;
+                    case OFL_ERR_COUNT_FULL:         //烧录计数溢出'
+                        menu_msg = MSG_ERR_COUNT_FULL;
+                        break;
+//                  case OFL_ERR_PROG_INTF:          //编程接口设置失败
+//                        menu_msg = MSG_PROG_OK;
+//                        break;    
+                    default:
+                        menu_msg = MSG_NULL;
+                        break;                    
+                }      
                 state = OUT_MODE_CHECK; 
                 msg_write_data(&menu_msg);
                 break;

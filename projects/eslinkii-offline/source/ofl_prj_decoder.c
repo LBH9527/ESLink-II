@@ -1,9 +1,9 @@
 #include "eslink.h"
 #include "update.h"
 #include "settings_rom.h"
-#include "settings_spi_flash.h"
+#include "sflash_port.h"
 #include "offline_file.h" 
-#include "eeprom.h" 
+#include "eeprom_port.h" 
 
 //ofl_prog_info_t ofl_prog_info;
  //时序基本信息解码
@@ -184,9 +184,11 @@ static error_t update_ofl_serialnum(partition_t *part )
         return ret;   
     ofl_file_read_end();
     
-    fm24cxx_write(EE_OFL_SERIAL_NUMBER_PARTITION, (uint8_t*)&(part->type), sizeof(partition_t));
+//    fm24cxx_write(EE_OFL_SERIAL_NUMBER_PARTITION, (uint8_t*)&(part->type), sizeof(partition_t));
 //    fm24cxx_read(EE_OFL_SERIAL_NUMBER_PARTITION, buf, sizeof(partition_t));
-    fm24cxx_write(EE_SERIAL_NUMBER_ADDR, buf, sizeof(buf));
+//    fm24cxx_write(EE_SERIAL_NUMBER_ADDR, buf, sizeof(buf));
+    set_offline_partition( (uint8_t*)&(part->type), sizeof(partition_t));
+    set_offline_serial_number(buf, sizeof(buf));
     return ERROR_SUCCESS;   
 }
 
@@ -284,6 +286,7 @@ error_t ofl_prj_update(char *path)
         return ret; 
  
     //更新成功，在EE中写入文件名，在脱出脱机状态时，会写序列号。
-    fm24cxx_write(EE_OFL_PRJ_NAME, (uint8_t*)path, OFL_FILE_NAME_MAX_LEN);
+//    fm24cxx_write(EE_OFL_PRJ_NAME, (uint8_t*)path, OFL_FILE_NAME_MAX_LEN);
+    set_offline_project_name((uint8_t*)path, OFL_FILE_NAME_MAX_LEN);
     return ERROR_SUCCESS;
 }

@@ -1,6 +1,6 @@
 #include "es_common.h" 
 #include "cortex_m.h"
-#include "eslink_addr.h" 
+#include "eslink_app_addr.h" 
 #include "errno.h" 
 #include "update.h"
 #include "settings_rom.h"
@@ -211,15 +211,5 @@ uint8_t get_update_app_checksum(uint32_t *checksum)
     return TRUE;    
 }
 
-#define OFFLINK_INFO_OFFSET         0x20
-//固件版本号
-uint32_t get_offlink_app_version(void)
-{
-//    if(info_ofl.key != CFG_KEY)
-//        return 0x00;
-//    return  info_ofl.version ;
-    uint32_t ofl_version = *((uint32_t *)(ESLINK_ROM_OFFLINE_START + OFFLINK_INFO_OFFSET)) ;
-    if(ofl_version == 0xffffffff)
-         ofl_version = 0;
-    return ofl_version;
-} 
+
+

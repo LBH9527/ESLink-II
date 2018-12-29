@@ -25,10 +25,10 @@
 #include "key.h"
 #include "beep.h" 
 #include "oled.h"
-#include "eslink_addr.h"
+#include "eslink_app_addr.h"
 #include "systick.h"
 
-#include "menu.h"
+#include "update_menu.h"
 #include "eslink.h"
 #include "offline_file.h"
 #include "ofl_prj_decoder.h"

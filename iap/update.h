@@ -37,6 +37,5 @@ uint8_t update_app_program(uint32_t app_type,uint32_t addr, uint8_t *data, uint3
 uint8_t ofl_update_app_program(uint32_t app_type, uint32_t addr, uint8_t *data, uint32_t size );
 void update_app_program_end(void);
 uint8_t get_update_app_checksum(uint32_t *checksum);
-uint32_t get_offlink_app_version(void);
 
 #endif

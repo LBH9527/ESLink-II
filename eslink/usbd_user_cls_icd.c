@@ -15,8 +15,8 @@
 
 typedef enum {
     ESLINK_STATE_CLOSE,
-    ESLINK_STATE_WRITE,
-    ESLINK_STATE_READ,
+    ESLINK_STATE_WRITE,     //
+    ESLINK_STATE_READ,      //读主机发送的数据
     ESLINK_STATE_END,
     ESLINK_STATE_ERROR
 } eslink_state_t;
@@ -74,6 +74,7 @@ eslink_state_t cls_packet_write(uint8_t *data, uint8_t len)
         
     return ESLINK_STATE_WRITE;    
 }
+//根据接收到的数据，确认长度
 static uint32_t get_cmd_data_len( uint8_t *data)
 {
     uint32_t header;
@@ -106,7 +107,7 @@ static uint32_t get_cmd_data_len( uint8_t *data)
 }
 
 
-//数据发送
+//主机发送数据 
 uint32_t USBD_CLS_DataOutTransfer( uint8_t *data, uint8_t len)
 {       
 //    uint8_t n;
@@ -117,6 +118,7 @@ uint32_t USBD_CLS_DataOutTransfer( uint8_t *data, uint8_t len)
             
             if(len < FRAME_HEADER_LEN)
                 break;
+            
             cls_wr_cmd_len = get_cmd_data_len(data);  
             if((cls_wr_cmd_len > ES_COMM_FRAME_MAX_LEN) | ( cls_wr_cmd_len == 0))    //包长渡错误
                USBD_CLS_Reset_Event(); 
@@ -138,7 +140,7 @@ uint32_t USBD_CLS_DataOutTransfer( uint8_t *data, uint8_t len)
 //            cls_state = ESLINK_STATE_READ;
 //            if(cls_rd_cmd_len >= DEBUG_FRAME_PACKET_LEN)
 //                usbd_cls_uninit();
-    }       
+    }                            
     return 0;    
 }
 

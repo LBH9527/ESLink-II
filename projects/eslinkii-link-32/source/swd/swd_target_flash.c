@@ -29,7 +29,7 @@
 #include "swd_host.h"
 #include "swd_flash_intf.h"
 //#include "util.h"
-#include "es_target_set.h"
+#include "target_program_config.h"
 #include "es_common.h"
 
 static error_t target_flash_init(void);
@@ -51,7 +51,7 @@ static const flash_intf_t flash_intf = {
 };
 
 const flash_intf_t *const flash_intf_target = &flash_intf;
-
+//算法文件写入目标芯片的RAM中
 static error_t target_flash_init()
 {
     const program_target_t *const flash = swd_target_device.flash_algo;
@@ -154,7 +154,7 @@ static error_t target_flash_erase_sector(uint32_t addr)
 
     return ERROR_SUCCESS;
 }
-
+//擦除目标芯片
 static error_t target_flash_erase_chip(void)
 {
     error_t status = ERROR_SUCCESS;

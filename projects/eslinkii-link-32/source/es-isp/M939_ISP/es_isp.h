@@ -1,23 +1,19 @@
-#ifndef _ISP_H_
-#define _ISP_H_
+#ifndef _ES_ISP_H_
+#define _ES_ISP_H_
 
-//#define M939
-//#define M620 
-#define M610 
-
-#ifdef M620  
-#define CHIP_CHECKSUM_ADDR      0x2C            //根据IDE Space 修改
-#endif
-
-#ifdef M610
-#define CHIP_CHECKSUM_ADDR      0x23            //根据IDE Space 修改
-#endif
+#include "target_program_config.h"
+//根据芯片手动调整的数据信息
+#define M939
 
 #ifdef M939
 #define CHIP_CHECKSUM_ADDR      0x248            //根据IDE Space 修改
 #endif
 
-
+#if ESLINK_RTC_ENABLE    
+    #define M939_CONFIG_WORD_SIZE       54      //54个字长
+#else
+    #define M939_CONFIG_WORD_SIZE       38      //38个字长
+#endif
 
 /*******************************************************************************
 							函数声明
@@ -39,4 +35,5 @@ uint8_t isp_program_config(uint32_t addr, uint32_t *data, uint32_t size,uint32_t
 uint8_t isp_program_code(uint32_t addr, uint32_t *data, uint32_t size,uint32_t *failed_offset)  ; 
 uint8_t isp_read_code(uint32_t addr, uint32_t *data, uint32_t size); 
 
+uint8_t rtc_info_erase(void);
 #endif

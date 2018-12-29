@@ -2,7 +2,7 @@
 #define __OFFLINE_FILE_H__
 
 #include "offline_def.h"
-
+#include "errno.h"
 
 
 error_t ofl_file_init(void);

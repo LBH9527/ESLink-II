@@ -1,5 +1,5 @@
-#ifndef _BOOTISP_TARGET_FLASH_H_
-#define _BOOTISP_TARGET_FLASH_H_
+#ifndef _BOOTISP_HOST_H_
+#define _BOOTISP_HOST_H_
 
 #include "stdint.h" 
 

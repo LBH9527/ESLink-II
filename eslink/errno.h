@@ -66,12 +66,12 @@ typedef enum {
     ERROR_ISP_ENCRYPT       = 0x4B,              //ISP加密失败
     ERROR_OUT_ISP_MODE       = 0x4C,
     //swd
-    ERROR_SWD_ERASE         = 0x50,                //SWD擦除失败    
-    ERROR_SWD_CHECK_EMPTY   = 0x51,                 //SWD查空失败
-    ERROR_SWD_PROG          = 0x52,                 //swd编程失败
+    ERROR_SWD_ERASE         = 0x50,             //SWD擦除失败    
+    ERROR_SWD_CHECK_EMPTY   = 0x51,             //SWD查空失败
+    ERROR_SWD_PROG          = 0x52,             //swd编程失败
     ERROR_SWD_PROG_CFG_WORD = 0x53,             //swd配置字编程失败
-    ERROR_SWD_VERIFY        = 0x54,               //swd校验失败    
-    
+    ERROR_SWD_VERIFY        = 0x54,             //swd校验失败    
+    ERROR_SWD_READ          = 0x55,             //swd读失败
     /* swd target flash errors */ 
     ERROR_RESET             = 0x67,            //"SWD FAILED to reset/halt the target MCU",  
     ERROR_ALGO_DL           = 0x68,             //"SWD FAILED to download the flash programming algorithms to the target MCU",
@@ -104,6 +104,8 @@ typedef enum {
     ERROR_OFL_DECODE = 0x87,                //脱机文件解析失败
     //RTC
     
+    ERROR_RTC_CALI_START = 0x90,            //调教前编程失败
+    ERROR_RTC_CALI_TIMEOUT = 0x91,            //调教超时，没有符合要求得脉冲 
     //DEBUG
     ERR_FRAME_HEAD    = 0xA0,
     ERR_DEVICE_TYPE   = 0xA1,

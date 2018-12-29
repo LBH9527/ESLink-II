@@ -12,15 +12,23 @@ typedef enum  {
 //编程错误状态
 typedef enum{
     OFL_SUCCESS,
-    OFL_COUNT_FULL,         //烧录计数溢出
-    OFL_PROG_FAIL,          //编程失败
-} ofl_prog_error_t ;
+    
+    OFL_ERR_CHIPID_CHECK,       //ID检测失败
+    OFL_ERR_ERASE,              //擦除失败
+    OFL_ERR_CHECK_EMPTY,        //查空
+    OFL_ERR_PROG,               //编程失败
+    OFL_ERR_VERIFY,             //校验
+    OFL_ERR_ENCRYPT,            //加密
+    OFL_ERR_COUNT_FULL,         //烧录计数溢出
+    OFL_ERR_PROG_INTF,          //编程接口设置失败
+    
+} ofl_error_t ;
 
-error_t ofl_prog_init(void);
+ofl_error_t ofl_prog_init(void);
 uint8_t ofl_in_prog_mode(void);
 uint8_t ofl_out_prog_mode(void);
-ofl_prog_error_t ofl_prog(void);
-error_t update_ofl_serial_number(void);
+ofl_error_t ofl_prog(void);
+ofl_error_t update_ofl_serial_number(void);
 
 
 #endif

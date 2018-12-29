@@ -36,6 +36,38 @@ extern "C" {
 //#include "am_errno.h"
 
 
+/******************************************************************************/
+
+/**
+ * \name 通用常量定义
+ * @{
+ */
+#define ES_OK               0         /**< \brief OK               */
+#define ES_ERROR          (-1)        /**< \brief 一般错误         */
+
+#define ES_NO_WAIT          0         /**< \brief 超时：不等待     */
+#define ES_WAIT_FOREVER   (-1)        /**< \brief 超时：永远等待   */
+
+#ifndef EOF
+#define EOF               (-1)        /**< \brief 文件结束         */
+#endif
+
+#define NONE              (-1)        /**< \brief 每当为空时不执行 */
+#define EOS               '\0'        /**< \brief C字符串结束      */
+
+#ifndef NULL
+#define NULL             ((void *)0)  /**< \brief 空指针           */
+#endif
+
+#define ES_LITTLE_ENDIAN  1234        /**< \brief 小端模式         */
+#define ES_BIG_ENDIAN     3412        /**< \brief 大端模式         */
+
+typedef enum {RESET = 0, SET = !RESET} FlagStatus, ITStatus;
+
+//typedef enum {DISABLE = 0, ENABLE = !DISABLE} FunctionalState;
+
+/** @} */
+
 /**
  * \addtogroup am_if_types
  * \copydoc am_types.h
@@ -59,11 +91,11 @@ extern "C" {
 //} bool_t;
 
 #ifndef TRUE
-	#define TRUE            0
+	#define TRUE            1
 #endif
 
 #ifndef FALSE
-	#define FALSE           1
+	#define FALSE           0
 #endif
 
 #ifndef DISABLE

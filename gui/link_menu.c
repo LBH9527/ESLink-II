@@ -1,15 +1,16 @@
+// 联机/脱机显示界面
 #include "es_common.h"
 #include "oled.h"
-#include "offline_file.h" 
+
 #include "menu.h"
 #include "fonts.h"
 
 #include "update.h"
 #include "settings_rom.h"
-#include "settings_spi_flash.h"
+#include "sflash_port.h"
 #include "cortex_m.h"
-#include "main.h"
-#include "eeprom.h"
+#include "eeprom_port.h"
+#include "offline_def.h"
 
 //static char ofl_name[OFL_FILE_NAME_MAX_LEN+1] = { '\0'};
 typedef void (* menu_func)(void );
@@ -41,7 +42,7 @@ struct menu_t
 	menu_func func;                     //菜单处理函数
 	struct menu_t *next_menu;            //下级菜单
 //    struct menu_t *child_menu;    //子菜单
-////    struct menu_t *parent_menu;   //上级菜单 ,如果是顶级则为null
+//    struct menu_t *parent_menu;   //上级菜单 ,如果是顶级则为null
 }  ; 
 struct menu_t *cur_menu;				//当前菜单窗口  
 
@@ -120,7 +121,7 @@ static void serial_number_8bit_display(uint16_t y,uint8_t *buf, uint8_t size)
 
     for(i=0; i< size/2; i++)
     {
-         sprintf(disp_temp,"%02X",buf[i*2]);    
+         usprintf(disp_temp,"%02X",buf[i*2]);    
          oled_display_str( i*16, y, disp_temp, &Font16);  
     } 
 }
@@ -138,14 +139,14 @@ static void serial_number_32bit_display(uint16_t y,uint8_t *buf, uint8_t size)
 
     for(i=0; i< 4; i++)
     {
-        sprintf(disp_temp,"%02X",buf[3-i]);    
+        usprintf(disp_temp,"%02X",buf[3-i]);    
         oled_display_str( i*16, y, disp_temp, &Font16);  
     }          
     if(size == 0x08)
     {
         for(i=4; i< size; i++)
         {
-            sprintf(disp_temp,"%02X",buf[7 + 4 -i]);    
+            usprintf(disp_temp,"%02X",buf[7 + 4 -i]);    
             oled_display_str( i*16, y, disp_temp, &Font16);  
         }   
     }
@@ -161,7 +162,7 @@ static void ofl_sn_display(uint8_t state)
     Font16.FrontColor = 1;		/* 字体颜色 0 或 1 */
 	Font16.BackColor = 0;		/* 文字背景颜色 0 或 1 */
 
-    fm24cxx_read(EE_SERIAL_NUMBER_ADDR,(uint8_t*)&sn_info, sizeof(sn_info)); 
+    get_offline_serial_number((uint8_t*)&sn_info, sizeof(ofl_serial_number_t));
     if( state & 0x01)
     {
         if(sn_info.state != OFL_SERIALNUM_DISABLE)
@@ -180,7 +181,7 @@ static void ofl_sn_display(uint8_t state)
     {
         //烧录成功个数
         oled_display_str(0,48,"OK:             ", &Font16);        
-        sprintf(display_temp,"%08d", sn_info.success_count);         
+        usprintf(display_temp,"%08d", sn_info.success_count);         
         oled_display_str(24,48, display_temp  , &Font16);      
     }       
 } 
@@ -209,16 +210,16 @@ void ofl_program_display(void)
         //获取方案信息
         online_file_read(OFL_PROG_INFO, 0,(uint8_t*) &ofl_prj_info, sizeof(ofl_prj_info_t));
         oled_clr_scr(0x00);	
-        sprintf(display_temp,"%s", (char*)ofl_prj_info.chip_name);
+        usprintf(display_temp,"%s", (char*)ofl_prj_info.chip_name);
         oled_display_str(0,0,display_temp  , &Font16);             //芯片名称  
         
         oled_display_str(0,16,"S:      C:    ", &Font16);        //配置字和flash数据累加和 与 CRC校验和
         Font16.FrontColor = 0;		/* 字体颜色 0 或 1 */
         Font16.BackColor = 1;		/* 文字背景颜色 0 或 1 */
-        sprintf(display_temp,"%04X", ofl_prj_info.checksum);
+        usprintf(display_temp,"%04X", ofl_prj_info.checksum);
         oled_display_str(20,16,display_temp  , &Font16);             //芯片累加和
         ofl_prj_info.crc &= 0x0000ffff;                             //显示低字节
-        sprintf(display_temp,"%04X", ofl_prj_info.crc);
+        usprintf(display_temp,"%04X", ofl_prj_info.crc);
         oled_display_str(84,16,display_temp  , &Font16);             //芯片CRC校验和           
         Font16.FrontColor = 1;		/* 字体颜色 0 或 1 */
         Font16.BackColor = 0;		/* 文字背景颜色 0 或 1 */          
@@ -235,15 +236,15 @@ void ofl_program_display(void)
            //获取方案信息
 //            online_file_read(OFL_PROG_INFO, 0,(uint8_t*) &ofl_prj_info, sizeof(ofl_prj_info_t));
             oled_clr_scr(0x00);	
-            sprintf(display_temp,"%s", (char*)ofl_prj_info.chip_name);
+            usprintf(display_temp,"%s", (char*)ofl_prj_info.chip_name);
             oled_display_str(0,0,display_temp  , &Font16);             //芯片名称             
             oled_display_str(0,16,"S:      C:      ", &Font16);        //配置字和flash数据累加和 与 CRC校验和
             Font16.FrontColor = 0;		/* 字体颜色 0 或 1 */
             Font16.BackColor = 1;		/* 文字背景颜色 0 或 1 */
-            sprintf(display_temp,"%04X", ofl_prj_info.checksum);
+            usprintf(display_temp,"%04X", ofl_prj_info.checksum);
             oled_display_str(20,16,display_temp  , &Font16);             //芯片累加和
             ofl_prj_info.crc &= 0x0000ffff;                             //显示低字节
-            sprintf(display_temp,"%04X", ofl_prj_info.crc);
+            usprintf(display_temp,"%04X", ofl_prj_info.crc);
             oled_display_str(84,16,display_temp  , &Font16);             //芯片CRC校验和           
             Font16.FrontColor = 1;		/* 字体颜色 0 或 1 */
             Font16.BackColor = 0;		/* 文字背景颜色 0 或 1 */
@@ -260,16 +261,47 @@ void ofl_program_display(void)
             oled_display_str(0,16,"      OK        ", &Font16); 
             ofl_sn_display(0x02); 
             break;
-        case MSG_PROG_FAILE:
+        case MSG_ERR_COUNT_FULL:
             oled_clr_scr(0x00);	
             oled_display_str(0,16,"   PROG FAILE   ", &Font16); 
+            oled_display_str(0,32,"01 count full   ", &Font16); 
             break;
-        case MSG_PROG_COUNT_FULL:
+        case MSG_ERR_CHIPID_CHECK:
             oled_clr_scr(0x00);	
             oled_display_str(0,16,"   PROG FAILE   ", &Font16); 
-            oled_display_str(0,32,"   COUNT FULL   ", &Font16); 
+            oled_display_str(0,32,"02 chipid check ", &Font16); 
             break;
-        case MSG_KEY_ENTER:     //长按回到联机模式      
+        case MSG_ERR_ERASE:                         //擦除失败
+            oled_clr_scr(0x00);	
+            oled_display_str(0,16,"   PROG FAILE   ", &Font16); 
+            oled_display_str(0,32,"03 erase        ", &Font16);    
+            break;
+        case MSG_ERR_CHECK_EMPTY:                   //查空
+            oled_clr_scr(0x00);	
+            oled_display_str(0,16,"   PROG FAILE   ", &Font16); 
+            oled_display_str(0,32,"04 check empty  ", &Font16);    
+            break;            
+        case MSG_ERR_PROG:                          //编程失败
+            oled_clr_scr(0x00);	
+            oled_display_str(0,16,"   PROG FAILE   ", &Font16); 
+            oled_display_str(0,32,"05 program      ", &Font16);    
+            break;
+        case MSG_ERR_VERIFY:                        //校验
+            oled_clr_scr(0x00);	
+            oled_display_str(0,16,"   PROG FAILE   ", &Font16); 
+            oled_display_str(0,32,"06 verify       ", &Font16);    
+            break;
+        case MSG_ERR_ENCRYPT:                       //加密
+            oled_clr_scr(0x00);	
+            oled_display_str(0,16,"   PROG FAILE   ", &Font16); 
+            oled_display_str(0,32,"07 encrypt      ", &Font16);    
+            break;
+//        case MSG_ERR_PROG_INTF: 
+//            oled_clr_scr(0x00);	
+//            oled_display_str(0,16,"   PROG FAILE   ", &Font16); 
+//            oled_display_str(0,32,"08 erase        ", &Font16);    
+            break;
+        case MSG_KEY_ENTER:                         //长按回到联机模式      
             if(set_link_mode(LINK_ONLINE_MODE) != TRUE )
             {
                  //TODO：设置失败
@@ -284,8 +316,8 @@ void ofl_program_display(void)
 }  
 
 /*******************************************************************************
-*	函 数 名: get_ofl_menu
-*	功能说明: 联机时，获取脱机工程信息
+*	函 数 名: logo_display
+*	功能说明: 联机时显示logo
 *	形    参: 
 *	返 回 值: None
 *******************************************************************************/
@@ -302,11 +334,14 @@ void logo_display(void)
 		Font16.FrontColor = 1;		/* 字体颜色 0 或 1 */
 		Font16.BackColor = 0;		/* 文字背景颜色 0 或 1 */
 		Font16.Space = 2;			/* 文字间距，单位 = 像素 */	
-		oled_display_str(35,12,"ESSEMI", &Font16);
+		oled_display_str(35,8,"ESSEMI", &Font16);
         Font16.FrontColor = 0;		/* 字体颜色 0 或 1 */
         Font16.BackColor = 1;		/* 文字背景颜色 0 或 1 */
         Font16.Space = 0;	
-        oled_display_str(0,32,"   ESLink-II    ", &Font16);	
+        oled_display_str(0,28,"   ESLink-II    ", &Font16);	
+        Font16.FrontColor = 1;		/* 字体颜色 0 或 1 */
+        Font16.BackColor = 0;		/* 文字背景颜色 0 或 1 */
+        oled_display_str(0,48,"          V0.2.6", &Font16);	
 		disp_init = 1;
 	}
     msg_read_data(&msg);
@@ -316,6 +351,36 @@ void logo_display(void)
         set_app_update(UPDATE_OFFLINE_APP);
         SystemSoftReset();  
     }
+} 
+/*******************************************************************************
+*	函 数 名: 初始化界面
+*	功能说明: 联机时，初始化设备
+*	形    参: 
+*	返 回 值: None
+*******************************************************************************/
+void init_display(void)
+{
+	uint8_t msg = MSG_NULL;
+	FONT_T Font16;
+	static uint8_t disp_init = 0 ;
+	
+	if(disp_init == 0)
+	{  
+        oled_clr_scr(0x00);	/* 清屏，0x00表示黑底； 0xFF 表示白底 */
+		Font16.FontCode = FC_ST_16;	/* 字体代码 16点阵 */
+        Font16.FrontColor = 0;		/* 字体颜色 0 或 1 */
+        Font16.BackColor = 1;		/* 文字背景颜色 0 或 1 */
+        Font16.Space = 0;	
+        oled_display_str(0,16,"Initializing....", &Font16);	
+		disp_init = 1;
+	}
+//    msg_read_data(&msg);
+//	if(msg ==  MSG_KEY_ENTER)       //有按键按下
+//    {
+//        cur_menu  = cur_menu-> next_menu;	
+//        set_app_update(UPDATE_OFFLINE_APP);
+//        SystemSoftReset();  
+//    }
 } 
 /*******************************************************************************
 *	函 数 名: menu_init

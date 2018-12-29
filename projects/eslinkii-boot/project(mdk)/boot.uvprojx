@@ -310,7 +310,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>2</Optim>
+            <Optim>3</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
@@ -335,7 +335,7 @@
               <MiscControls>--gnu --library_interface=armcc  --library_type=standardlib --diag_suppress=66,1296,186 </MiscControls>
               <Define>CPU_MK22FN128VLH10,NDEBUG,HID_ENDPOINT, CDC_ENDPOINT,HR_8BIT</Define>
               <Undefine></Undefine>
-              <IncludePath>..\source;..\..\..\common;..\..\..\bsp;..\..\..\drivers;..\..\..\CMSIS;..\..\..\app;..\..\..\bsp;..\..\..\app;..\..\..\iap;..\..\..\gui;..\..\..\app\es-debug;..\..\..\middleware\ff13b\source;..\..\..\middleware\RL-USB;..\..\..\middleware\RL-USB\usb;..\..\..\middleware\RL-USB\usb\cls;..\..\..\eslink</IncludePath>
+              <IncludePath>..\source;..\..\..\common;..\..\..\bsp;..\..\..\drivers;..\..\..\CMSIS;..\..\..\app;..\..\..\bsp;..\..\..\app;..\..\..\iap;..\..\..\gui;..\..\..\app\es-debug;..\..\..\middleware\ff13b\source;..\..\..\middleware\RL-USB;..\..\..\middleware\RL-USB\usb;..\..\..\middleware\RL-USB\usb\cls;..\..\..\eslink;..\..\..\eslink\offline</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -351,7 +351,7 @@
             <uClangAs>0</uClangAs>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>OFL_VERSION=0x00000000,</Define>
+              <Define>HARDWARE_VERSION=0x00010001,</Define>
               <Undefine></Undefine>
               <IncludePath></IncludePath>
             </VariousControls>
@@ -361,12 +361,12 @@
             <Ropi>0</Ropi>
             <Rwpi>0</Rwpi>
             <noStLib>0</noStLib>
-            <RepFail>1</RepFail>
+            <RepFail>0</RepFail>
             <useFile>0</useFile>
             <TextAddressRange>0x00000000</TextAddressRange>
             <DataAddressRange>0x1FFFE000</DataAddressRange>
             <pXoBase></pXoBase>
-            <ScatterFile>..\source\MK22FN128xxx10_flash.scf</ScatterFile>
+            <ScatterFile>..\startup\MK22FN128xxx10_flash.scf</ScatterFile>
             <IncludeLibs></IncludeLibs>
             <IncludeLibsPath></IncludeLibsPath>
             <Misc>--predefine="-I..\..\..\eslink"</Misc>
@@ -385,24 +385,24 @@
               <FilePath>..\..\..\eslink\usbd_user_cls_icd.c</FilePath>
             </File>
             <File>
-              <FileName>settings_spi_flash.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\eslink\settings_spi_flash.c</FilePath>
-            </File>
-            <File>
               <FileName>eslink.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\..\eslink\eslink.h</FilePath>
             </File>
             <File>
-              <FileName>eslink_addr.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\eslink\eslink_addr.h</FilePath>
-            </File>
-            <File>
               <FileName>eslink.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\eslink\eslink.c</FilePath>
+            </File>
+            <File>
+              <FileName>eslink_app_addr.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\eslink\eslink_app_addr.h</FilePath>
+            </File>
+            <File>
+              <FileName>sflash_port.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\eslink\sflash_port.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -423,11 +423,6 @@
               <FileName>gpio.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\bsp\gpio.c</FilePath>
-            </File>
-            <File>
-              <FileName>key.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\bsp\key.c</FilePath>
             </File>
             <File>
               <FileName>pin_mux.c</FileName>
@@ -611,11 +606,6 @@
               <FilePath>..\..\..\drivers\fsl_uart.c</FilePath>
             </File>
             <File>
-              <FileName>fsl_i2c.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\drivers\fsl_i2c.c</FilePath>
-            </File>
-            <File>
               <FileName>fsl_dspi.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\drivers\fsl_dspi.c</FilePath>
@@ -646,7 +636,7 @@
             <File>
               <FileName>startup_MK22F12810.s</FileName>
               <FileType>2</FileType>
-              <FilePath>..\..\..\startup\startup_MK22F12810.s</FilePath>
+              <FilePath>..\startup\startup_MK22F12810.s</FilePath>
             </File>
           </Files>
         </Group>

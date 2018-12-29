@@ -9,7 +9,7 @@
 
 #include "diskio.h"			/* FatFs lower layer API */
 #include "spi_flash.h"      
-#include "settings_spi_flash.h"
+#include "sflash_port.h"
 
 /* Definitions of physical drive number for each media */
 #define FS_SPI_FLASH  0
@@ -25,7 +25,7 @@ DSTATUS disk_initialize (
 	switch (pdrv) {
 
 		case FS_SPI_FLASH :
-            if( sf_read_info() != 0)
+            if( sf_read_info() != 1)
                 return STA_NOINIT;
 
             // translate the reslut code here

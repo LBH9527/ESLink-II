@@ -2,8 +2,7 @@
 #define _OFFLINE_DEF_H_
 
 #include "eslink.h"
-#include "eslink_addr.h"
-#include "errno.h"
+
 
 
 
@@ -46,7 +45,8 @@ typedef enum{
     OFL_TIMING_INFO_PART    = 0x4F464c03,               //芯片信息
     OFL_CONFIG_PART         = 0x4F464c04 ,              //配置字
     OFL_SERIALNUM_PART      = 0x4F464c05 ,              //脱机序列号
-    OFL_HEX_PART            = 0x4F464c06 ,              //用户Hex     
+    OFL_HEX_PART            = 0x4F464c06 ,              //用户Hex  
+    OFL_RTC_HEX_PART        = 0x4F464c07 ,              //RTC_Hex 
 } ofl_part_type_t ;
          
 //分区信息索引
@@ -108,12 +108,14 @@ typedef struct __attribute__((packed))
 } ofl_serial_number_t;
 
 //脱机最大步骤数 
-#define MAX_OFL_STEP            5   
+#define MAX_OFL_STEP            7   
 #define OFL_STEP_ERASE          0x00000020      //擦除
 #define OFL_STEP_CHECK_EMPTY    0x00000021      //查空
 #define OFL_STEP_PROG           0x00000022      //烧录
 #define OFL_STEP_VERIFY         0x00000023      //校验
 #define OFL_STEP_ENCRYPT        0x00000024      //加密
+#define OFL_STEP_RTC_CALI       0x00000037      //rtc调校
+#define OFL_STEP_RTC_VERIFY     0x00000038      //rtc验证
 
 typedef union __attribute__((packed)) 
 {
@@ -124,6 +126,8 @@ typedef union __attribute__((packed))
         uint32_t date[2];                       //日期
         uint32_t checksum;                      //累加校验和
         uint32_t crc;                           //CRC校验和
+        uint32_t dflash_start;                  //data flash 起始地址
+        uint32_t dflash_size;                   //data flash 长度
         uint32_t intf;                          //脱机烧录接口   
         uint32_t step;                          //脱机步骤数
         uint32_t item[20];                      //脱机步骤项目              

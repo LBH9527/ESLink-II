@@ -173,8 +173,6 @@ static inline void PORT_SWD_SETUP(void)
     PIN_nRESET_GPIO->PSOR = PIN_nRESET;
     PIN_nRESET_GPIO->PDDR |= PIN_nRESET; //output
     PIN_nRESET_PORT->PCR[PIN_nRESET_BIT] = PORT_PCR_PS_MASK | PORT_PCR_PE_MASK | PORT_PCR_PFE_MASK | PORT_PCR_MUX(1);
-    
-    CLT_INIT(1);
 }
 
 /** Disable JTAG/SWD I/O Pins.
@@ -337,8 +335,8 @@ static __forceinline void     PIN_nTRST_OUT(uint32_t bit)
 */
 static __forceinline uint32_t PIN_nRESET_IN(void)
 {
-//    return ((PIN_nRESET_GPIO->PDIR >> PIN_nRESET_BIT) & 1);
-     return ((PIN_SWO_GPIO->PDIR >> PIN_SWO_BIT) & 1);
+    return ((PIN_nRESET_GPIO->PDIR >> PIN_nRESET_BIT) & 1);
+//     return ((PIN_SWO_GPIO->PDIR >> PIN_SWO_BIT) & 1);
 }
 
 /** nRESET I/O pin: Set Output.
@@ -348,8 +346,8 @@ static __forceinline uint32_t PIN_nRESET_IN(void)
 */
 static __forceinline void     PIN_nRESET_OUT(uint32_t bit)
 {
-//    BITBAND_REG(PIN_nRESET_GPIO->PDOR, PIN_nRESET_BIT) = bit;
-    BITBAND_REG(PIN_CTL_GPIO->PDOR, PIN_CTL_BIT) = bit;
+    BITBAND_REG(PIN_nRESET_GPIO->PDOR, PIN_nRESET_BIT) = bit;
+//    BITBAND_REG(PIN_CTL_GPIO->PDOR, PIN_CTL_BIT) = bit;
 }
 
 ///@}

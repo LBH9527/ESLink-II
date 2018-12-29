@@ -1,7 +1,7 @@
 #ifndef _EEPROM_H
 #define _EEPROM_H 
 
-#define  FM24C04
+#define  FM24C04            //使用24c04
 #ifdef FM24C02
 	#define EE_MODEL_NAME		"FM24C02"
 	#define EE_DEV_ADDR			0xA0		/* 设备地址 */
@@ -20,10 +20,6 @@
 	#define EE_ADDR_A8			1			/* 9bit ADDRESS */
 #endif
 
-
-#define EE_OFL_PRJ_NAME             0x0000      //脱机工程名，用做退出脱机状态时，会写脱机序列号信息
-#define EE_OFL_SERIAL_NUMBER_PARTITION  0x20    //方案分区信息
-#define EE_SERIAL_NUMBER_ADDR       0x30        //序列号地址     
 
 uint8_t fm24cxx_init(void);
 uint8_t fm24cxx_write(uint16_t addr, uint8_t *str, uint16_t len);

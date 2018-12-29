@@ -1,12 +1,22 @@
-
 #include "eslink.h"
+#include "errno.h"
 #include "es_burner.h"
 #include "main.h"
 #include "settings_rom.h"
 #include "update.h"
-#include "settings_spi_flash.h"
+#include "sflash_port.h"
+#include "eeprom_port.h"
 #include "offline_file.h"
-#include "isp_prog_intf.h"    
+#include "isp_prog_intf.h" 
+
+#if ESLINK_SWD_ENABLE
+#include "swd_prog_intf.h"
+#endif
+#if ESLINK_RTC_ENABLE
+#include "rtc_calibrate.h"  
+#endif
+ 
+
 
 static es_target_cfg es_target_device;      //目标芯片信息
 static struct es_prog_ops *es_prog_intf;
@@ -47,7 +57,7 @@ error_t es_prog_set_intf(prog_intf_type_t type)
     }
     else if (PRG_INTF_SWD ==  type )
     {
-    
+         es_prog_intf =  &swd_prog_intf; 
     }
     else if ( PRG_INTF_BOOTISP == type)
     {
@@ -68,10 +78,10 @@ static error_t es_prog_get_intf(uint8_t *data)
     {
         type = PRG_INTF_ISP;
     }
-//    else if(es_prog_intf ==  &isp_prog_intf)
-//    {
-//    
-//    }
+    else if(es_prog_intf ==  &swd_prog_intf)
+    {
+        type = PRG_INTF_SWD;
+    }
 //    else if(es_prog_intf ==  &isp_prog_intf)
 //    {
 //    
@@ -106,11 +116,6 @@ static error_t serial_number_download(uint8_t *data)
 	return ERROR_SUCCESS;
 }
 
-/******************************************************************/
-//static uint32_t get_timing_size(void)
-//{
-//     return ESLINK_ROM_LINK_SIZE;
-//}
 
 /*
  *  读固件版本
@@ -124,11 +129,11 @@ static error_t read_offline_version(uint8_t *buf)
 //        result = ERROR_IAP_READ;
     version = get_offlink_app_version();
     int2array(&version, 1, buf);
-    //硬件类型（MK22），暂定为0
-    buf[4] = ((uint32_t)HARDWARE_VERSION>>0) &0xFF  ;
-    buf[5] = ((uint32_t)HARDWARE_VERSION>>8) &0xFF  ;
-    buf[6] = ((uint32_t)HARDWARE_VERSION>>16) &0xFF  ;
-    buf[7] = ((uint32_t)HARDWARE_VERSION>>24) &0xFF  ;
+    //
+    buf[4] = 0;
+    buf[5] = 0;
+    buf[6] = 0;
+    buf[7] = 0; 
     return result;  
 }
 /*
@@ -146,7 +151,24 @@ static error_t read_timinginfo(uint8_t *buf)
 //        result = ERROR_IAP_READ_TIMING_INFO;    
     return result;  
 }
-
+/*
+ *  读ESlink II序列号
+ */
+static error_t read_eslink_sn(uint8_t *buf)
+{    
+    error_t result = ERROR_SUCCESS;
+    result = get_offline_serial_number(buf , 4);
+    return result ;
+}
+/*
+ *  写ESlink II序列号
+ */
+static error_t write_eslink_sn(uint8_t *buf)
+{
+    error_t result = ERROR_SUCCESS;
+    result = set_eslinkii_serial_number(buf, 4);
+    return result ;
+}
 
 /********************************读写联机数据到编程器******************************/ 
 /*
@@ -251,7 +273,8 @@ static error_t es_download_hex(uint8_t *data)
     if(i >= size)   //全为0xff 不需要写入
         ret =  ERROR_SUCCESS;
     else
-        ret = online_file_write(USER_HEX, addr, (data+8), size) ;
+        ret = online_file_write(USER_HEX, addr, (data+8), size) ;         
+        
     if(ERROR_SUCCESS != ret)
             return ret;      
     return ret;        
@@ -326,11 +349,8 @@ error_t es_erase_chip(uint8_t *data)
     ret = es_prog_intf->prog_init();
     if(ERROR_SUCCESS != ret)
         goto fail;
-    ret = es_prog_intf->chipid_check(); 
-    if(ERROR_SUCCESS != ret)
-        goto fail;    
     erase_mode = data[0];    
-    ret = es_prog_intf->erase_chip(&erase_mode);
+    ret = es_prog_intf->erase_chip(erase_mode);
     if(ERROR_SUCCESS != ret)
     {
         goto fail;
@@ -356,9 +376,6 @@ error_t es_check_empty(uint8_t *data)
     
     ret = es_prog_intf->prog_init();
     if(ERROR_SUCCESS != ret)
-        goto fail; 
-    ret = es_prog_intf->chipid_check(); 
-    if(ERROR_SUCCESS != ret)
         goto fail;     
     ret = es_prog_intf->check_empty(&failed_addr, &failed_data);
     if(ERROR_SUCCESS != ret)
@@ -383,85 +400,19 @@ fail:
 error_t es_program_flash(uint8_t sn_enable, uint8_t *data)
 {
     error_t ret = ERROR_SUCCESS;
-    uint32_t i;
-    uint32_t failed_addr;
-    
-    uint32_t code_addr;	
-	uint32_t code_size;	
-    uint32_t cfg_word_addr;	
-	uint32_t cfg_word_size;	   
-    
-    uint32_t copy_size;      
-    uint32_t read_addr;
-    uint8_t read_buf[FLASH_PRG_MIN_SIZE];
+    uint32_t failed_addr = 0x0;      
     
     ret = es_prog_intf->prog_init();
     if(ERROR_SUCCESS != ret)
         goto fail;
-    ret = es_prog_intf->chipid_check(); 
+        
+    ret = es_prog_intf->program_all(sn_enable, &prog_sn, &failed_addr);
     if(ERROR_SUCCESS != ret)
-        goto fail;     
-    code_addr =  es_target_device.code_start;
-	code_size =  es_target_device.code_size;
-    read_addr =  0; 
-        
-    while(true)
     {
-        copy_size = MIN(code_size, sizeof(read_buf) );    
+        int2array(&failed_addr, 1, data);
+        goto fail;
+    }
         
-        ret = online_file_read(USER_HEX, read_addr, read_buf , copy_size);
-        if(ERROR_SUCCESS != ret)
-        {
-            goto fail;        
-        }
-        if(sn_enable == 1)     //序列号代码使能
-            serial_number_intercept_write(&prog_sn,code_addr, read_buf, copy_size);	//填入序列号
-        for(i=0; i<copy_size; i++)
-        {
-            if(read_buf[i] != 0xFF)
-                break;
-        }
-        if(i < copy_size)      //数据段都为0xFF,不进行编程
-        {
-            ret = es_prog_intf->program_flash(code_addr, read_buf, copy_size, &failed_addr); 
-            if( ret !=  ERROR_SUCCESS)   //编程失败，返回编程失败地址
-            {
-                 int2array(&failed_addr, 1, data);
-                 goto fail;   
-            }                          
-        }           
-        // Update variables
-        code_addr  += copy_size;
-        code_size  -= copy_size;
-        read_addr += copy_size;
-        // Check for end
-        if (code_size <= 0) 
-            break;       
-    }
-    cfg_word_addr =  es_target_device.config_word_start;
-	cfg_word_size =  es_target_device.config_word_size;
-    read_addr =  0;
-    while(true)
-    {
-        copy_size = MIN(cfg_word_size, sizeof(read_buf) );          
-        ret = online_file_read(CFG_WORD, read_addr, read_buf , copy_size);
-        if(ERROR_SUCCESS != ret)
-            goto fail;     		
-        ret = es_prog_intf->program_config_word(cfg_word_addr, read_buf, copy_size, &failed_addr); 
-        if( ret !=  ERROR_SUCCESS)
-        {
-            int2array(&failed_addr, 1, data);
-            goto fail;    
-        }                  
-        // Update variables
-        cfg_word_addr  += copy_size;
-        cfg_word_size  -= copy_size;
-        read_addr += copy_size;
-        // Check for end
-        if (cfg_word_size <= 0) 
-            break;       
-    }
-    
     es_prog_intf->prog_uninit();
     return  ERROR_SUCCESS;
 fail:
@@ -478,95 +429,20 @@ fail:
 error_t es_program_verify(uint8_t sn_enable,uint8_t *data)
 {
     error_t ret = ERROR_SUCCESS;
-//    uint32_t i;
-    uint32_t checksum = 0;  
-    uint32_t sf_checksum = 0;   //spi保存的校验和
+
     uint32_t failed_addr;
-    uint32_t failed_data;
-    
-    uint32_t code_addr;	
-	uint32_t code_size;	
-    uint32_t cfg_word_addr;	
-	uint32_t cfg_word_size;	   
-//    uint8_t read_buf[FLASH_PRG_MIN_SIZE];
-    
-    uint32_t verify_size; 
-    uint32_t sf_addr;  
-    uint8_t sf_buf[FLASH_PRG_MIN_SIZE];   
+    uint32_t failed_data;     
     
     ret = es_prog_intf->prog_init();
     if(ERROR_SUCCESS != ret)
         goto fail;
-    ret = es_prog_intf->chipid_check(); 
+   
+    ret = es_prog_intf->verify_all(sn_enable, &prog_sn, &failed_addr , &failed_data);
     if(ERROR_SUCCESS != ret)
+    {
+        int2array(&failed_addr, 1, data);
+        int2array(&failed_data, 1, data+4);
         goto fail;     
-    code_addr =  es_target_device.code_start;
-	code_size =  es_target_device.code_size;
-    sf_addr = 0;
-    while(true)
-    {
-        verify_size = MIN(code_size, sizeof(sf_buf) );
-       
-        ret = online_file_read(USER_HEX, sf_addr, sf_buf , verify_size);
-        if(ERROR_SUCCESS != ret)
-            goto fail;
-        checksum += check_sum(verify_size, sf_buf);     //计算原始数据校验和
-        if( sn_enable == 1)
-            serial_number_intercept_write(&prog_sn, code_addr, sf_buf, verify_size);	//填入序列号         
-        ret = es_prog_intf->verify_flash(code_addr, sf_buf, verify_size,&failed_addr,&failed_data);                        
-        if( ret !=  ERROR_SUCCESS)
-        {    
-            int2array(&failed_addr, 1, data);
-            int2array(&failed_data, 1, data+4);
-            goto fail;                     
-        }   
-        // Update variables
-        code_addr  += verify_size;
-        code_size  -= verify_size;
-        sf_addr += verify_size;
-        // Check for end
-        if (code_size <= 0) 
-            break;       
-    }  
-    online_file_read(HEX_CHECKSUM, 0,(uint8_t*)&sf_checksum, 4);        
-    if((sf_checksum&0x0000ffff) != (checksum&0x0000ffff))
-    {
-        ret = ERROR_USER_HEX_CHECKSUM;
-        goto fail; 
-    }         
-    
-    cfg_word_addr =  es_target_device.config_word_start;
-	cfg_word_size =  es_target_device.config_word_size;
-    sf_addr =  0;
-    checksum = 0;
-    while(true)
-    {
-        verify_size = MIN(cfg_word_size, sizeof(sf_buf) );          
-        ret = online_file_read(CFG_WORD, sf_addr, sf_buf , verify_size);
-        if(ERROR_SUCCESS != ret)
-            goto fail; 
-        checksum += check_sum(verify_size, sf_buf);     //计算原始数据校验和
-        
-        ret = es_prog_intf->verify_config_word(cfg_word_addr, sf_buf, verify_size,&failed_addr,&failed_data); 
-        if( ret !=  ERROR_SUCCESS)
-        {    
-            int2array(&failed_addr, 1, data);
-            int2array(&failed_data, 1, data+4);
-            goto fail;                      
-        }   
-        // Update variables
-        cfg_word_addr  += verify_size;
-        cfg_word_size  -= verify_size;
-        sf_addr += verify_size;
-        // Check for end
-        if (cfg_word_size <= 0) 
-            break;       
-    }
-    online_file_read(CFG_WORD_CHECKSUM, 0,(uint8_t*)&sf_checksum, 4);        
-    if(sf_checksum != (checksum&0x0000ffff))
-    {
-        ret = ERROR_USER_HEX_CHECKSUM;
-        goto fail; 
     }
     
     es_prog_intf->prog_uninit();
@@ -588,9 +464,7 @@ error_t es_program_encrypt(void)
     ret = es_prog_intf->prog_init();
     if(ERROR_SUCCESS != ret)
         goto fail;
-    ret = es_prog_intf->chipid_check(); 
-    if(ERROR_SUCCESS != ret)
-        goto fail;     
+   
     ret = es_prog_intf->encrypt_chip(); 
     
     es_prog_intf->prog_uninit();     
@@ -605,7 +479,7 @@ fail:
 *	形    参: 读出的数据
 *	返 回 值: error_t
 *******************************************************************************/
-static error_t es_read_flash(uint8_t *wrbuf, uint8_t *rdbuf, uint16_t *read_size)
+static error_t es_read_flash_main(uint8_t *wrbuf, uint8_t *rdbuf, uint16_t *read_size)
 {
     error_t ret = ERROR_SUCCESS;
     uint32_t addr;
@@ -623,10 +497,7 @@ static error_t es_read_flash(uint8_t *wrbuf, uint8_t *rdbuf, uint16_t *read_size
     {
         ret = es_prog_intf->prog_init();
         if(ERROR_SUCCESS != ret)
-            goto fail;   
-        ret = es_prog_intf->chipid_check(); 
-        if(ERROR_SUCCESS != ret)
-            goto fail;       
+            goto fail;        
     }     
         
     memcpy( rdbuf, wrbuf, 4);
@@ -661,48 +532,18 @@ fail:
 static error_t es_program_config_word(uint8_t *data)
 {
     error_t ret = ERROR_SUCCESS;
-//    uint32_t i;
-    uint32_t failed_addr;
-    
-    uint32_t cfg_word_addr;	
-	uint32_t cfg_word_size;	 
-    
-    uint32_t copy_size;
-    uint32_t read_addr;
-    uint8_t read_buf[FLASH_PRG_MIN_SIZE] = {0x00};
+    uint32_t failed_addr;   
     
     ret = es_prog_intf->prog_init();
     if(ERROR_SUCCESS != ret)
         goto fail; 
-    ret = es_prog_intf->chipid_check(); 
+        
+    ret = es_prog_intf->program_info_all( &failed_addr);
     if(ERROR_SUCCESS != ret)
-        goto fail; 
-        
-    cfg_word_addr =  es_target_device.config_word_start;
-	cfg_word_size =  es_target_device.config_word_size;
-    read_addr =  0;
-    
-    while(true)
     {
-        copy_size = MIN(cfg_word_size, sizeof(read_buf) );
-        
-        ret = online_file_read(CFG_WORD, read_addr, read_buf , copy_size);
-        if(ERROR_SUCCESS != ret)
-            goto fail;        
-        ret = es_prog_intf->program_config_word(cfg_word_addr, read_buf, copy_size, &failed_addr); 
-        if( ret !=  ERROR_SUCCESS)
-        {
-            int2array(&failed_addr, 1, data);
-            goto fail;   
-        }                    
-        // Update variables
-        cfg_word_addr  += copy_size;
-        cfg_word_size  -= copy_size;
-        read_addr += copy_size;
-        // Check for end
-        if (cfg_word_size <= 0) 
-            break;       
-    }
+        int2array(&failed_addr, 1, data);
+        goto fail;
+    }    
     
     es_prog_intf->prog_uninit();
     return  ERROR_SUCCESS;
@@ -729,11 +570,9 @@ static error_t es_read_config_word(uint8_t *wrbuf, uint8_t *rdbuf, uint16_t *rea
     ret = es_prog_intf->prog_init();
     if(ERROR_SUCCESS != ret)
         goto fail;   
-    ret = es_prog_intf->chipid_check(); 
-    if(ERROR_SUCCESS != ret)
-        goto fail;        
+       
     memcpy( rdbuf, wrbuf, 4);
-    ret = es_prog_intf->read_config_word(addr, rdbuf+4, size); 
+    ret = es_prog_intf->read_info(addr, rdbuf+4, size); 
     if(ERROR_SUCCESS != ret)
     {
         *read_size = 0 ;
@@ -785,9 +624,7 @@ static error_t es_read_chip_chksum(uint8_t *data)
     ret = es_prog_intf->prog_init();
     if(ERROR_SUCCESS != ret)
         goto fail; 
-    ret = es_prog_intf->chipid_check(); 
-    if(ERROR_SUCCESS != ret)
-        goto fail;    
+   
     ret = es_prog_intf->read_chip_chksum(&checksum);
     if(ERROR_SUCCESS != ret)
         goto fail;    
@@ -1163,6 +1000,38 @@ static error_t download_ofl_prj_end(uint8_t *data)
 	return ret;
 }
 
+#if ESLINK_RTC_ENABLE
+/*
+ *  获取自校正值
+ *  
+ */
+static error_t read_rtc_cali(uint8_t *buf)
+{
+    error_t ret = ERROR_SUCCESS;   
+    
+    ret = get_rtc_self_calibrate(buf, 4);
+    
+//    buf[0] = (data >> 0) &0xFF  ;
+//    buf[1] = (data >> 8) &0xFF  ;
+//    buf[2] = (data >> 16) &0xFF  ;
+//    buf[3] = (data >> 24) &0xFF  ;
+    
+    return  ret;    
+}
+
+/*
+ *  设置自校正值
+ *  
+ */
+static error_t download_rtc_cali(uint8_t *buf)
+{
+    error_t ret = ERROR_SUCCESS; 
+    
+    ret = set_rtc_self_calibrate( buf, 4);
+    return  ret;    
+}
+
+#endif
 
 prog_comm_frame_t prog_data; 
 
@@ -1195,6 +1064,14 @@ uint32_t prog_process_command(uint8_t *request, uint8_t *response)
         case ID_HANDSHAKE:
             prog_data.data_length = 0;
             break;
+        case ID_READ_SERIAL_NUMBER :
+            result = read_eslink_sn( &prog_data.rdbuf[8]);
+            prog_data.data_length = 4;
+            break;
+        case ID_DL_SERIAL_NUMBER :
+            result = write_eslink_sn( &prog_data.rdbuf[8]);
+            prog_data.data_length = 0;
+            break;  
         //------------------------Boot判断--------------------------------
         case ID_READ_OFL_VERSION:                      //0xD7 读脱机工程版本 
             result = read_offline_version( &prog_data.rdbuf[8]);
@@ -1328,7 +1205,7 @@ uint32_t prog_process_command(uint8_t *request, uint8_t *response)
             
             break;
         case ID_READ_FLASH:                             //读flash 0x2A
-            result = es_read_flash(&prog_data.wrbuf[PROG_DATA_OFFSET],&prog_data.rdbuf[PROG_DATA_OFFSET],&prog_data.data_length);
+            result = es_read_flash_main(&prog_data.wrbuf[PROG_DATA_OFFSET],&prog_data.rdbuf[PROG_DATA_OFFSET],&prog_data.data_length);
             
             ack_len = 1024;
 //            result = es_read_flash();
@@ -1392,9 +1269,34 @@ uint32_t prog_process_command(uint8_t *request, uint8_t *response)
             break; 
         
 		case ID_DL_OFFLINE_END:							//脱机方案下载完成
-			 result = download_ofl_prj_end(&prog_data.wrbuf[PROG_DATA_OFFSET]);
+			result = download_ofl_prj_end(&prog_data.wrbuf[PROG_DATA_OFFSET]);
 		    prog_data.data_length = 0; 
 			break;
+#if ESLINK_RTC_ENABLE
+        case ID_RTC_START_SELF_CALIBRATE:               //启动RTC自校正
+            rtc_out_mode(ENABLE);
+            result =  ERROR_SUCCESS;
+            prog_data.data_length = 0; 
+            break;
+        case ID_RTC_WRITE_CALIBRATE:                    //写RTC自校正值
+            rtc_out_mode(DISABLE);
+            result =  download_rtc_cali(&prog_data.wrbuf[PROG_DATA_OFFSET]);
+            prog_data.data_length = 0;  
+            break;
+        case ID_RTC_READ_CALIBRATE:                     //读RTC自校正值  
+            result =  read_rtc_cali(&prog_data.rdbuf[PROG_DATA_OFFSET]);
+            prog_data.data_length = 4;         
+            break;
+        case ID_RTC_CALI :                            //RTC调校
+            rtc_handler_event();
+//            result = rtc_calibration_handler();
+            result = ERROR_SUCCESS;
+            prog_data.data_length = 0; 
+            break;
+        case ID_RTC_CALI_VERIFY:                       //RTC验证
+        
+            break;
+#endif
         default:
             result = ERROR_FUN_CODE;                    //内部错误，在boot中更新时序
             break;
@@ -1442,7 +1344,10 @@ error_t es_burner_init(prog_intf_type_t type)
 	ret = es_prog_set_intf(type);                       //上电后默认是ISP编程
 	es_prog_intf->init(&es_target_device);
 	ISP_SETUP();
-//	PORT_ISP_SETUP();    
+//	PORT_ISP_SETUP();   
+
+//    swd_test();
+
     return ret;
      
 }
@@ -1455,145 +1360,8 @@ error_t es_burner_init(prog_intf_type_t type)
 //	return ret;
 //}
 
+ 
 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
+
+
  
