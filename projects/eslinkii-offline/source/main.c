@@ -22,6 +22,7 @@
 #include "main.h"  
 #include "spi_flash.h"
 #include "eeprom.h"
+#include "eslink.h"
 #include "key.h"
 #include "beep.h" 
 #include "oled.h"
@@ -61,9 +62,7 @@ int main(void)
     BOARD_InitDebugConsole();
     settings_rom_init();
    
-    gpio_init();
-    es_set_trget_power(TRGET_POWER_3V3);     
-
+    gpio_init();  
     oled_init();
     key_init();  
     fm24cxx_init();

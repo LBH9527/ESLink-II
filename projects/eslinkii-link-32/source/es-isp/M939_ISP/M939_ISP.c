@@ -553,7 +553,7 @@ uint8_t isp_erase_chip(void)
     if(result != TRUE)
         return FALSE; 
 #endif   
-#if ESLINK_RTC_ENABLE  
+#if RTC_DEBUG  
     //擦除info4        
     result = erase_and_check(ERASE_M5_CMD, INFO_4_AREA, 2);
     if(result != TRUE)

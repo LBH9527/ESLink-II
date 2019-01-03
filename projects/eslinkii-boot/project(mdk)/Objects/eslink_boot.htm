@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\Objects\eslink_boot.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Objects\eslink_boot.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Wed Jan 02 15:43:27 2019
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Thu Jan 03 09:39:29 2019
 <BR><P>
 <H3>Maximum Stack Usage =       1376 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -998,8 +998,8 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[c4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ResetEP
 </UL>
-<BR>[Called By]<UL><LI><a href="#[d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetInterface
-<LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetConfiguration
+<BR>[Called By]<UL><LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetConfiguration
+<LI><a href="#[d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetInterface
 </UL>
 
 <P><STRONG><a name="[f8]"></a>USBD_Configure</STRONG> (Thumb, 2 bytes, Stack size 0 bytes, usbd_mk20d5.o(i.USBD_Configure))
@@ -1038,20 +1038,19 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[f7]"></a>USBD_DisableEP</STRONG> (Thumb, 38 bytes, Stack size 0 bytes, usbd_mk20d5.o(i.USBD_DisableEP))
-<BR><BR>[Called By]<UL><LI><a href="#[d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetInterface
-<LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetConfiguration
+<BR><BR>[Called By]<UL><LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetConfiguration
+<LI><a href="#[d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetInterface
 </UL>
 
 <P><STRONG><a name="[f9]"></a>USBD_EnableEP</STRONG> (Thumb, 38 bytes, Stack size 0 bytes, usbd_mk20d5.o(i.USBD_EnableEP))
-<BR><BR>[Called By]<UL><LI><a href="#[d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetInterface
-<LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetConfiguration
+<BR><BR>[Called By]<UL><LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetConfiguration
+<LI><a href="#[d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetInterface
 </UL>
 
 <P><STRONG><a name="[79]"></a>USBD_EndPoint0</STRONG> (Thumb, 460 bytes, Stack size 32 bytes, usbd_core.o(i.USBD_EndPoint0))
-<BR><BR>[Stack]<UL><LI>Max Depth = 96<LI>Call Chain = USBD_EndPoint0 &rArr; USBD_ReqSetInterface &rArr; USBD_ResetEP
+<BR><BR>[Stack]<UL><LI>Max Depth = 96<LI>Call Chain = USBD_EndPoint0 &rArr; USBD_ReqSetConfiguration &rArr; USBD_ResetEP
 </UL>
-<BR>[Calls]<UL><LI><a href="#[d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetInterface
-<LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetConfiguration
+<BR>[Calls]<UL><LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetConfiguration
 <LI><a href="#[cd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetClrFeature
 <LI><a href="#[cb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqGetStatus
 <LI><a href="#[cf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqGetDescriptor
@@ -1069,6 +1068,7 @@ Global Symbols
 <LI><a href="#[c9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_SetupStage
 <LI><a href="#[c8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_DataOutStage
 <LI><a href="#[c7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_DataInStage
+<LI><a href="#[d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetInterface
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> usb_config.o(.constdata)
 </UL>
@@ -1266,10 +1266,10 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[a6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;protected_or
 <LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;protected_and
 </UL>
-<BR>[Called By]<UL><LI><a href="#[d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetInterface
-<LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetConfiguration
+<BR>[Called By]<UL><LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetConfiguration
 <LI><a href="#[c5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ConfigEP
 <LI><a href="#[c3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ClrStallEP
+<LI><a href="#[d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetInterface
 </UL>
 
 <P><STRONG><a name="[77]"></a>USBD_Reset_Event</STRONG> (Thumb, 14 bytes, Stack size 8 bytes, usb_config.o(i.USBD_Reset_Event))

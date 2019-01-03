@@ -239,6 +239,53 @@ static error_t update_ofl_user_hex(partition_t *part )
     return ERROR_SUCCESS;      
     
 }
+//更新rtc校准程序
+static error_t update_ofl_rtc_hex(partition_t *part )
+{
+    error_t ret;
+    uint32_t prg_addr = 0;
+    uint8_t buf[1024];
+
+    uint32_t checksum = part->data;
+    uint32_t size = part->size;
+    uint32_t addr = part->start;       
+    uint32_t read_size = 0;
+    uint32_t checksum_temp = 0;
+    
+    if(part->type != OFL_RTC_HEX_PART)
+         return ERROR_OFL_DATA_FORMAT; 
+    ret = online_file_erase(RTC_HEX, size );
+    if(ERROR_SUCCESS != ret)
+        return ret;
+    ofl_file_read_start();      
+    while(true)
+    {        
+        read_size = MIN(size, sizeof(buf));
+        ret = ofl_file_read(addr, buf, read_size);
+        if(ERROR_SUCCESS != ret)
+            return ret; 
+        ret = online_file_write(RTC_HEX, prg_addr, buf, read_size) ;   
+        if(ERROR_SUCCESS != ret)
+            return ret; 
+        checksum_temp += check_sum(read_size, buf); 
+        addr += read_size;
+        prg_addr += read_size;
+        size -= read_size;
+        if (size <= 0) 
+            break;  
+    }     
+    ofl_file_read_end();
+    //比较脱机工程中读书的数据的校验和与脱机工程文件中保存的校验和
+    if((checksum_temp&0x0000ffff) != checksum)
+        return ERROR_OFL_DATA_FORMAT;   
+           
+    ret = online_file_erase(RTC_HEX_CHECKSUM, 4 );
+    ret = online_file_write(RTC_HEX_CHECKSUM, 0, (uint8_t*)&checksum, 4);      //验证正确后在保存数据  
+    if(ERROR_SUCCESS != ret)
+        return ret;
+    return ERROR_SUCCESS;  
+
+}
 
 //更新脱机方案
 error_t ofl_prj_update(char *path)
@@ -284,7 +331,12 @@ error_t ofl_prj_update(char *path)
     ret = update_ofl_user_hex(&ofl_partition.part[5]);
     if(ERROR_SUCCESS != ret)
         return ret; 
- 
+    if(ofl_partition.record_type == 0x01)    //RTC功能
+    {
+        ret = update_ofl_rtc_hex(&ofl_partition.part[5]);
+        if(ERROR_SUCCESS != ret)
+            return ret;      
+    }     
     //更新成功，在EE中写入文件名，在脱出脱机状态时，会写序列号。
 //    fm24cxx_write(EE_OFL_PRJ_NAME, (uint8_t*)path, OFL_FILE_NAME_MAX_LEN);
     set_offline_project_name((uint8_t*)path, OFL_FILE_NAME_MAX_LEN);

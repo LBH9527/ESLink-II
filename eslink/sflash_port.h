@@ -2,23 +2,28 @@
 #define __SETTINGS_SPI_FLASH__
 #include "errno.h"
 //联机数据类型  
-typedef enum 
-{
-    USER_HEX,                       //用户HEX   
-    CFG_WORD,                       //用户配置字
-    CFG_WORD_CHECKSUM  ,            //配置字校验和
-    HEX_CHECKSUM  ,                 //用户HEX校验和
-    OFL_PROG_INFO ,                  //脱机编程信息
-} oline_data_type_t;   
+#define USER_HEX                0x00            //用户HEX   
+#define CFG_WORD                0x01            //用户配置字
+#define CFG_WORD_CHECKSUM       0x02            //配置字校验和
+#define HEX_CHECKSUM            0x03            //用户HEX校验和
+#define OFL_PROG_INFO           0x04            //脱机编程信息
+#define RTC_HEX                 0x05            //RTC hex
+#define RTC_HEX_CHECKSUM        0x06            //RTC HEX校验和
+
+
 /*---------------------------------外部spi—flash-------------------------------*/
 //SPI FLASH信息    
 //MX25L64  总容量 = 64M bit = 8M bytes      地址范围： 0 --- 7F FFFF            
 //0----- 1F FFFF = 2M 保存当前联机方案信息
 
 //脱机/联机编程操作相关数据地址
-//0x00 0000 ---- 1E FFFF     1984K=(2M - 64K)     保存用户HEX
+//0x00 0000 ---- 0F FFFF     1024K     保存用户HEX
 #define SF_USER_HEX_ADDR                0x000000    
-   
+
+//0x10 0000 ---- 1E FFFF                保存RTC hex
+#define SF_RTC_HEX_ADDR                 0x100000        
+#define SF_RTC_HEX_CHECKSUM_ADDR        0x1EF000 
+
 //0x1F 0000 ---- 1F CFFF     52K        保存配置字
 #define SF_CONFIG_WORD_ADDR             0x1F0000   
 
@@ -29,7 +34,7 @@ typedef enum
 #define SF_CONFIG_WORD_CHECKSUM_ADDR       0x1FE000   
      
 //0x1F F000 ---- 1F FFFF     4K         脱机信息
-#define SF_OFFLINE_INFO                 0x1FF000 
+#define SF_OFFLINE_INFO_ADDR                 0x1FF000 
 
 //1F FFFF ----- 7F FFFF = 6M 采用文件系统 保存脱机方案数据      
 
@@ -39,9 +44,9 @@ typedef enum
 #define SF_FATFS_OFFSET                 512         //512*4096 = 2M
 
 
-error_t online_file_erase(oline_data_type_t type, uint32_t size );
-error_t online_file_write(oline_data_type_t type, uint32_t addr, const uint8_t *buf, uint32_t size );
-error_t online_file_read(oline_data_type_t type, uint32_t addr, uint8_t *buf, uint32_t size );
+error_t online_file_erase(uint8_t type, uint32_t size );
+error_t online_file_write(uint8_t type, uint32_t addr, const uint8_t *buf, uint32_t size );
+error_t online_file_read(uint8_t type, uint32_t addr, uint8_t *buf, uint32_t size );
 
 
 #endif

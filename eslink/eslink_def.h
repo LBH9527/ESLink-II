@@ -76,9 +76,13 @@ typedef struct{
 }debug_comm_frame_t;  
 
 
+typedef error_t (*program_data_callback_t)(uint8_t type, uint32_t addr, 
+                                        uint8_t *buf, uint32_t size );
+                                                
+
 //编程操作接口
-struct es_prog_ops {
-    void    (*init) (es_target_cfg *target) ;
+struct es_prog_ops {  
+    void    (*init) (es_target_cfg *target ) ;
     error_t (*prog_init) (void);
     error_t (*prog_uninit) (void);
     error_t (*erase_chip) ( uint8_t para);
@@ -96,6 +100,10 @@ struct es_prog_ops {
     error_t (*program_info_all)   (uint32_t *failed_addr);
     error_t (*program_all) (uint8_t sn_enable, serial_number_t *sn , uint32_t *failed_addr); 
     error_t (*verify_all)  (uint8_t sn_enable, serial_number_t *sn , uint32_t *failed_addr, uint32_t *failed_data);
+    error_t (*program_private) (uint8_t para);
+    
+    program_data_callback_t cb; 
+    void *user_data; 
 };
 
 

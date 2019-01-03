@@ -25,8 +25,9 @@ static error_t isp_prog_program_flash(uint32_t addr, uint8_t *data, uint32_t siz
 static error_t isp_prog_read_flash(uint32_t addr, uint8_t *data, uint32_t size);
 static error_t isp_prog_verify_flash(uint32_t addr,  uint8_t *data, uint32_t size, uint32_t *failed_addr, uint32_t *failed_data);
 static error_t isp_target_program_config_all(uint32_t *failed_addr);
-static error_t isp_target_program_all(uint8_t sn_enable, serial_number_t *sn , uint32_t *failed_addr);
-static error_t isp_target_verify_all(uint8_t sn_enable, serial_number_t *sn , uint32_t *failed_addr, uint32_t *failed_data);
+static error_t isp_target_program_all(  uint8_t sn_enable, serial_number_t *sn , uint32_t *failed_addr);
+static error_t isp_target_verify_all( uint8_t sn_enable, serial_number_t *sn , uint32_t *failed_addr, uint32_t *failed_data);
+static error_t isp_target_program_rtc(uint8_t mode) ;
 
 struct  es_prog_ops isp_prog_intf = {
     isp_init,
@@ -48,6 +49,10 @@ struct  es_prog_ops isp_prog_intf = {
     isp_target_program_config_all ,
     isp_target_program_all,
     isp_target_verify_all,
+    
+#if ESLINK_RTC_ENABLE  
+    isp_target_program_rtc,
+#endif
 };
 
 
@@ -56,6 +61,8 @@ static const es_target_cfg *isp_target_dev;
 void isp_init(es_target_cfg *target)
 {
      isp_target_dev = target;
+     isp_prog_intf.cb = online_file_read;
+//     isp_prog_intf.user_data =  0x00;
 }
 
 //进入isp模式
@@ -256,13 +263,11 @@ static error_t isp_prog_verify_flash(uint32_t addr,  uint8_t *data, uint32_t siz
  */
 static error_t isp_prog_program_config(uint32_t addr, uint8_t *buf, uint32_t size, uint32_t *failed_addr )
 {   
-    uint8_t ret ;  
-
+    uint8_t ret ;    
     uint32_t size_in_words;  
     uint32_t offset;    
     uint32_t prog_addr;
-    uint32_t prog_size;
-    
+    uint32_t prog_size;       
 
     if(size & 0x03)
         return ERROR_OUT_OF_BOUNDS;
@@ -291,7 +296,7 @@ static error_t isp_prog_program_config(uint32_t addr, uint8_t *buf, uint32_t siz
          return ERROR_ISP_PROG_CFG_WORD;
     } 
 
-#if ESLINK_RTC_ENABLE  
+#if RTC_DEBUG  
     buf += prog_size*4; 
     prog_addr  =  addr + 0x1000;     //info1的偏移地址
     prog_size = 16;     //16个字
@@ -413,7 +418,7 @@ static error_t isp_prog_verify_config(uint32_t addr,  uint8_t *buf, uint32_t siz
         read_size -= verify_size;
     }
 
-#if ESLINK_RTC_ENABLE  
+#if RTC_DEBUG  
     read_addr  =  addr + 0x1000;     //rtc info的偏移地址
     read_size = 16;     //16个字
     while (read_size > 0) 
@@ -445,12 +450,13 @@ static error_t isp_prog_verify_config(uint32_t addr,  uint8_t *buf, uint32_t siz
 static error_t isp_prog_encrypt_chip(void)
 { 
     error_t ret;
-   
+    uint8_t result;
+    
     ret = isp_chipid_check();
-    if(ERROR_SUCCESS != ret)
+    if(ERROR_SUCCESS != result)
         return ret; 
-    ret = isp_program_config(isp_target_dev->encrypt_addr, (uint32_t *)&isp_target_dev->encrypt_value, 1, NULL);
-    if(ret != TRUE)
+    result = isp_program_config(isp_target_dev->encrypt_addr, (uint32_t *)&isp_target_dev->encrypt_value, 1, NULL);
+    if(result != TRUE)
         return ERROR_ISP_ENCRYPT;    
     return ERROR_SUCCESS;    
 }
@@ -568,7 +574,7 @@ error_t isp_prog_check_empty(uint32_t *failed_addr, uint32_t *failed_data)
             break;
         } 
 	} 
-    #if ESLINK_RTC_ENABLE  
+#if RTC_DEBUG  
     cfg_word_addr =  isp_target_dev->config_word_start + 0x1000;
 	cfg_word_size =  16;     //字长度
     while(true)
@@ -593,7 +599,7 @@ error_t isp_prog_check_empty(uint32_t *failed_addr, uint32_t *failed_data)
             break;
         } 
 	} 
-   #endif
+#endif
     return ERROR_SUCCESS;     
 }  
 
@@ -626,7 +632,7 @@ static error_t isp_target_program_config_all(uint32_t *failed_addr)
     {
         copy_size = MIN(cfg_word_size, sizeof(read_buf) );
         
-        ret = online_file_read(CFG_WORD, read_addr, read_buf , copy_size);
+        ret = isp_prog_intf.cb(CFG_WORD, read_addr, read_buf , copy_size);
         if(ERROR_SUCCESS != ret)
             return ret;     
         ret = isp_prog_program_config(cfg_word_addr, read_buf, copy_size, failed_addr); 
@@ -674,9 +680,9 @@ static error_t isp_target_program_all(uint8_t sn_enable, serial_number_t *sn , u
         
     while(true)
     {
-        copy_size = MIN(code_size, sizeof(read_buf) );    
+        copy_size = MIN(code_size, sizeof(read_buf) ); 
+        ret = isp_prog_intf.cb(USER_HEX, read_addr, read_buf , copy_size);
         
-        ret = online_file_read(USER_HEX, read_addr, read_buf , copy_size);
         if(ERROR_SUCCESS != ret)
             return ret;
         if(sn_enable == ENABLE)     //序列号代码使能
@@ -706,7 +712,7 @@ static error_t isp_target_program_all(uint8_t sn_enable, serial_number_t *sn , u
     while(true)
     {
         copy_size = MIN(cfg_word_size, sizeof(read_buf) );          
-        ret = online_file_read(CFG_WORD, read_addr, read_buf , copy_size);
+        ret = isp_prog_intf.cb(CFG_WORD, read_addr, read_buf , copy_size);
         if(ERROR_SUCCESS != ret)
             return ret;     		
         ret = isp_prog_program_config(cfg_word_addr, read_buf, copy_size, failed_addr); 
@@ -730,7 +736,7 @@ static error_t isp_target_program_all(uint8_t sn_enable, serial_number_t *sn , u
 *             failed_addr：错误地址   
 *	返 回 值: 错误类型
 *******************************************************************************/
-static error_t  isp_target_verify_all(uint8_t sn_enable, serial_number_t *sn , uint32_t *failed_addr, uint32_t *failed_data)
+static error_t  isp_target_verify_all( uint8_t sn_enable, serial_number_t *sn , uint32_t *failed_addr, uint32_t *failed_data)
 {       
     error_t ret = ERROR_SUCCESS;
 
@@ -757,8 +763,7 @@ static error_t  isp_target_verify_all(uint8_t sn_enable, serial_number_t *sn , u
     while(true)
     {
         verify_size = MIN(code_size, sizeof(sf_buf) );
-       
-        ret = online_file_read(USER_HEX, sf_addr, sf_buf , verify_size);
+        ret = isp_prog_intf.cb(USER_HEX, sf_addr, sf_buf , verify_size);   
         if( ret !=  ERROR_SUCCESS)
             return ret; 
         checksum += check_sum(verify_size, sf_buf);     //计算原始数据校验和
@@ -775,7 +780,7 @@ static error_t  isp_target_verify_all(uint8_t sn_enable, serial_number_t *sn , u
         if (code_size <= 0) 
             break;       
     }  
-    online_file_read(HEX_CHECKSUM, 0,(uint8_t*)&sf_checksum, 4);        
+    isp_prog_intf.cb(HEX_CHECKSUM, 0,(uint8_t*)&sf_checksum, 4);        
     if((sf_checksum&0x0000ffff) != (checksum&0x0000ffff))
     {
         ret = ERROR_USER_HEX_CHECKSUM;
@@ -789,7 +794,7 @@ static error_t  isp_target_verify_all(uint8_t sn_enable, serial_number_t *sn , u
     while(true)
     {
         verify_size = MIN(cfg_word_size, sizeof(sf_buf) );          
-        ret = online_file_read(CFG_WORD, sf_addr, sf_buf , verify_size);
+        ret = isp_prog_intf.cb(CFG_WORD, sf_addr, sf_buf , verify_size);
         if( ret !=  ERROR_SUCCESS)
             return ret; 
         checksum += check_sum(verify_size, sf_buf);     //计算原始数据校验和
@@ -805,7 +810,7 @@ static error_t  isp_target_verify_all(uint8_t sn_enable, serial_number_t *sn , u
         if (cfg_word_size <= 0) 
             break;       
     }
-    online_file_read(CFG_WORD_CHECKSUM, 0,(uint8_t*)&sf_checksum, 4);        
+    isp_prog_intf.cb(CFG_WORD_CHECKSUM, 0,(uint8_t*)&sf_checksum, 4);        
     if(sf_checksum != (checksum&0x0000ffff))
     {
         ret = ERROR_CFG_WORD_CHECKSUM;
@@ -814,53 +819,177 @@ static error_t  isp_target_verify_all(uint8_t sn_enable, serial_number_t *sn , u
     return  ret; 
 }
 
+/*******************************************************************************
+*	函 数 名: isp_prog_program_flash
+*	功能说明: 芯片编程。flash和配置字编程
+*	形    参: mode：0x00 联机模式  0x01 脱机模式
+*	返 回 值: 错误类型
+*******************************************************************************/  
+static error_t isp_target_program_rtc(uint8_t mode) 
+{
+    error_t ret = ERROR_SUCCESS; 
+    uint8_t result;
+    uint32_t code_addr;	
+	uint32_t code_size;    
+    uint32_t cfg_word_addr;	    
+    uint32_t size;      
+    uint32_t read_addr;
+    uint8_t buf[FLASH_PRG_MIN_SIZE];
+    uint32_t rd_buf[M939_RTC_INFO_SIZE];
+    uint32_t failed_addr;
+    uint32_t failed_data;
+    uint32_t checksum = 0;  
+    uint32_t sf_checksum = 0;   //spi保存的校验和   
+    uint32_t i;
+    uint32_t offset;  
+    uint32_t hex_addr, checksum_addr;
+    
+    
+    ret = isp_chipid_check();
+    if(ERROR_SUCCESS != ret)
+        return ret; 
+    
+    if(mode != 0)
+    {
+        hex_addr =  RTC_HEX;
+        checksum_addr = RTC_HEX_CHECKSUM;          
+    }           
+    else
+    {    
+        hex_addr =  USER_HEX;
+        checksum_addr =  HEX_CHECKSUM;         
+    }
+    //flash编程
+    code_addr =  isp_target_dev->code_start;
+	code_size =  isp_target_dev->code_size;
+    read_addr =  0; 
+        
+    while(true)
+    {
+        size = MIN(code_size, sizeof(buf) );          
+        ret = isp_prog_intf.cb(hex_addr, read_addr, buf , size);                
+        if(ERROR_SUCCESS != ret)
+            return ret;
+        for(i=0; i<size; i++)
+        {
+            if(buf[i] != 0xFF)
+                break;
+        }
+        if(i < size)      //数据段都为0xFF,不进行编程
+        {
+            ret = isp_prog_program_flash(code_addr, buf, size, &failed_addr); 
+            if( ret !=  ERROR_SUCCESS)   //编程失败，返回编程失败地址
+                return ret;
+        }           
+        // Update variables
+        code_addr  += size;
+        code_size  -= size;
+        read_addr += size;
+        // Check for end
+        if (code_size <= 0) 
+            break;       
+    }
+    //flash编程校验
+    code_addr =  isp_target_dev->code_start;
+	code_size =  isp_target_dev->code_size;
+    read_addr = 0;
+    while(true)
+    {
+        size = MIN(code_size, sizeof(buf) ); 
+           
+        ret = isp_prog_intf.cb(hex_addr, read_addr, buf , size);
+
+        if( ret !=  ERROR_SUCCESS)
+            return ret; 
+        checksum += check_sum(size, buf);     //计算原始数据校验和       
+        ret = isp_prog_verify_flash(code_addr, buf, size,&failed_addr,&failed_data);                        
+        if( ret !=  ERROR_SUCCESS)
+            return ret; 
+        // Update variables
+        code_addr  += size;
+        code_size  -= size;
+        read_addr += size;
+        // Check for end
+        if (code_size <= 0) 
+            break;       
+    }  
+    isp_prog_intf.cb(checksum_addr, 0,(uint8_t*)&sf_checksum, 4);        
+    if((sf_checksum&0x0000ffff) != (checksum&0x0000ffff))
+    {
+        ret = ERROR_USER_HEX_CHECKSUM;
+        return  ret;
+    }  
+    
+    //默认配置字编程
+    cfg_word_addr =  isp_target_dev->config_word_start + 0x400;  //info1的偏移地址
+    
+    buf[0] =  (M939_RTC_CONFIG_DEFAULT_L >> 0) & 0xff;
+    buf[1] =  (M939_RTC_CONFIG_DEFAULT_L >> 8) & 0xff;
+    buf[2] =  (M939_RTC_CONFIG_DEFAULT_L >> 16) & 0xff;
+    buf[3] =  (M939_RTC_CONFIG_DEFAULT_L >> 24) & 0xff;
+    buf[4] =  (M939_RTC_CONFIG_DEFAULT_H >> 0) & 0xff;
+    buf[5] =  (M939_RTC_CONFIG_DEFAULT_H >> 8) & 0xff;
+    buf[6] =  (M939_RTC_CONFIG_DEFAULT_H >> 16) & 0xff;
+    buf[7] =  (M939_RTC_CONFIG_DEFAULT_H >> 24) & 0xff;
+    
+    if(isp_program_config(cfg_word_addr,(uint32_t*)buf, 0x08, &offset) != TRUE)
+        return ERROR_ISP_PROG_CFG_WORD;   
+    
+    
+    //配置字校验    
+    if(isp_read_config(cfg_word_addr,(uint32_t*)buf, 0x08) != TRUE)
+        return ERROR_ISP_READ_CFG_WORD;    
+  
+    if( (buf[0] != ((M939_RTC_CONFIG_DEFAULT_L>>0) & 0xFF)) | 
+        (buf[1] != ((M939_RTC_CONFIG_DEFAULT_L>>8) & 0xFF)) |
+        (buf[2] != ((M939_RTC_CONFIG_DEFAULT_L>>16) & 0xFF)) |
+        (buf[3] != ((M939_RTC_CONFIG_DEFAULT_L>>24) & 0xFF)) |
+        (buf[4] != ((M939_RTC_CONFIG_DEFAULT_H>>0) & 0xFF)) | 
+        (buf[5] != ((M939_RTC_CONFIG_DEFAULT_H>>8) & 0xFF)) |
+        (buf[6] != ((M939_RTC_CONFIG_DEFAULT_H>>16) & 0xFF)) |
+        (buf[7] != ((M939_RTC_CONFIG_DEFAULT_H>>24) & 0xFF)) )
+     {
+          return  ERROR_ISP_CFG_WORD_VERIFY;       
+     } 
+     
+    //rtc info编程
+    read_addr = M939_RTC_INFO_OFFSET * 4; 
+    size =  isp_target_dev->config_word_size;
+    ret = isp_prog_intf.cb(CFG_WORD , read_addr, buf , size);      
+    if(ERROR_SUCCESS != ret)
+        return ret; 
+    
+    rtc_info_erase();
+    
+    result = isp_program_config(M939_RTC_INFO_ADDR, (uint32_t*)buf, M939_RTC_INFO_SIZE, &offset);
+    if(result != TRUE)
+    {
+         return ERROR_ISP_PROG_CFG_WORD;
+    } 
+         
+    //info校验
+    result = isp_read_config(M939_RTC_INFO_ADDR, rd_buf, M939_RTC_INFO_SIZE); 
+    if( result != TRUE)
+        return ERROR_ISP_READ_CFG_WORD;        
+    for(i=0; i< M939_RTC_INFO_SIZE; i++)
+    {
+        if( (buf[i*4] != ((rd_buf[i]>>0)&0xFF))  ||                        
+            (buf[i*4+1] != ((rd_buf[i]>>8)&0xFF))  ||
+            (buf[i*4+2] != ((rd_buf[i]>>16)&0xFF)) ||
+            (buf[i*4+3] != ((rd_buf[i]>>24)&0xFF)) )
+        {
+            return  ERROR_ISP_CFG_WORD_VERIFY;  
+        } 
+    } 
+
+
+    return ret;  
+}
+
+
+
 //#if ESLINK_RTC_ENABLE  
 
-///*******************************************************************************
-//*	函 数 名:  isp_read_rtc_info
-//*	功能说明: 读rtc info区的值
-//*	形    参: addr：地址 buf：数据 size：长度
-//*	返 回 值: 错误类型
-//*******************************************************************************/
-//error_t isp_read_rtc_info( uint32_t addr, uint8_t *buf, uint32_t size)
-//{
-//    uint8_t ret;
-//    uint32_t size_in_words; 
-//    uint32_t read_addr;
-// 
-//    read_addr  =  0x1000 + addr;     //rtc info的偏移地址
-//    size_in_words = size /4 ;     //16个字
-//    
-//    ret = isp_read_config(read_addr, (uint32_t*)buf, size_in_words) ;
-//    if( ret != TRUE)
-//        return ERROR_ISP_READ_CFG_WORD; 
-//    return ERROR_SUCCESS;
-//}
 
-///*******************************************************************************
-//*	函 数 名: isp_write_rtc_info
-//*	功能说明: 写rtc info区的值
-//*	形    参: addr：地址 buf：数据 size：长度
-//*	返 回 值: 错误类型
-//*******************************************************************************/
-//error_t isp_program_rtc_info( uint32_t addr, uint8_t *buf, uint32_t size)
-//{   
-//    uint8_t ret ;  
-//    uint32_t size_in_words;    
-//    uint32_t prog_addr;
-//    uint32_t offset;     
-//    
-//    if(size & 0x03)
-//        return ERROR_OUT_OF_BOUNDS;
-//    size_in_words = size/4;      
-//    prog_addr = addr + 0x1000;
-//    ret = isp_program_config(prog_addr, (uint32_t*)buf, size_in_words, &offset);
-//    if(ret != TRUE)
-//    {
-//         return ERROR_ISP_PROG_CFG_WORD;
-//    }    
-//}
-
-//#endif
 
 

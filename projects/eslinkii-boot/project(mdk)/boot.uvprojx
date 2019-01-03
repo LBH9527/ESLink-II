@@ -351,7 +351,7 @@
             <uClangAs>0</uClangAs>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>HARDWARE_VERSION=0x00010001,</Define>
+              <Define>HARDWARE_VERSION=0x00000101,</Define>
               <Undefine></Undefine>
               <IncludePath></IncludePath>
             </VariousControls>

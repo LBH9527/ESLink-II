@@ -310,7 +310,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>1</Optim>
+            <Optim>2</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
@@ -473,11 +473,6 @@
               <FileName>ofl_prj_decoder.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\source\ofl_prj_decoder.c</FilePath>
-            </File>
-            <File>
-              <FileName>info.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\source\info.c</FilePath>
             </File>
           </Files>
         </Group>

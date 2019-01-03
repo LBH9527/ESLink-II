@@ -4,5 +4,6 @@
 void rtc_Init(void);
 void rtc_pwm_out(uint8_t mode);
 
-error_t rtc_calibration_handler(void);
+error_t rtc_calibration_handler(uint8_t mode);
+error_t rtc_calibration_verify(void);
 #endif

@@ -176,7 +176,7 @@ void oline_app(void)
         if(!usbd_configured () )
         {
             //未联机
-            bsp_delay_ms(1000); 
+            bsp_delay_ms(10); 
         }
         else
         {
@@ -206,13 +206,13 @@ void oline_app(void)
                 flag_clr(task_flags, FLAGS_RTC_OUT);
                 rtc_pwm_out(rtc_out_activity); 
             }  
-            if( flag_recv(task_flags, FLAGS_RTC_HANDLER)  ) 
-            {
-                flag_clr(task_flags, FLAGS_RTC_HANDLER);
-                es_burner_init(PRG_INTF_ISP);  //RTC烧录默认为ISP烧录
-                
-                rtc_calibration_handler();
-            }  
+//            if( flag_recv(task_flags, FLAGS_RTC_HANDLER)  ) 
+//            {
+//                flag_clr(task_flags, FLAGS_RTC_HANDLER);
+//                es_burner_init(PRG_INTF_ISP);  //RTC烧录默认为ISP烧录
+//                
+//                rtc_calibration_handler(0x00);
+//            }  
             
 #endif            
         }

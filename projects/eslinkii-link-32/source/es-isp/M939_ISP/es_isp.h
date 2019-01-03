@@ -15,6 +15,14 @@
     #define M939_CONFIG_WORD_SIZE       38      //38个字长
 #endif
 
+#define M939_RTC_INFO_ADDR          0x1000
+#define M939_RTC_INFO_OFFSET        38      //rtcinfo在配置字中的偏移量
+#define M939_RTC_INFO_SIZE          16      //16个字长
+#define RTC_DEBUG   0                       //是否在配置字编程时 编程RTC_INFO,内部使用
+
+//RTC默认配置字
+#define M939_RTC_CONFIG_DEFAULT_H       0xFFFFFFFF 
+#define M939_RTC_CONFIG_DEFAULT_L       0xF0FE0F01
 /*******************************************************************************
 							函数声明
 *******************************************************************************/  
@@ -36,4 +44,5 @@ uint8_t isp_program_code(uint32_t addr, uint32_t *data, uint32_t size,uint32_t *
 uint8_t isp_read_code(uint32_t addr, uint32_t *data, uint32_t size); 
 
 uint8_t rtc_info_erase(void);
+
 #endif

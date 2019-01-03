@@ -3,9 +3,9 @@
 
 
 
-//调校前温度寄存器地址
+//调校前温度 Flash地址
 #define RTC_TEMP_BEFORE_CALI_ADDR       0x20000
-//调校后温度寄存器地址
+//调校后温度 Flash地址
 #define RTC_TEMP_AFTER_CALI_ADDR        0x20400
 //调校前或调校后标志
 #define RTC_TEMP_CALI_FLAG_ADDR         0x20800

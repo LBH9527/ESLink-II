@@ -22,11 +22,22 @@ Dialog DLL:      TCM.DLL V1.27.0.0
  
 <h2>Project:</h2>
 D:\DAPLink_Workspace\eslink-ii\projects\eslinkii-link-32\project\eslink.uvprojx
-Project File Date:  12/28/2018
+Project File Date:  01/03/2019
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 4 (build 422)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'es_link_II'
+compiling eeprom_port.c...
+compiling eslink.c...
+compiling sflash_port.c...
+compiling usbd_user_cls_icd.c...
+compiling es_burner.c...
+..\..\..\eslink\es_burner.c(1369): warning:  #1-D: last line of file ends without a newline
+   
+..\..\..\eslink\es_burner.c: 1 warning, 0 errors
+compiling eeprom.c...
+compiling main.c...
+compiling target_program_config.c...
 compiling offline_app.c...
 ..\..\..\eslink\offline\offline_app.c(55): warning:  #111-D: statement is unreachable
           return OFL_ERR_PROG_INTF;
@@ -37,21 +48,66 @@ compiling offline_app.c...
 ..\..\..\eslink\offline\offline_app.c(323): warning:  #550-D: variable "ret"  was set but never used
       error_t ret = ERROR_SUCCESS;
 ..\..\..\eslink\offline\offline_app.c: 4 warnings, 0 errors
-compiling main.c...
+compiling offline_file.c...
+..\..\..\eslink\offline\offline_file.c(59): warning:  #128-D: loop is not reachable
+              while(1);
+..\..\..\eslink\offline\offline_file.c(43): warning:  #550-D: variable "fre_sect"  was set but never used
+      DWORD fre_clust, fre_sect, tot_sect;     
+..\..\..\eslink\offline\offline_file.c(43): warning:  #550-D: variable "tot_sect"  was set but never used
+      DWORD fre_clust, fre_sect, tot_sect;     
+..\..\..\eslink\offline\offline_file.c: 3 warnings, 0 errors
+compiling M939_ISP.c...
+..\source\es-isp\M939_ISP\M939_ISP.c(218): warning:  #177-D: function "info0_unlock_set"  was declared but never referenced
+  static void info0_unlock_set(void)
+..\source\es-isp\M939_ISP\M939_ISP.c: 1 warning, 0 errors
+compiling isp_prog_intf.c...
+compiling bootisp_prog_intf.c...
+..\source\es-bootisp\bootisp_prog_intf.c(51): warning:  #940-D: missing return statement at end of non-void function "bootisp_uninit" 
+  }
+..\source\es-bootisp\bootisp_prog_intf.c(16): warning:  #550-D: variable "last_addr"  was set but never used
+  static uint32_t last_addr;
+..\source\es-bootisp\bootisp_prog_intf.c(18): warning:  #177-D: variable "buf"  was declared but never referenced
+  static uint8_t buf[BOOTSIP_DATA_MAX_LEN];
+..\source\es-bootisp\bootisp_prog_intf.c: 3 warnings, 0 errors
+compiling bootisp_host.c...
+..\source\es-bootisp\bootisp_host.c(324): warning:  #177-D: function "get_crc32_cmd"  was declared but never referenced
+  static int get_crc32_cmd(uint32_t addr, uint32_t size, uint32_t *crc_value)
+..\source\es-bootisp\bootisp_host.c: 1 warning, 0 errors
+compiling swd_target_flash.c...
+compiling rtc_calibrate.c...
+..\source\es-rtc\rtc_target.h(43): warning:  #1-D: last line of file ends without a newline
+          
+..\source\es-rtc\rtc_calibrate.c: 1 warning, 0 errors
+compiling swd_host.c...
+..\source\swd\swd_host.c(55): warning:  #47-D: incompatible redefinition of macro "SCB_AIRCR_PRIGROUP_Pos"  (declared at line 526 of "..\..\..\CMSIS\core_cm4.h")
+  #define SCB_AIRCR_PRIGROUP_Pos              8                                             /*!< SCB AIRCR: PRIGROUP Position */
+..\source\swd\swd_host.c: 1 warning, 0 errors
+compiling update.c...
+..\..\..\iap\update.c(53): warning:  #177-D: variable "stay_in"  was declared but never referenced
+      uint8_t stay_in = TRUE;
+..\..\..\iap\update.c: 1 warning, 0 errors
+compiling diskio.c...
+compiling link_menu.c...
+..\..\..\gui\link_menu.c(266): warning:  #111-D: statement is unreachable
+              break;
+..\..\..\gui\link_menu.c(333): warning:  #177-D: variable "msg"  was declared but never referenced
+  	uint8_t msg = MSG_NULL;
+..\..\..\gui\link_menu.c: 2 warnings, 0 errors
+compiling settings_rom.c...
 linking...
-Program Size: Code=65832 RO-data=8368 RW-data=792 ZI-data=17148  
+Program Size: Code=64100 RO-data=8300 RW-data=688 ZI-data=17200  
 FromELF: creating hex file...
 After Build - User command #1: .\CopyHex_Flash.bat
 D:\DAPLink_Workspace\eslink-ii\projects\eslinkii-link-32\project>copy Objects\output.hex ..\..\ES8PXXX 
 已复制         1 个文件。
-".\Objects\output.axf" - 0 Error(s), 4 Warning(s).
+".\Objects\output.axf" - 0 Error(s), 18 Warning(s).
 
 <h2>Collection of Component include folders:</h2>
   .\RTE\_es_link_II
   C:\Keil_v5\ARM\PACK\NXP\MK22F12810_DFP\10.0.0
 
 <h2>Collection of Component Files used:</h2>
-Build Time Elapsed:  00:00:03
+Build Time Elapsed:  00:00:15
 </pre>
 </body>
 </html>

@@ -19,7 +19,7 @@
 
 
 static es_target_cfg es_target_device;      //目标芯片信息
-static struct es_prog_ops *es_prog_intf;
+static struct es_prog_ops *online_prog_intf;
 typedef enum {
     STATE_DISABLE,	//失能
 	STATE_DL,		//序列号下载完成
@@ -53,11 +53,11 @@ error_t es_prog_set_intf(prog_intf_type_t type)
 {
     if(PRG_INTF_ISP == type )
     {
-         es_prog_intf =  &isp_prog_intf;    
+         online_prog_intf =  &isp_prog_intf;    
     }
     else if (PRG_INTF_SWD ==  type )
     {
-         es_prog_intf =  &swd_prog_intf; 
+//         online_prog_intf =  &swd_prog_intf; 
     }
     else if ( PRG_INTF_BOOTISP == type)
     {
@@ -74,15 +74,15 @@ static error_t es_prog_get_intf(uint8_t *data)
 {
     prog_intf_type_t type;
     
-    if(es_prog_intf ==  &isp_prog_intf)
+    if(online_prog_intf ==  &isp_prog_intf)
     {
         type = PRG_INTF_ISP;
     }
-    else if(es_prog_intf ==  &swd_prog_intf)
-    {
-        type = PRG_INTF_SWD;
-    }
-//    else if(es_prog_intf ==  &isp_prog_intf)
+//    else if(online_prog_intf ==  &swd_prog_intf)
+//    {
+//        type = PRG_INTF_SWD;
+//    }
+//    else if(online_prog_intf ==  &isp_prog_intf)
 //    {
 //    
 //    
@@ -157,7 +157,7 @@ static error_t read_timinginfo(uint8_t *buf)
 static error_t read_eslink_sn(uint8_t *buf)
 {    
     error_t result = ERROR_SUCCESS;
-    result = get_offline_serial_number(buf , 4);
+    result = get_eslinkii_serial_number(buf , 4);
     return result ;
 }
 /*
@@ -346,20 +346,20 @@ error_t es_erase_chip(uint8_t *data)
     error_t ret = ERROR_SUCCESS;
     uint8_t erase_mode;    
     
-    ret = es_prog_intf->prog_init();
+    ret = online_prog_intf->prog_init();
     if(ERROR_SUCCESS != ret)
         goto fail;
     erase_mode = data[0];    
-    ret = es_prog_intf->erase_chip(erase_mode);
+    ret = online_prog_intf->erase_chip(erase_mode);
     if(ERROR_SUCCESS != ret)
     {
         goto fail;
     
     }  
-    ret = es_prog_intf->prog_uninit();
+    ret = online_prog_intf->prog_uninit();
     return  ERROR_SUCCESS;
 fail:
-    es_prog_intf->prog_uninit();     
+    online_prog_intf->prog_uninit();     
     return ret;
 }
 /*******************************************************************************
@@ -374,10 +374,10 @@ error_t es_check_empty(uint8_t *data)
     uint32_t failed_data;
     error_t ret = ERROR_SUCCESS;
     
-    ret = es_prog_intf->prog_init();
+    ret = online_prog_intf->prog_init();
     if(ERROR_SUCCESS != ret)
         goto fail;     
-    ret = es_prog_intf->check_empty(&failed_addr, &failed_data);
+    ret = online_prog_intf->check_empty(&failed_addr, &failed_data);
     if(ERROR_SUCCESS != ret)
     {
         int2array(&failed_addr, 1, data);
@@ -385,10 +385,10 @@ error_t es_check_empty(uint8_t *data)
         goto fail;
     }  
     
-    es_prog_intf->prog_uninit();
+    online_prog_intf->prog_uninit();
     return  ERROR_SUCCESS;
 fail:
-    es_prog_intf->prog_uninit();     
+    online_prog_intf->prog_uninit();     
     return ret;
 }  
 /*******************************************************************************
@@ -402,21 +402,21 @@ error_t es_program_flash(uint8_t sn_enable, uint8_t *data)
     error_t ret = ERROR_SUCCESS;
     uint32_t failed_addr = 0x0;      
     
-    ret = es_prog_intf->prog_init();
+    ret = online_prog_intf->prog_init();
     if(ERROR_SUCCESS != ret)
         goto fail;
         
-    ret = es_prog_intf->program_all(sn_enable, &prog_sn, &failed_addr);
+    ret = online_prog_intf->program_all(sn_enable, &prog_sn, &failed_addr);
     if(ERROR_SUCCESS != ret)
     {
         int2array(&failed_addr, 1, data);
         goto fail;
     }
         
-    es_prog_intf->prog_uninit();
+    online_prog_intf->prog_uninit();
     return  ERROR_SUCCESS;
 fail:
-    es_prog_intf->prog_uninit();     
+    online_prog_intf->prog_uninit();     
     return ret;
     
 }
@@ -433,11 +433,11 @@ error_t es_program_verify(uint8_t sn_enable,uint8_t *data)
     uint32_t failed_addr;
     uint32_t failed_data;     
     
-    ret = es_prog_intf->prog_init();
+    ret = online_prog_intf->prog_init();
     if(ERROR_SUCCESS != ret)
         goto fail;
    
-    ret = es_prog_intf->verify_all(sn_enable, &prog_sn, &failed_addr , &failed_data);
+    ret = online_prog_intf->verify_all(sn_enable, &prog_sn, &failed_addr , &failed_data);
     if(ERROR_SUCCESS != ret)
     {
         int2array(&failed_addr, 1, data);
@@ -445,10 +445,10 @@ error_t es_program_verify(uint8_t sn_enable,uint8_t *data)
         goto fail;     
     }
     
-    es_prog_intf->prog_uninit();
+    online_prog_intf->prog_uninit();
     return  ERROR_SUCCESS;
 fail:
-    es_prog_intf->prog_uninit();     
+    online_prog_intf->prog_uninit();     
     return ret;
 }
 /*******************************************************************************
@@ -461,16 +461,16 @@ error_t es_program_encrypt(void)
 {
     error_t ret = ERROR_SUCCESS;
     
-    ret = es_prog_intf->prog_init();
+    ret = online_prog_intf->prog_init();
     if(ERROR_SUCCESS != ret)
         goto fail;
    
-    ret = es_prog_intf->encrypt_chip(); 
+    ret = online_prog_intf->encrypt_chip(); 
     
-    es_prog_intf->prog_uninit();     
+    online_prog_intf->prog_uninit();     
     return ERROR_SUCCESS;
 fail:
-    es_prog_intf->prog_uninit();     
+    online_prog_intf->prog_uninit();     
     return ret;
 }
 /*******************************************************************************
@@ -495,13 +495,13 @@ static error_t es_read_flash_main(uint8_t *wrbuf, uint8_t *rdbuf, uint16_t *read
             (*(wrbuf+7) << 24); 
     if(addr == es_target_device.code_start)
     {
-        ret = es_prog_intf->prog_init();
+        ret = online_prog_intf->prog_init();
         if(ERROR_SUCCESS != ret)
             goto fail;        
     }     
         
     memcpy( rdbuf, wrbuf, 4);
-    ret = es_prog_intf->read_flash(addr, rdbuf+4, size); 
+    ret = online_prog_intf->read_flash(addr, rdbuf+4, size); 
     if(ERROR_SUCCESS != ret)
     {
         *read_size = 0 ;
@@ -514,12 +514,12 @@ static error_t es_read_flash_main(uint8_t *wrbuf, uint8_t *rdbuf, uint16_t *read
     
     if(addr+size == es_target_device.code_size)
     {
-        es_prog_intf->prog_uninit(); 
+        online_prog_intf->prog_uninit(); 
     }        
     return ERROR_SUCCESS;
     
 fail:
-    es_prog_intf->prog_uninit();     
+    online_prog_intf->prog_uninit();     
     return ret;
 
 }
@@ -534,21 +534,21 @@ static error_t es_program_config_word(uint8_t *data)
     error_t ret = ERROR_SUCCESS;
     uint32_t failed_addr;   
     
-    ret = es_prog_intf->prog_init();
+    ret = online_prog_intf->prog_init();
     if(ERROR_SUCCESS != ret)
         goto fail; 
         
-    ret = es_prog_intf->program_info_all( &failed_addr);
+    ret = online_prog_intf->program_info_all( &failed_addr);
     if(ERROR_SUCCESS != ret)
     {
         int2array(&failed_addr, 1, data);
         goto fail;
     }    
     
-    es_prog_intf->prog_uninit();
+    online_prog_intf->prog_uninit();
     return  ERROR_SUCCESS;
 fail:
-    es_prog_intf->prog_uninit();     
+    online_prog_intf->prog_uninit();     
     return ret; 
 }
 //读配置字
@@ -567,12 +567,12 @@ static error_t es_read_config_word(uint8_t *wrbuf, uint8_t *rdbuf, uint16_t *rea
             (*(wrbuf+6) << 16) |
             (*(wrbuf+7) << 24); 
             
-    ret = es_prog_intf->prog_init();
+    ret = online_prog_intf->prog_init();
     if(ERROR_SUCCESS != ret)
         goto fail;   
        
     memcpy( rdbuf, wrbuf, 4);
-    ret = es_prog_intf->read_info(addr, rdbuf+4, size); 
+    ret = online_prog_intf->read_info(addr, rdbuf+4, size); 
     if(ERROR_SUCCESS != ret)
     {
         *read_size = 0 ;
@@ -583,10 +583,10 @@ static error_t es_read_config_word(uint8_t *wrbuf, uint8_t *rdbuf, uint16_t *rea
         *read_size = size+4;          
     }  
     
-    es_prog_intf->prog_uninit();
+    online_prog_intf->prog_uninit();
     return  ERROR_SUCCESS;
 fail:
-    es_prog_intf->prog_uninit();     
+    online_prog_intf->prog_uninit();     
     return ret;  
 
 }
@@ -597,11 +597,11 @@ static error_t es_read_chipid(uint8_t *data)
     uint32_t chipid;
     error_t ret = ERROR_SUCCESS;
     
-    ret = es_prog_intf->prog_init();
+    ret = online_prog_intf->prog_init();
     if(ERROR_SUCCESS != ret)
         goto fail;   
         
-    ret = es_prog_intf->read_chipid(&chipid);
+    ret = online_prog_intf->read_chipid(&chipid);
     if(ERROR_SUCCESS != ret)
         goto fail;          
     data[0] = (chipid & 0x000000FF) ;  
@@ -609,10 +609,10 @@ static error_t es_read_chipid(uint8_t *data)
     data[2] = (chipid & 0x00FF0000) >> 16;
     data[3] = (chipid & 0xFF000000) >> 24;  
     
-    es_prog_intf->prog_uninit();
+    online_prog_intf->prog_uninit();
     return  ERROR_SUCCESS;
 fail:
-    es_prog_intf->prog_uninit();     
+    online_prog_intf->prog_uninit();     
     return ret;  
 }   
 //读芯片校验和
@@ -621,11 +621,11 @@ static error_t es_read_chip_chksum(uint8_t *data)
     uint32_t checksum;
     error_t ret = ERROR_SUCCESS;
     
-    ret = es_prog_intf->prog_init();
+    ret = online_prog_intf->prog_init();
     if(ERROR_SUCCESS != ret)
         goto fail; 
    
-    ret = es_prog_intf->read_chip_chksum(&checksum);
+    ret = online_prog_intf->read_chip_chksum(&checksum);
     if(ERROR_SUCCESS != ret)
         goto fail;    
     data[0] = (checksum & 0x000000FF) ;  
@@ -633,10 +633,10 @@ static error_t es_read_chip_chksum(uint8_t *data)
     data[2] = (checksum & 0x00FF0000) >> 16;
     data[3] = (checksum & 0xFF000000) >> 24;  
     
-    es_prog_intf->prog_uninit();
+    online_prog_intf->prog_uninit();
     return  ERROR_SUCCESS;
 fail:
-    es_prog_intf->prog_uninit();     
+    online_prog_intf->prog_uninit();     
     return ret;     
     
 }
@@ -1069,7 +1069,7 @@ uint32_t prog_process_command(uint8_t *request, uint8_t *response)
             prog_data.data_length = 4;
             break;
         case ID_DL_SERIAL_NUMBER :
-            result = write_eslink_sn( &prog_data.rdbuf[8]);
+            result = write_eslink_sn( &prog_data.wrbuf[8]);
             prog_data.data_length = 0;
             break;  
         //------------------------Boot判断--------------------------------
@@ -1288,13 +1288,14 @@ uint32_t prog_process_command(uint8_t *request, uint8_t *response)
             prog_data.data_length = 4;         
             break;
         case ID_RTC_CALI :                            //RTC调校
-            rtc_handler_event();
-//            result = rtc_calibration_handler();
-            result = ERROR_SUCCESS;
+//            rtc_handler_event();
+            result = rtc_calibration_handler(0x00);
+//            result = ERROR_SUCCESS;
             prog_data.data_length = 0; 
             break;
         case ID_RTC_CALI_VERIFY:                       //RTC验证
-        
+            result = rtc_calibration_verify();
+            prog_data.data_length = 0;
             break;
 #endif
         default:
@@ -1342,7 +1343,7 @@ error_t es_burner_init(prog_intf_type_t type)
     error_t ret;
 	get_target_info((uint8_t*)&es_target_device);       //获取目标芯片信息
 	ret = es_prog_set_intf(type);                       //上电后默认是ISP编程
-	es_prog_intf->init(&es_target_device);
+	online_prog_intf->init(&es_target_device);
 	ISP_SETUP();
 //	PORT_ISP_SETUP();   
 
@@ -1356,11 +1357,12 @@ error_t es_burner_init(prog_intf_type_t type)
 //{
 //    error_t ret = ERROR_SUCCESS;
 //   
-//    ret = es_prog_intf->prog_init();
+//    ret = online_prog_intf->prog_init();
 //	return ret;
 //}
 
  
+                                 
 
 
 

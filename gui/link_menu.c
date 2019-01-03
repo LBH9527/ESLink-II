@@ -70,43 +70,6 @@ struct menu_t logo_menu =
 	NULL,
 } ;
 
-
- 
-
-////ofl字符串显示
-//static void ofl_diplay_str(uint8_t i, char *str)
-//{
-//    FONT_T Font16;
-//    
-//    Font16.FontCode = FC_ST_16;	/* 字体代码 16点阵 */
-//    Font16.FrontColor = 1;		/* 字体颜色 0 或 1 */
-//    Font16.BackColor = 0;		/* 文字背景颜色 0 或 1 */
-//    Font16.Space = 0;			/* 文字间距，单位 = 像素 */	
-//    oled_display_str(0, i, str, &Font16);  
-//}
-////ofl反白显示
-//static void ofl_diplay_str_inv(uint8_t i, char *str)
-//{
-//    FONT_T Font16;
-//    
-//    Font16.FontCode = FC_ST_16;	/* 字体代码 16点阵 */
-//    Font16.FrontColor = 0;		/* 字体颜色 0 或 1 */
-//    Font16.BackColor = 1;		/* 文字背景颜色 0 或 1 */
-//    Font16.Space = 0;			/* 文字间距，单位 = 像素 */	
-//    oled_display_str(0, i, str, &Font16);  
-//} 
-
-//static void ofl_display (void)
-//{
-//	uint8_t i;
-//	for(i=0; i<ofl_state.disp_num; i++)
-//    {
-//        if(i== ofl_state.cur_line)
-//            ofl_diplay_str_inv((i+1)*16,ofl_item.str[i+ofl_state.first_line]); 
-//        else
-//            ofl_diplay_str((i+1)*16,ofl_item.str[i+ofl_state.first_line]); 
-//    } 	
-//}
 //8位机序列号 显示
 static void serial_number_8bit_display(uint16_t y,uint8_t *buf, uint8_t size)
 {
@@ -326,7 +289,8 @@ void logo_display(void)
 	uint8_t msg = MSG_NULL;
 	FONT_T Font16;
 	static uint8_t disp_init = 0 ;
-	
+	uint32_t version = get_hardware_version();
+    char display_temp[8+1] = {'\0'};
 	if(disp_init == 0)
 	{  
         oled_clr_scr(0x00);	/* 清屏，0x00表示黑底； 0xFF 表示白底 */
@@ -341,7 +305,13 @@ void logo_display(void)
         oled_display_str(0,28,"   ESLink-II    ", &Font16);	
         Font16.FrontColor = 1;		/* 字体颜色 0 或 1 */
         Font16.BackColor = 0;		/* 文字背景颜色 0 或 1 */
-        oled_display_str(0,48,"          V0.2.6", &Font16);	
+        usprintf(display_temp,"%08x", version);
+//        display_temp[0] =  version >> 
+        display_temp[2] = '.';
+        display_temp[4] = '.';
+        display_temp[6] = '.';
+        oled_display_str(0,48,"        V", &Font16);	
+        oled_display_str(72,48,&display_temp[1], &Font16);	
 		disp_init = 1;
 	}
     msg_read_data(&msg);

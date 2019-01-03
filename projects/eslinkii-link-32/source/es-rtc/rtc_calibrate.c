@@ -116,10 +116,7 @@ void rtc_Init(void)
     get_rtc_self_calibrate((uint8_t*)&rtc_self_cali_freq, 4); 
     state = STATE_CALI_START;
     
-    //
 //    rtc_self_cali_freq =  9999853;
-//    target_freq_ppm = 24.07;
-
 }
 //rtc输出
 void rtc_pwm_out(uint8_t mode)
@@ -165,7 +162,7 @@ static uint32_t abs(uint32_t x1, uint32_t x2)
 //rtc调校开始
 //1、烧录RTC调校程序。
 //2、启动定时器，测量目标芯片的RTC精度。
-static error_t rtc_calibration_start(void)
+static error_t rtc_calibration_start(uint8_t mode)
 {
     error_t ret = ERROR_SUCCESS;
     uint32_t failaddr;
@@ -184,7 +181,7 @@ static error_t rtc_calibration_start(void)
     ret = isp_prog_intf.check_empty(&failaddr, &faildata);
     if(ERROR_SUCCESS != ret)
         return ret;
-    ret = isp_prog_intf.program_all(DISABLE, NULL, &failaddr);
+    ret = isp_prog_intf.program_private(mode);
     if(ERROR_SUCCESS != ret)
         return ret;
 //    reg_temp[0] = 0x00001400;
@@ -232,13 +229,13 @@ static error_t rtc_calibration(void)
         {
             //脉冲触发数比 捕获脉冲数组 多1
             cnt_ppm =  abs(capture_cnt[trig_count - 3], capture_cnt[trig_count -2]) ;
-            if(cnt_ppm  > 4)
+            if(cnt_ppm  > 2)
                 continue;
             cnt_ppm =  abs(capture_cnt[trig_count - 3], capture_cnt[trig_count - 1 ]) ;
-            if(cnt_ppm  > 4)
+            if(cnt_ppm  > 2)
                 continue;
             cnt_ppm =  abs(capture_cnt[trig_count - 1], capture_cnt[trig_count - 2]) ; 
-            if(cnt_ppm  > 4)
+            if(cnt_ppm  > 2)
                 continue;            
             target_avg_cnt = (capture_cnt[trig_count -2] + capture_cnt[trig_count -1] + \
                                 capture_cnt[trig_count - 3] ) / 3  ;
@@ -325,22 +322,31 @@ static error_t rtc_calibration_end(void)
     //调校后温度
 //    isp_prog_intf.read_flash(RTC_TEMP_AFTER_CALI_ADDR, (uint8_t*)&rtc_info_reg[5], sizeof(rtc_info_reg[4]));
     result = rtc_info_erase();
+    if(result != TRUE)
+        return ERROR_RTC_CALI_PROG ;
     result = isp_program_config(RTC_INFO_BASC_ADDR, rtc_info_reg, 24,  &fail);
-    
-    reg_temp[0] =  RTC_TEMP_CALI_FLAG;
-    result = isp_program_code(RTC_TEMP_CALI_FLAG_ADDR, reg_temp, 2, &fail);
+    if(result != TRUE)
+        return ERROR_RTC_CALI_PROG ;
+        
+    reg_temp[0] =  RTC_TEMP_CALI_FLAG;     
+    result = isp_program_code(RTC_TEMP_CALI_FLAG_ADDR, reg_temp, 2, &fail);     //写调校后标志
+    if(result != TRUE)
+        return ERROR_RTC_CALI_PROG ;
+        
+    eslink_set_target_reset_run(20);      
     return ret;
 }
 
 
 //RTC调校处理
-error_t rtc_calibration_handler(void)
+//mode 联机模式还是脱机模式 ，联机模式和脱机模式的RTC HEX地址不一样
+error_t rtc_calibration_handler(uint8_t mode)
 {
     error_t ret = ERROR_SUCCESS;
     
     if(STATE_CALI_START ==  state)
     {
-        ret = rtc_calibration_start();
+        ret = rtc_calibration_start(mode);
         if(ret != ERROR_SUCCESS)
             return ret;
         FTM_SetTimerPeriod(FTM_BASEADDR, 0xffff);  
@@ -369,7 +375,8 @@ error_t rtc_calibration_handler(void)
     }
     if( STATE_CALI_END ==  state)
     {
-        ret = rtc_calibration_end();     
+        ret = rtc_calibration_end();  
+            
     }                
     NVIC_SetPriority(FTM_IRQ_NUM, 0);       //恢复USB中断优先级
     NVIC_SetPriority(USB0_IRQn, 0);
@@ -379,11 +386,18 @@ error_t rtc_calibration_handler(void)
 }
 
 //调校验证
+#define RTC_TARGET_FREQ_PPM_VALUE   2   //调校后的ppm 范围
 error_t rtc_calibration_verify(void)
 {
-
-
-
+    trig_count = 0;
+    time_over_cnt = 0;
+    capture_cnt0 = 0;
+    capture_cnt1 = 0;
+    
+    rtc_calibration();
+    if(target_freq_ppm >= RTC_TARGET_FREQ_PPM_VALUE)
+         return ERROR_RTC_CALI_VERIFY;
+    return ERROR_SUCCESS;
 }
 
 void FTM1_IRQHandler(void)

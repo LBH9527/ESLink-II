@@ -662,11 +662,6 @@
           <GroupName>es-swd</GroupName>
           <Files>
             <File>
-              <FileName>swd_prog_intf.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\source\swd\swd_prog_intf.c</FilePath>
-            </File>
-            <File>
               <FileName>swd_host.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\source\swd\swd_host.c</FilePath>

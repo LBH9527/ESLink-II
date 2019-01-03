@@ -106,6 +106,8 @@ typedef enum {
     
     ERROR_RTC_CALI_START = 0x90,            //调教前编程失败
     ERROR_RTC_CALI_TIMEOUT = 0x91,            //调教超时，没有符合要求得脉冲 
+    ERROR_RTC_CALI_PROG = 0x92,             //RTC编程失败
+    ERROR_RTC_CALI_VERIFY = 0x93,           //RTC验证失败
     //DEBUG
     ERR_FRAME_HEAD    = 0xA0,
     ERR_DEVICE_TYPE   = 0xA1,

@@ -104,3 +104,10 @@ void eslink_set_target_reset_run(uint8_t delay_ms)
     es_delay_ms(delay_ms);
     PIN_RST_OUT(1) ;  
 }
+
+
+//void program_create_cb(struct es_prog_ops *intf, program_data_callback_t callback, void *userData)                                       
+//{
+//    intf->cb = callback;
+//    intf->userData = userData;
+//}   
