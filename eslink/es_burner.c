@@ -8,10 +8,8 @@
 #include "eeprom_port.h"
 #include "offline_file.h"
 #include "isp_prog_intf.h" 
-
-#if ESLINK_SWD_ENABLE
 #include "swd_prog_intf.h"
-#endif
+
 #if ESLINK_RTC_ENABLE
 #include "rtc_calibrate.h"  
 #endif
@@ -27,7 +25,8 @@ typedef enum {
 } sn_state_t;
 //static sn_state_t sn_state = STATE_DISABLE;
 static serial_number_t prog_sn ;       //序列号
-
+//编程步长
+#define FLASH_PRG_MIN_SIZE      1024
 
 //字转换为字节
 //data:字数组 len：字数组长度 res：字节数组
@@ -157,17 +156,19 @@ static error_t read_timinginfo(uint8_t *buf)
 static error_t read_eslink_sn(uint8_t *buf)
 {    
     error_t result = ERROR_SUCCESS;
-    result = get_eslinkii_serial_number(buf , 4);
+    uint32_t eslink_sn;     //eslink 产品序列号
+    eslink_sn = get_eslinkii_serial_number();
+    int2array(&eslink_sn, 1, buf);
     return result ;
 }
 /*
  *  写ESlink II序列号
  */
 static error_t write_eslink_sn(uint8_t *buf)
-{
-    error_t result = ERROR_SUCCESS;
-    result = set_eslinkii_serial_number(buf, 4);
-    return result ;
+{     
+    if(set_eslinkii_serial_number(buf) != TRUE)
+        return ERROR_IAP_WRITE;
+    return ERROR_SUCCESS ;
 }
 
 /********************************读写联机数据到编程器******************************/ 
@@ -177,25 +178,22 @@ static error_t write_eslink_sn(uint8_t *buf)
 static error_t es_download_config_word(uint8_t *data)
 {
     error_t ret = ERROR_SUCCESS;
-    uint32_t addr;
+    static uint32_t addr;
     uint32_t size;
     
-    addr = (*(data+0) <<  0) |
-            (*(data+1) <<  8) |
-            (*(data+2) << 16) |
-            (*(data+3) << 24);
     size = (*(data+4) <<  0) |
             (*(data+5) <<  8) |
             (*(data+6) << 16) |
             (*(data+7) << 24);
-    if( !addr)
+    if( (*(data+0) == 0x00) && (*(data+1) == 0x00) && (*(data+2) == 0x00) && (*(data+3) == 0x00))
     {
          ret = online_file_erase(CFG_WORD, es_target_device.config_word_size );
          if(ERROR_SUCCESS != ret)
-            return ret;         
+            return ret;  
+         addr = 0x00;
     }         
     ret = online_file_write(CFG_WORD, addr, (data+8), size) ;    
-
+    addr += size;
     return ret;            
 }
 /*
@@ -466,6 +464,8 @@ error_t es_program_encrypt(void)
         goto fail;
    
     ret = online_prog_intf->encrypt_chip(); 
+    if(ERROR_SUCCESS != ret)
+        goto fail;
     
     online_prog_intf->prog_uninit();     
     return ERROR_SUCCESS;
@@ -479,7 +479,7 @@ fail:
 *	形    参: 读出的数据
 *	返 回 值: error_t
 *******************************************************************************/
-static error_t es_read_flash_main(uint8_t *wrbuf, uint8_t *rdbuf, uint16_t *read_size)
+static error_t es_read_flash(uint8_t *wrbuf, uint8_t *rdbuf, uint16_t *read_size)
 {
     error_t ret = ERROR_SUCCESS;
     uint32_t addr;
@@ -594,20 +594,20 @@ fail:
 //读chipid
 static error_t es_read_chipid(uint8_t *data)
 {
-    uint32_t chipid;
+//    uint32_t chipid;
     error_t ret = ERROR_SUCCESS;
     
     ret = online_prog_intf->prog_init();
     if(ERROR_SUCCESS != ret)
         goto fail;   
         
-    ret = online_prog_intf->read_chipid(&chipid);
+    ret = online_prog_intf->read_chipid(data);
     if(ERROR_SUCCESS != ret)
         goto fail;          
-    data[0] = (chipid & 0x000000FF) ;  
-    data[1] = (chipid & 0x0000FF00) >> 8; 
-    data[2] = (chipid & 0x00FF0000) >> 16;
-    data[3] = (chipid & 0xFF000000) >> 24;  
+//    data[0] = (chipid & 0x000000FF) ;  
+//    data[1] = (chipid & 0x0000FF00) >> 8; 
+//    data[2] = (chipid & 0x00FF0000) >> 16;
+//    data[3] = (chipid & 0xFF000000) >> 24;  
     
     online_prog_intf->prog_uninit();
     return  ERROR_SUCCESS;
@@ -618,20 +618,15 @@ fail:
 //读芯片校验和
 static error_t es_read_chip_chksum(uint8_t *data)  
 {
-    uint32_t checksum;
     error_t ret = ERROR_SUCCESS;
     
     ret = online_prog_intf->prog_init();
     if(ERROR_SUCCESS != ret)
         goto fail; 
    
-    ret = online_prog_intf->read_chip_chksum(&checksum);
+    ret = online_prog_intf->read_chip_chksum(data);
     if(ERROR_SUCCESS != ret)
-        goto fail;    
-    data[0] = (checksum & 0x000000FF) ;  
-    data[1] = (checksum & 0x0000FF00) >> 8; 
-    data[2] = (checksum & 0x00FF0000) >> 16;
-    data[3] = (checksum & 0xFF000000) >> 24;  
+        goto fail;  
     
     online_prog_intf->prog_uninit();
     return  ERROR_SUCCESS;
@@ -935,7 +930,7 @@ static error_t download_ofl_prj_hex(uint8_t *data)
 static error_t download_ofl_prj_hex_end(uint8_t *data)
 {
     error_t ret = ERROR_SUCCESS;
-       uint32_t checksum = 0;  
+    uint32_t checksum = 0;  
     uint32_t image_size = 0;
     uint32_t read_addr = 0;
     uint32_t read_size = 0;     
@@ -969,7 +964,14 @@ static error_t download_ofl_prj_hex_end(uint8_t *data)
     {
         ret = ERROR_SUCCESS;
         //保存分区信息
-        file_part.type = OFL_HEX_PART;       
+        if(data[8] == 0x00)
+            file_part.type = OFL_HEX_PART; 
+        else if(data[8] == 0x01)
+        {
+            file_part.type = OFL_RTC_HEX_PART; 
+            ofl_file_set_type(OFL_TYPE_RTC);
+        }
+            
         file_part.start += file_part.size;
         file_part.size = ofl_target_image_size;
         file_part.data = checksum&0x0000ffff;
@@ -1205,7 +1207,7 @@ uint32_t prog_process_command(uint8_t *request, uint8_t *response)
             
             break;
         case ID_READ_FLASH:                             //读flash 0x2A
-            result = es_read_flash_main(&prog_data.wrbuf[PROG_DATA_OFFSET],&prog_data.rdbuf[PROG_DATA_OFFSET],&prog_data.data_length);
+            result = es_read_flash(&prog_data.wrbuf[PROG_DATA_OFFSET],&prog_data.rdbuf[PROG_DATA_OFFSET],&prog_data.data_length);
             
             ack_len = 1024;
 //            result = es_read_flash();
@@ -1288,13 +1290,11 @@ uint32_t prog_process_command(uint8_t *request, uint8_t *response)
             prog_data.data_length = 4;         
             break;
         case ID_RTC_CALI :                            //RTC调校
-//            rtc_handler_event();
             result = rtc_calibration_handler(0x00);
-//            result = ERROR_SUCCESS;
             prog_data.data_length = 0; 
             break;
         case ID_RTC_CALI_VERIFY:                       //RTC验证
-            result = rtc_calibration_verify();
+            result = rtc_calibration_verify();    
             prog_data.data_length = 0;
             break;
 #endif
@@ -1349,17 +1349,9 @@ error_t es_burner_init(prog_intf_type_t type)
 
 //    swd_test();
 
-    return ret;
-     
+    return ret;       
 }
-////进入编程模式
-//error_t es_entry_prog_mode(void)
-//{
-//    error_t ret = ERROR_SUCCESS;
-//   
-//    ret = online_prog_intf->prog_init();
-//	return ret;
-//}
+
 
  
                                  

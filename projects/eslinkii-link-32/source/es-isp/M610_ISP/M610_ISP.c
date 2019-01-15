@@ -269,7 +269,7 @@ static uint8_t program_and_check(uint8_t mode)
 * 输入 ：mode:编程模式 CHIP_PROG_CMD/PLUS_PROG_CMD 。 addr：地址。data：数据。
 * 输出 ：
 *******************************************************************************/
-static uint8_t program_data(uint32_t addr, uint32_t *data, uint32_t size, uint32_t *failed_addr) 
+static uint8_t program_data(uint32_t addr, uint32_t *data, uint32_t size, uint32_t *failed_offset) 
 {
     uint32_t i;
     
@@ -300,7 +300,8 @@ static uint8_t program_data(uint32_t addr, uint32_t *data, uint32_t size, uint32
          //编程并判断
         if(program_and_check(PLUS_PROG_CMD) != TRUE)    
         {
-             *failed_addr = addr + i*4;
+             if(failed_offset)
+                *failed_offset = addr + i*4;
             return FALSE; 
         }
                
@@ -339,7 +340,7 @@ static uint8_t read_data(uint32_t addr, uint32_t *data, uint32_t size)
 * 输入 ：addr：地址。data：数据。size：大小
 * 输出 ：
 *******************************************************************************/
-uint8_t isp_program_code(uint32_t addr, uint32_t *data, uint32_t size, uint32_t *failed_addr) 
+uint8_t isp_program_code(uint32_t addr, uint32_t *data, uint32_t size, uint32_t *failed_offset) 
 {
     uint8_t i;
     uint8_t retry;
@@ -348,7 +349,7 @@ uint8_t isp_program_code(uint32_t addr, uint32_t *data, uint32_t size, uint32_t 
     retry = 10;    
     for(i=0; i<retry; i++)
     {
-        if(program_data(addr, data, size, failed_addr) != FALSE)
+        if(program_data(addr, data, size, failed_offset) != FALSE)
             break;
     }
     if(i >= retry)
@@ -374,7 +375,7 @@ uint8_t isp_read_code(uint32_t addr, uint32_t *data, uint32_t size)
 * 输入 ：addr：地址。data：数据。size：大小
 * 输出 ：
 *******************************************************************************/
-uint8_t isp_program_config(uint32_t addr, uint32_t *data, uint32_t size,uint32_t *failed_addr) 
+uint8_t isp_program_config(uint32_t addr, uint32_t *data, uint32_t size,uint32_t *failed_offset) 
 {
     uint8_t i;
     uint8_t retry;
@@ -383,7 +384,7 @@ uint8_t isp_program_config(uint32_t addr, uint32_t *data, uint32_t size,uint32_t
     retry = 10;    
     for(i=0; i<retry; i++)
     {
-        if(program_data(addr, data, size, failed_addr) != FALSE)
+        if(program_data(addr, data, size, failed_offset) != FALSE)
             break;
     }
     if(i >= retry)
@@ -412,12 +413,25 @@ uint8_t isp_erase_chip(void)
     if(result != TRUE)
         return FALSE;
     //erase option2 time about 5ms
-    result = erase_and_check(ERASE_OP0,OPTION_0_AREA,10);    //C1 + A1
+    result = erase_and_check(ERASE_M0,FLASH_INTO0_AREA,10);    //C1 + A1
     if(result != TRUE)
         return FALSE;    
-
+    //更新加密字状态
+    get_chip_status();
     return TRUE;
 }
+
+uint8_t isp_erase_info1(void)
+{
+	uint8_t result;  
+	
+    result = erase_and_check(ERASE_M1,FLASH_INTO1_AREA,20);  
+    if(result != TRUE)
+        return FALSE;
+  
+    return TRUE;
+}
+
 //ISP复位
 void isp_reset(void)
 {

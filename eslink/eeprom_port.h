@@ -21,7 +21,6 @@ error_t set_offline_partition(uint8_t *buf, uint8_t size);
 error_t get_offline_partition(uint8_t *buf, uint8_t size);
 error_t get_rtc_self_calibrate(uint8_t *buf, uint8_t size);
 error_t set_rtc_self_calibrate(uint8_t *buf, uint8_t size);
-error_t set_eslinkii_serial_number(uint8_t *buf, uint8_t size);
-error_t get_eslinkii_serial_number(uint8_t *buf, uint8_t size);
+
 
 #endif

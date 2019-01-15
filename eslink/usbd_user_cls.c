@@ -1,8 +1,7 @@
 #include "RTL.h"
 #include "rl_usb.h"
 #include "main.h"
-#include "eslink.h"
-
+#include "eslink.h"  
 
 #ifdef HR_8BIT
 #define ES_COMM_FRAME_MAX_LEN         DEBUG_FRAME_PACKET_LEN               //数据包长度 
@@ -20,7 +19,6 @@ typedef enum {
     ESLINK_STATE_END,
     ESLINK_STATE_ERROR
 } eslink_state_t;
-
 static eslink_state_t cls_state;
 static uint32_t cls_data_ops; 
 static uint32_t cls_wr_cmd_len;                   //主机写命令码数据长度 
@@ -31,6 +29,23 @@ uint8_t usb_es_read[ES_COMM_FRAME_MAX_LEN];  //读数据buff
 //函数声明
 uint32_t eslink_process_command(uint8_t *write_buf, uint8_t *read_buf);
 
+void USBD_CLS_init(void)
+{
+    cls_wr_cmd_len = 0;
+    cls_data_ops = 0; 
+    USBD_CLS_WriteBuf =  usb_es_write;
+    USBD_CLS_ReadBuf = usb_es_read;
+    cls_state =   ESLINK_STATE_CLOSE;
+    
+}
+void USBD_CLS_Reset_Event(void)
+{
+    cls_wr_cmd_len = 0;
+    cls_rd_cmd_len = 0;
+    cls_data_ops = 0; 
+    cls_state =   ESLINK_STATE_CLOSE;
+    
+}  
 
 
 //根据接收到的数据，确认长度
@@ -121,38 +136,43 @@ uint32_t USBD_CLS_DataOutTransfer( uint8_t *data, uint8_t len)
             USBD_CLS_Reset_Event();
             break;          
     }
-
-}
-
-
-void usb_cls_send_packet()
-{
-
-
-}
-// USB Callback: when data needs to be prepared for the host
-void USBD_CLS_DataInTransfer(void)
-{
-    uint32_t copy_size;
-    
-    uint32_t n;
-    
-    copy_size = 0;
-
-//    eslink_data_offset = 0;
-    if (len_send > 0) 
+    if( cls_state ==  ESLINK_STATE_READ)
     {
-        copy_size = MIN(len_send, usbd_cls_buf_sz);
-        for (n = 0; n < copy_size; n++) 
-        {
-            USBD_CLS_BulkBuf[n] = USBD_CLS_ReadBuf[n+send_offset];
-        }
-        USBD_WriteEP(usbd_cls_ep_bulkin | 0x80, USBD_CLS_BulkBuf, copy_size);
-        send_offset += copy_size;
-        len_send -= copy_size; 
-    } 
-    if(len_send == 0)
-    {
-        USBD_CLS_Reset_Event();
-    }    
+        cls_rd_cmd_len = eslink_process_command(usb_es_write, usb_es_read); 
+        return cls_rd_cmd_len;
+    }                            
+    return 0;  
 }
+
+uint32_t eslink_process_command(uint8_t *write_buf, uint8_t *read_buf)
+{
+    uint32_t header;
+    uint32_t read_len = 0;
+    
+    header = (write_buf[0] << 24) |
+            (write_buf[1] << 16) |
+            (write_buf[2] <<  8) |
+            (write_buf[3] <<  0);        
+    if(header == DEBUG_FRAME_HEAD) 
+    {
+    #ifdef HR_8BIT
+        //调试命令处理
+        read_len = debug_process_command(write_buf, read_buf);   
+    #endif
+    }   
+    else if(header == PROG_FRAME_HEAD) 
+    {
+        //连接命令处理
+        read_len = prog_process_command(write_buf, read_buf);
+    }
+    else 
+    {
+        
+        
+    }
+    return read_len;
+    
+}
+
+
+

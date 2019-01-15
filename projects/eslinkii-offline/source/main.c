@@ -74,8 +74,7 @@ int main(void)
 	
     LED_GREEN_ON();             
     while (1)
-    {
-       
+    {            
 		if(key_read_data(&key_value) != 0)        //有按键按下
 		{
 		    switch (key_value)
@@ -104,11 +103,7 @@ void main_10ms_task(void)
     key_scan(); 
     // 蜂鸣器扫描
     beep_scan();
-}
-
-
-
-
+}  
 struct exception_stack_frame
 {
     uint32_t r0;

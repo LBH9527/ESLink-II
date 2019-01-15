@@ -147,10 +147,8 @@ prog_comm_frame_t prog_data;
 
 uint32_t prog_process_command(uint8_t *request, uint8_t *response)
 {
-//    uint8_t temp;
     uint8_t result = ERROR_SUCCESS;
     uint32_t ack_len = 512;         //isp通信采用变长协议，用来返回回复数据的长度
-//    uint32_t sum;
     
     prog_data.wrbuf = request;
     prog_data.rdbuf = response;     

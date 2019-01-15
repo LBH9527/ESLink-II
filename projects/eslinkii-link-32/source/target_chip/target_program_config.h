@@ -18,7 +18,7 @@
 /* BOOTISP */
 
 /* RTC */
-#define  ESLINK_RTC_ENABLE      1                   //RTC功能使能
+#define  ESLINK_RTC_ENABLE      0                   //RTC功能使能
 
 
 bool config_get_auto_rst(void) ;

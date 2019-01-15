@@ -195,8 +195,7 @@ uint8_t clear_timing_info(void)
 
 typedef struct __attribute__((__packed__))  {
     uint32_t key;               // Magic key to indicate a valid record
-//    uint32_t hw_version;       //硬件信息
-//    uint32_t version;           //脱机固件版本
+    uint32_t serial_num;       //产品序列号
     // Configurable values
     uint32_t app_update;       //app 跳转标志位
     uint32_t link_mode;          //脱机/联机模式标志位
@@ -210,8 +209,7 @@ static eslink_info_set_t info_rom_copy;
 // info defaults in flash
 static const eslink_info_set_t info_default = {
     .key = 0,
-//    .hw_version = 0,
-//    .version = 0,
+    .serial_num = 0,
     .app_update = 0,
     .link_mode = 0,    
 };  
@@ -275,6 +273,23 @@ uint8_t set_link_mode(uint32_t mode)
     if(info_rom_set(&info_rom_copy) != TRUE)
         return FALSE;
     return TRUE;  
+}
+
+ //设置ESLink II产品序列号
+uint8_t set_eslinkii_serial_number(uint8_t *data)
+{     
+    info_rom_copy.serial_num = (*(data+0) <<  0) |
+                                (*(data+1) <<  8) |
+                                (*(data+2) << 16) |
+                                (*(data+3) << 24);
+    if(info_rom_set(&info_rom_copy) != TRUE)
+        return FALSE;
+    return TRUE;
+}
+//获取ESLink II产品序列号
+uint32_t get_eslinkii_serial_number(void)
+{
+    return info_rom_copy.serial_num;  
 }
 
 /*******************************************************************************

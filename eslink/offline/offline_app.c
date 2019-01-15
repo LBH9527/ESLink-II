@@ -7,6 +7,7 @@
 #include "offline_app.h"
 #include "eeprom_port.h"
 #include "menu.h"
+#include "rtc_calibrate.h"
 
 static struct es_prog_ops *ofl_prog_intf;   //脱机编程接口
 static es_target_cfg ofl_target_device;     //目标芯片信息    
@@ -24,42 +25,44 @@ static error_t  get_serial_number_32bit(uint64_t *sn_data, uint8_t *buf, uint8_t
 *	形    参: 无
 *	返 回 值: 无
 *******************************************************************************/
-ofl_error_t ofl_prog_init(void)
+ofl_error_t ofl_prog_init(uint8_t mode)
 {
-    error_t ret = ERROR_SUCCESS;
+    ofl_error_t ret = OFL_SUCCESS;
+    prog_intf_type_t type;
     
     PORT_ISP_SETUP();
     ISP_SETUP();
-    //获取方案信息
-    online_file_read(OFL_PROG_INFO, 0,(uint8_t*) &ofl_prj_info, sizeof(ofl_prj_info_t)); 
-    //获取脱机序列号
-    get_offline_serial_number((uint8_t*) &sn_info, sizeof(ofl_serial_number_t) );
     
-    //脱机烧录接口
-    if(PRG_INTF_ISP == ofl_prj_info.intf )
+    if(mode == OFFLINE_PROG_PLUS_MODE)
+    {           
+        //获取方案信息
+        online_file_read(OFL_PROG_INFO, 0,(uint8_t*) &ofl_prj_info, sizeof(ofl_prj_info_t)); 
+        //获取脱机序列号
+        get_offline_serial_number((uint8_t*) &sn_info, sizeof(ofl_serial_number_t) );
+        type = ofl_prj_info.intf;
+    }
+    else if(mode == OFFLINE_PROG_MINI_MODE)
     {
+        type = OFFLINE_PROG_MINI_DEFAULT_INTF;
+    }
+    
+    if(PRG_INTF_ISP ==  type)
         ofl_prog_intf = &isp_prog_intf;   
-    }
-    else if (PRG_INTF_SWD ==  ofl_prj_info.intf )
-    {
-    
-    }
-    else if ( PRG_INTF_BOOTISP == ofl_prj_info.intf)
-    {
-    
-    } 
+    else if (PRG_INTF_SWD ==  type )
+          ;
+    else if ( PRG_INTF_BOOTISP == type)
+          ;
     else
     {
         //todo 接口类型错误
-        while(1);
-        return OFL_ERR_PROG_INTF;
-    } 
+        return OFL_ERR_PROG_INTF;       
+    }  
     //获取目标芯片信息
-	get_target_info((uint8_t*)&ofl_target_device); 
+    get_target_info((uint8_t*)&ofl_target_device);         
     //烧录接口初始化
-	ofl_prog_intf->init(&ofl_target_device);    
-    
-    return  OFL_SUCCESS;
+    ofl_prog_intf->init(&ofl_target_device); 
+     
+    return ret;
 }
 
 /*******************************************************************************
@@ -84,8 +87,7 @@ uint8_t ofl_in_prog_mode(void)
             es_delay_ms(20);
             if(check_time ++ >= PROG_MODE_CHECK_TIME )
                 return TRUE; 
-        }
-        
+        }         
     } 
     else
     {      
@@ -144,13 +146,18 @@ uint8_t ofl_out_prog_mode(void)
     return FALSE;   
 }
 
-//根据脱机步骤进行脱机编程
+/*******************************************************************************
+*	函 数 名: ofl_prog
+*	功能说明: 根据脱机步骤进行脱机编程
+*	形    参:
+*	返 回 值: 错误类型
+*******************************************************************************/
 ofl_error_t ofl_prog(void)
 {
     error_t ret;
-    uint32_t faildata,failaddr;
     uint32_t i = 0;
-    if(sn_info.success_count >=  sn_info.total_size)
+    
+    if( (sn_info.state !=  OFL_SERIALNUM_DISABLE) && (sn_info.success_count >  sn_info.total_size))
         return OFL_ERR_COUNT_FULL;           
         
     for(i = 0; i<ofl_prj_info.step; i++)
@@ -165,7 +172,7 @@ ofl_error_t ofl_prog(void)
                 }
                 break;
             case OFL_STEP_CHECK_EMPTY :
-                ret = ofl_prog_intf->check_empty(&failaddr, &faildata);
+                ret = ofl_prog_intf->check_empty(NULL, NULL);
                 if(ret != ERROR_SUCCESS)
                 {                  
                     return  OFL_ERR_CHECK_EMPTY;
@@ -173,9 +180,9 @@ ofl_error_t ofl_prog(void)
                 break;
             case OFL_STEP_PROG:                   
                 if(sn_info.state !=  OFL_SERIALNUM_DISABLE)
-                    ret = ofl_prog_intf->program_all(ENABLE, &sn_info.sn, &failaddr);                   
+                    ret = ofl_prog_intf->program_all(ENABLE, &sn_info.sn, NULL);                   
                 else
-                    ret = ofl_prog_intf->program_all(DISABLE, NULL, &failaddr);
+                    ret = ofl_prog_intf->program_all(DISABLE, NULL, NULL);
                 if(ret != ERROR_SUCCESS)
                 {                  
                     return  OFL_ERR_PROG;
@@ -183,9 +190,9 @@ ofl_error_t ofl_prog(void)
                 break;
             case OFL_STEP_VERIFY:
                 if(sn_info.state !=  OFL_SERIALNUM_DISABLE)
-                    ret = ofl_prog_intf->verify_all(ENABLE, &sn_info.sn, &failaddr , &faildata);
+                    ret = ofl_prog_intf->verify_all(ENABLE, &sn_info.sn, NULL , NULL);
                 else
-                    ret = ofl_prog_intf->verify_all(DISABLE, NULL, &failaddr, &faildata);
+                    ret = ofl_prog_intf->verify_all(DISABLE, NULL, NULL, NULL);
                 if(ret != ERROR_SUCCESS)
                 {                  
                     return  OFL_ERR_VERIFY;
@@ -200,14 +207,14 @@ ofl_error_t ofl_prog(void)
                 break;
 #if ESLINK_RTC_ENABLE   
             case OFL_STEP_RTC_CALI :
-//                rtc_calibration_handler();
+                ret = rtc_calibration_handler(0x01);
                 break;
             case OFL_STEP_RTC_VERIFY :
-                break;
+                ret = rtc_calibration_verify();
+                break; 
 #endif
             default:
-                break;
-                
+                break;                
         }  
     }
     //编程成功
@@ -234,6 +241,46 @@ ofl_error_t ofl_prog(void)
     return OFL_SUCCESS;
 }
 
+/*******************************************************************************
+*	函 数 名: ofl_mini_prog
+*	功能说明: 根据脱机步骤进行脱机编程
+*	形    参:
+*	返 回 值: 错误类型
+*******************************************************************************/
+ofl_error_t ofl_mini_prog(void)
+{
+    error_t ret;
+    uint8_t step = OFL_STEP_ERASE;
+    if(OFL_STEP_ERASE == step)
+    {
+        ret = ofl_prog_intf->erase_chip(0);    //全擦                 
+        if(ret != ERROR_SUCCESS)  
+            return  OFL_ERR_ERASE;
+        step = OFL_STEP_CHECK_EMPTY;    
+    }
+    if(OFL_STEP_CHECK_EMPTY == step)
+    {
+        ret = ofl_prog_intf->check_empty(NULL, NULL);
+        if(ret != ERROR_SUCCESS)               
+            return  OFL_ERR_CHECK_EMPTY; 
+        step = OFL_STEP_PROG;    
+    }    
+    if(OFL_STEP_PROG == step)
+    {
+        ret = ofl_prog_intf->program_all(DISABLE, NULL, NULL);
+        if(ret != ERROR_SUCCESS)                
+            return  OFL_ERR_PROG; 
+        step = OFL_STEP_VERIFY;  
+    }
+    if(OFL_STEP_VERIFY == step)
+    {
+        ret = ofl_prog_intf->verify_all(DISABLE, NULL, NULL, NULL);
+        if(ret != ERROR_SUCCESS)                 
+            return  OFL_ERR_VERIFY;
+        step = OFL_STEP_ERASE;      
+    }
+    return  OFL_SUCCESS;
+}
 
 
 //获取8位芯片的序列号
@@ -328,7 +375,7 @@ ofl_error_t update_ofl_serial_number(void)
         return  OFL_SUCCESS;
     
     //读文件名
-    get_offline_proget_name((uint8_t*)path, 16);  
+    get_offline_project_name((uint8_t*)path, 16);  
 //    fm24cxx_read(EE_OFL_PRJ_NAME, (uint8_t*)path, 16 );   
     //读脱机序列号分区信息 
     get_offline_partition((uint8_t*)&part, sizeof(partition_t));    

@@ -32,18 +32,12 @@
 #define ERASE_ING                   0x96 
 #define ERASE_OK                    0x69 
 
-#define ERASE_M0                    0xC1
-#define ERASE_OP0                   0xC1
-//#define ERASE_OP3                   0xC1
-//#define ERASE_M1                    0xC2
-//#define ERASE_INF0                  0xC3
-
+#define ERASE_M0                    0xC1   
 #define FLASH_MAIN_AREA             0xA0            //擦除时区域选择:主程序区
-#define OPTION_0_AREA               0xA1
-//#define flash_INFO_3_AREA           0xA1            //擦除时区域选择:信息区0
+#define FLASH_INTO0_AREA            0xA1
 
-//#define MAIN_PAGE_AREA              0xA2 
-//#define ALL_ENCRY_AREA              0xA3 
+#define ERASE_M1                    0xC2
+#define FLASH_INTO1_AREA            0xA2
 
 #define ERASE_INF1_UNLOCK           0x5A69
 #define ERASE_INF1                  0xC4

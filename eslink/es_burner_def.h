@@ -11,10 +11,6 @@ typedef enum
 } prog_intf_type_t;   
 
 
-
-//编程步长
-#define FLASH_PRG_MIN_SIZE      1024
-
 //芯片擦除模式
 #define FULL_ERASE      0         //全擦
 #define PAGE_EARSE      1         //页擦

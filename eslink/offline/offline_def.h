@@ -67,12 +67,14 @@ union __attribute__((packed)) ofl_file_partition
         uint32_t magic_word;            
         uint32_t size;                  //分区 part个数
         partition_t part[OFL_PART_MAX]; //分区信息
-        uint32_t record_type;           //方案类型
+        uint32_t type;           //方案类型
         uint32_t checksum;              //方案校验和（ OFL_PRJ_PARTITION_LEN - 4）
     };
 };
 typedef union ofl_file_partition ofl_file_partition;
 
+#define OFL_TYPE_NORMAL     0X00
+#define OFL_TYPE_RTC        0X01
 //总方案表
  struct ofl_file_tbl{
     uint8_t count;                  //方案总数
@@ -114,8 +116,8 @@ typedef struct __attribute__((packed))
 #define OFL_STEP_PROG           0x00000022      //烧录
 #define OFL_STEP_VERIFY         0x00000023      //校验
 #define OFL_STEP_ENCRYPT        0x00000024      //加密
-#define OFL_STEP_RTC_CALI       0x00000037      //rtc调校
-#define OFL_STEP_RTC_VERIFY     0x00000038      //rtc验证
+#define OFL_STEP_RTC_CALI       0x00000040      //rtc调校
+#define OFL_STEP_RTC_VERIFY     0x00000041     //rtc验证
 
 typedef union __attribute__((packed)) 
 {

@@ -51,7 +51,8 @@ static void delay_ms(uint32_t delay)
  * @brief Main function
  */
 int main(void)
-{        
+{     
+    uint8_t i;
     /* Init board hardware. */
     BOARD_InitPins();
     BOARD_BootClockRUN();
@@ -67,19 +68,26 @@ int main(void)
     }         
     
     gpio_init();
-    es_set_trget_power(TRGET_POWER_3V3);
+//    es_set_trget_power(TRGET_POWER_3V3);
     bsp_init_systick();  
     usbd_init();                          /* USB Device Initialization          */
     usbd_connect(__TRUE);                 /* USB Device Connect                 */
     while (!usbd_configured ());          /* Wait for device to configure        */
-    LED_GREEN_ON();             
+          
     while (1)
     {              
         if(stay_in_bootloader() != TRUE)
         {
-            delay_ms(10);   //for USB ack 
+            delay_ms(10);   //for USB ack  
+               
             application_check_and_run();          
-        } 	
+        }  
+        else
+        {
+            if(i++ % 10)
+                LED_RED_ERROR_TOGGLE();                          
+            delay_ms(10);   //for USB ack  
+        }                 
     }
 }
 
@@ -111,9 +119,8 @@ void rt_hw_hard_fault_exception(struct exception_stack_frame *exception_stack)
 
 void HardFault_Handler()
 {
-//    SystemSoftReset();
-//     printf("\r\n HardFault_Handler interrupt!\r\n");
-    rt_hw_hard_fault_exception((struct exception_stack_frame *)__get_PSP());
+    SystemSoftReset();
+//    rt_hw_hard_fault_exception((struct exception_stack_frame *)__get_PSP());
     while (1); // Wait for reset
 }
 

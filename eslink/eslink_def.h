@@ -87,9 +87,9 @@ struct es_prog_ops {
     error_t (*prog_uninit) (void);
     error_t (*erase_chip) ( uint8_t para);
     error_t (*check_empty) (uint32_t *addr, uint32_t *data);  
-    error_t (*read_chipid) (uint32_t *data);  
+    error_t (*read_chipid) (uint8_t *data);  
 //    error_t (*chipid_check) (void);
-    error_t (*read_chip_chksum) (uint32_t *data);
+    error_t (*read_chip_chksum) (uint8_t *data);
     error_t (*encrypt_chip) (void);    
     error_t (*program_info) (uint32_t adr, uint8_t *buf, uint32_t size,uint32_t *failed_addr);
     error_t (*read_info) (uint32_t adr, uint8_t *buf, uint32_t size); 

@@ -31,4 +31,6 @@ uint32_t get_link_mode(void);
 uint8_t set_link_mode(uint32_t mode); 
 uint32_t get_offlink_app_version(void); 
 uint32_t get_hardware_version(void) ;
+uint32_t get_eslinkii_serial_number(void);
+uint8_t set_eslinkii_serial_number(uint8_t *data);
 #endif

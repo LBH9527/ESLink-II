@@ -61,6 +61,9 @@ uint32_t  task_flags = 0;
 //*******************************************************************************/
 void oline_app(void);
 void ofl_app(void);
+void oline_mini_app(void);
+void ofl_mini_app(void);
+
 extern void cdc_process_event(void);
 // Start CDC processing
 void main_cdc_send_event(void)
@@ -121,40 +124,37 @@ int main (void)
     BOARD_InitPins();
     BOARD_BootClockRUN();
     BOARD_InitDebugConsole();   
-    settings_rom_init();
-    bsp_init_systick();
-    gpio_init();
-    
+    settings_rom_init();      
+    gpio_init();     
     es_set_trget_power(TRGET_POWER_ENABLE);  
-    key_init();  
-    if(eslink_is_mini() != TRUE)
-    {
-        oled_init();   
-    }    
-             
-    spi_flash_init(); 
-    ofl_file_init();  
-        
-    fm24cxx_init();  
-    msg_init();   	
-   
-#if ESLINK_RTC_ENABLE    
-    rtc_Init();
-#endif
+    key_init();              
+    spi_flash_init();     
     
     LED_GREEN_ON();  
-    
-    if(eslink_is_offline_mode() == TRUE)
-    {    
-        menu_init(1);
-        ofl_app();          
-    }   
-	else
-	{    
-        menu_init(0);   //联机
-        menu_display(); 
-        oline_app();
-    }        
+    if(eslink_is_mini() != TRUE)
+    {
+        ofl_file_init(); 
+        #if ESLINK_RTC_ENABLE    
+        rtc_Init();
+        #endif
+        oled_init(); 
+        bsp_init_systick();
+        fm24cxx_init(); 
+        msg_init();   	
+        if(eslink_is_offline_mode() != TRUE)
+        {   
+            oline_app();        
+        }   
+        else
+        {                
+            ofl_app();
+        }   
+    }
+    else
+    {     
+        bsp_init_systick();
+        oline_mini_app();
+    }
 }
 
 //联机模式
@@ -162,6 +162,9 @@ void oline_app(void)
 {
     uint8_t key_value = 0;
     uint8_t menu_msg = MSG_NULL;
+    menu_init(MENU_ONLINE_MODE);   //联机
+    menu_display(); 
+            
     DAP_Setup();       
  
     usbd_init();                        /* USB Device Initialization          */
@@ -205,15 +208,7 @@ void oline_app(void)
             {
                 flag_clr(task_flags, FLAGS_RTC_OUT);
                 rtc_pwm_out(rtc_out_activity); 
-            }  
-//            if( flag_recv(task_flags, FLAGS_RTC_HANDLER)  ) 
-//            {
-//                flag_clr(task_flags, FLAGS_RTC_HANDLER);
-//                es_burner_init(PRG_INTF_ISP);  //RTC烧录默认为ISP烧录
-//                
-//                rtc_calibration_handler(0x00);
-//            }  
-            
+            }              
 #endif            
         }
 
@@ -240,8 +235,7 @@ void oline_app(void)
                     break;
             }  
             msg_write_data(&menu_msg);
-        }  
-        
+        }         
     }  
 }
 //脱机模式
@@ -251,8 +245,9 @@ void ofl_app(void)
     uint8_t menu_msg = MSG_NULL;
     static  ofl_prog_state_t state = IN_MODE_CHECK;
     ofl_error_t  prog_error ;
-       
-    ofl_prog_init();           
+    menu_init(MENU_OFFLINE_MODE);  
+    menu_display();    
+    ofl_prog_init(OFFLINE_PROG_PLUS_MODE);           
     while(1)
     {
         switch(state)
@@ -266,30 +261,24 @@ void ofl_app(void)
                 {                       
                      state = OFL_PROG_ING;
                      menu_msg = MSG_PROG_ING;
-                     msg_write_data(&menu_msg) ;    
+                     msg_write_data(&menu_msg) ; 
+                     gui_refresh();
                 }
                 break;
             case OFL_PROG_ING:   
-                //busy 信号
                 LED_YELLOW_BUSY_OFF();  
-                //
-                prog_error = ofl_prog() ;
-                
+                prog_error = ofl_prog() ;                  
                 LED_YELLOW_BUSY_OFF();                
                 if( prog_error != OFL_SUCCESS)      //编程失败
                 {
-                    //error灯(红灯)
                     LED_RED_ERROR_OFF();   
-                    beep_prog_fail();
-                    
+                    beep_prog_fail();                     
                 }
                 else
                 {
-                   //pass灯(绿灯)
                     LED_GREEN_PASS_OFF();                          
                     beep_prog_success();
-                }
-                //menu显示
+                }                 
                 switch(prog_error)
                 {
                     case OFL_SUCCESS:                              
@@ -362,6 +351,112 @@ void ofl_app(void)
         }           
     }   
 }
+//mini联机
+void oline_mini_app(void)
+{
+    uint8_t key_value = 0;
+    DAP_Setup();       
+ 
+    usbd_init();                        /* USB Device Initialization          */
+    usbd_connect(1);                    /* USB Device Connect                 */
+    es_burner_init(PRG_INTF_ISP);       //上电默认ISp烧录 
+    while (1) 
+    {    
+        // 检测usb是否联机
+        if(!usbd_configured () )
+        {
+            //未联机
+            bsp_delay_ms(10); 
+        }
+        else
+        {
+            //usb已经联机
+            if( flag_recv(task_flags, FLAGS_MAIN_RESET) )
+            {
+                flag_clr(task_flags, FLAGS_MAIN_RESET);
+                clear_timing_info();    
+                set_app_update(UPDATE_BOOT_APP);
+                bsp_delay_ms(10);       //延时，USB回复数据。
+                SystemSoftReset();           
+            }
+            if( flag_recv(task_flags, FLAGS_MAIN_RESET_TARGET) )
+            {
+                flag_clr(task_flags, FLAGS_MAIN_RESET_TARGET);
+            //            target_set_state(RESET_RUN);
+            }
+            if( flag_recv(task_flags, FLAGS_MAIN_CDC_EVENT)  ) 
+            {
+                flag_clr(task_flags, FLAGS_MAIN_CDC_EVENT);
+                cdc_process_event();
+            }     
+        }         
+        if(key_read_data(&key_value) != 0)        //有按键按下
+        {
+            if(key_value == KEY_ENTER)
+                ofl_mini_app();  
+        }         
+    }
+
+}
+void ofl_mini_app(void)
+{
+    uint8_t key_value = 0;
+
+    static  ofl_prog_state_t state = IN_MODE_CHECK;
+    ofl_error_t  prog_error ;
+       
+    ofl_prog_init(OFFLINE_PROG_MINI_MODE);           
+    while(1)
+    {
+        switch(state)
+        {
+            case IN_MODE_CHECK :
+                //保证信号正确，LED应该存在问题
+                LED_RED_ERROR_ON();  
+                LED_GREEN_PASS_ON(); 
+                LED_YELLOW_BUSY_ON();  
+                if(ofl_in_prog_mode() == TRUE)
+                {                       
+                    state = OFL_PROG_ING;
+                }
+                break;
+            case OFL_PROG_ING:   
+                LED_YELLOW_BUSY_OFF();  
+                prog_error = ofl_mini_prog() ;                  
+                LED_YELLOW_BUSY_OFF();                
+                if( prog_error != OFL_SUCCESS)      //编程失败
+                {
+                    LED_RED_ERROR_OFF();                     
+                }
+                else
+                {
+                    LED_GREEN_PASS_OFF();                          
+                }                 
+                state = OUT_MODE_CHECK; 
+                break;
+            case OUT_MODE_CHECK:
+                if(ofl_out_prog_mode() == TRUE)
+                {
+                    state = IN_MODE_CHECK;                    
+                }
+                break; 
+             default:
+                break;
+        }         
+        if(key_read_data(&key_value) != 0)        //有按键按下
+        {
+            switch (key_value)
+            {
+                case KEY_DOWN:             
+                break;
+                case KEY_ENTER: 
+                break;
+                default:
+                break;
+            }  
+        }           
+    } 
+}
 void main_10ms_task(void)
 {
     static uint8_t count = 0;
@@ -369,7 +464,7 @@ void main_10ms_task(void)
 	key_scan();
     // 蜂鸣器扫描
     beep_scan();
-    if (!(count++ % 20))        //200ms刷新 oled
+    if (!(count++ % 10))        //100ms刷新 oled
     {
         gui_refresh();
     }

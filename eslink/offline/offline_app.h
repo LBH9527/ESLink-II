@@ -1,7 +1,7 @@
 #ifndef _OFFLINE_APP_H_
 #define _OFFLINE_APP_H_
 
- #define PROG_MODE_CHECK_TIME        5
+#define PROG_MODE_CHECK_TIME        5
 //脱机编程状态
 typedef enum  {
     IN_MODE_CHECK = 0,
@@ -24,10 +24,15 @@ typedef enum{
     
 } ofl_error_t ;
 
-ofl_error_t ofl_prog_init(void);
+#define OFFLINE_PROG_PLUS_MODE          0x00    //
+#define OFFLINE_PROG_MINI_MODE          0x01    //
+#define OFFLINE_PROG_MINI_DEFAULT_INTF   (PRG_INTF_ISP)           //
+
+ofl_error_t ofl_prog_init(uint8_t mode);
 uint8_t ofl_in_prog_mode(void);
 uint8_t ofl_out_prog_mode(void);
 ofl_error_t ofl_prog(void);
+ofl_error_t ofl_mini_prog(void);
 ofl_error_t update_ofl_serial_number(void);
 
 

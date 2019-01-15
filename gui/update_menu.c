@@ -92,8 +92,8 @@ void update_display(void)
 	if(disp_init == 1)
 	{  
         oled_clr_scr(0x00);	/* 清屏，0x00表示黑底； 0xFF 表示白底 */  			
-		oled_display_str(0,12,"   updating     ", &Font16);       
-        oled_display_str(0,32,"   please wait  ", &Font16);	
+		oled_display_str(0,12,"   Updating     ", &Font16);       
+        oled_display_str(0,32,"  Please Wait   ", &Font16);	
 		disp_init = 0;
 	}
     
@@ -107,7 +107,7 @@ void update_display(void)
         {
             //TODO：更新失败处理
             oled_clr_scr(0x00);	              
-            oled_display_str(0,12,"  update error  ", &Font16);
+            oled_display_str(0,12,"  Update Error  ", &Font16);
             ofl_flag.select = 0;
             ofl_flag.name = 0;
             bsp_delay_ms(2000);
@@ -123,7 +123,7 @@ void update_display(void)
             
             }
             oled_clr_scr(0x00);						
-            oled_display_str(0,12," update success ", &Font16);
+            oled_display_str(0,12," Update Success ", &Font16);
 
             SystemSoftReset();           
         }             
@@ -160,7 +160,7 @@ void ofl_display (void)
     char display_temp[16+1] = {'\0'};
 	for(i=0; i<ofl_state.disp_num; i++)
     {
-        usprintf(display_temp,"%-16s",ofl_item.str[i+ofl_state.first_line]);
+        sprintf(display_temp,"%-16s",ofl_item.str[i+ofl_state.first_line]);
         if(i== ofl_state.cur_line)
             ofl_diplay_str_inv((i+1)*16,display_temp); 
         else
@@ -195,9 +195,9 @@ void ofl_select_display(void)
 		oled_display_str(0,0,data, &Font16);  
 //		oled_display_str(0,0,"方案选择", &Font16);      	
 		oled_display_str(64,0,"(00/  )", &Font16);
-        usprintf(display_temp,"%02d",ofl_item.item_num-1);  
+        sprintf(display_temp,"%02d",ofl_item.item_num-1);  
         oled_display_str(96,0,display_temp, &Font16); 
-        usprintf(display_temp,"%02d",ofl_state.item_index) ; 
+        sprintf(display_temp,"%02d",ofl_state.item_index) ; 
         oled_display_str(72,0,display_temp, &Font16); 
 		disp_init = 0;	
         ofl_display();
@@ -235,11 +235,11 @@ void ofl_select_display(void)
 				}
                 if(ofl_state.item_index == ofl_item.item_num)
                 {                  
-                     usprintf(display_temp,"%02d",ofl_state.item_index-1);
+                     sprintf(display_temp,"%02d",ofl_state.item_index-1);
                 } 
                 else
                 {
-                    usprintf(display_temp,"%02d",ofl_state.item_index);
+                    sprintf(display_temp,"%02d",ofl_state.item_index);
                 }                   
                 oled_display_str(72,0,display_temp, &Font16);    
 		        ofl_display();

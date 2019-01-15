@@ -3,11 +3,8 @@
 
 #include "target_program_config.h"
 //根据芯片手动调整的数据信息
-#define M939
 
-#ifdef M939
-#define CHIP_CHECKSUM_ADDR      0x248            //根据IDE Space 修改
-#endif
+#define CHIP_CHECKSUM_ADDR      0x7C0            //根据IDE Space 修改
 
 #if ESLINK_RTC_ENABLE    
     #define M939_CONFIG_WORD_SIZE       54      //54个字长

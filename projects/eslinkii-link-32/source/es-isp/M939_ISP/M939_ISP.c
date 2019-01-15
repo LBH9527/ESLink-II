@@ -307,7 +307,8 @@ static uint8_t code_program(uint32_t addr, uint32_t *data, uint32_t size, uint32
          //编程并判断
         if(program_and_check(PLUS_PROG_CMD) != TRUE)    
         {
-             *failed_offset = i;
+            if(failed_offset)
+                *failed_offset = i;
             return FALSE; 
         } 
     }
@@ -323,44 +324,45 @@ static uint8_t info_program(uint32_t addr, uint32_t *data, uint32_t size, uint32
     uint32_t remain_size;   
     uint32_t remain_data;
     
-    if(addr & 0x07)         //需要从0x08地址对齐的地方开始编程
-          return FALSE;
     //设置地址缓冲器
     addr_set(addr); 
     
     remain_size = size % 2;
     read_size = size - remain_size;     
-    
-    //设置数据缓冲器
-    data_write_set(*data, *(data+1));
-     
-    //编程并判断
-    if(program_and_check(PROG_CMD) != TRUE)    
-       return FALSE;   
-
-    for(i=2; i<read_size; i+=2)
+    if(read_size > 0)
     {
-        data += 2;
         //设置数据缓冲器
         data_write_set(*data, *(data+1));
-         //编程并判断
-        if(program_and_check(PLUS_PROG_CMD) != TRUE)    
+         
+        //编程并判断
+        if(program_and_check(PROG_CMD) != TRUE)    
+           return FALSE;   
+
+        for(i=2; i<read_size; i+=2)
         {
-             *failed_offset = i;
-            return FALSE; 
-        }  
-    }
-    
-    data += 2;
+            data += 2;
+            //设置数据缓冲器
+            data_write_set(*data, *(data+1));
+             //编程并判断
+            if(program_and_check(PLUS_PROG_CMD) != TRUE)    
+            {
+                if(failed_offset)
+                    *failed_offset = i;
+                return FALSE; 
+            }  
+        }          
+        data += 2;
+    }  
     if( remain_size)
     {
         remain_data = 0xffffffff;       //填充0xff
         //设置数据缓冲器
         data_write_set(*data, remain_data);
          //编程并判断
-        if(program_and_check(PLUS_PROG_CMD) != TRUE)    
+        if(program_and_check(PROG_CMD) != TRUE)    
         {
-             *failed_offset = i;
+            if(failed_offset)
+                *failed_offset = i;
             return FALSE; 
         }      
     
@@ -414,8 +416,6 @@ static uint8_t info_read(uint32_t addr, uint32_t *data, uint32_t size)
     read_size = size - remain_size;      
     if(read_size)
     {    
-        if(addr & 0x07)         //读双字节需要从0x08地址对齐的地方开始读
-            return FALSE;
         for( i=0; i<read_size; i += 2)
         {
              isp_rcv_bytes(FLASH_READ_PLUS_CMD, tmp_data, 4);   
@@ -455,6 +455,8 @@ uint8_t isp_program_code(uint32_t addr, uint32_t *data, uint32_t size, uint32_t 
     uint8_t i;
     uint8_t retry;
     
+    if(size == 0)
+        return TRUE;
     //双字节编程
     if(size &0x01)
         return FALSE;
@@ -478,6 +480,11 @@ uint8_t isp_program_code(uint32_t addr, uint32_t *data, uint32_t size, uint32_t 
 *******************************************************************************/
 uint8_t isp_read_code(uint32_t addr, uint32_t *data, uint32_t size) 
 {
+    if(size == 0)
+        return TRUE;
+    if(addr & 0x07)         //需要从0x08地址对齐的地方开始编程
+        return FALSE;
+
     area_set(CODE_AREA_VAL);
     code_read(addr, data, size);
     return TRUE; 
@@ -493,6 +500,12 @@ uint8_t isp_program_config(uint32_t addr, uint32_t *data, uint32_t size,uint32_t
     uint8_t i;
     uint8_t retry;
     
+    if(size == 0)
+        return TRUE;
+    if(addr & 0x07)         //需要从0x08地址对齐的地方开始编程
+        return FALSE;
+    if(addr > 0x00002000)
+        return FALSE;
     area_set(INFO_AREA_VAL);
     retry = 10;    
     for(i=0; i<retry; i++)
@@ -513,6 +526,13 @@ uint8_t isp_program_config(uint32_t addr, uint32_t *data, uint32_t size,uint32_t
 *******************************************************************************/
 uint8_t isp_read_config(uint32_t addr, uint32_t *data, uint32_t size) 
 {    
+    if(size == 0)
+        return TRUE;
+    if(addr & 0x07)         //需要从0x08地址对齐的地方开始编程
+        return FALSE;
+    if(addr > 0x00002000)
+        return FALSE;
+        
     area_set(INFO_AREA_VAL);
     info_read(addr, data, size);
     return TRUE; 
@@ -560,11 +580,11 @@ uint8_t isp_erase_chip(void)
         return FALSE;        
     return TRUE;
 #endif
-     
+    if( isp_encrypt_check() != TRUE)
+        return FALSE;    
     return TRUE;
 }
 
-#if ESLINK_RTC_ENABLE  
 uint8_t rtc_info_erase(void)
 {
     uint8_t result;  
@@ -573,9 +593,7 @@ uint8_t rtc_info_erase(void)
     if(result != TRUE)
         return FALSE;        
     return TRUE;
-
-}
-#endif
+}  
 
 //isp复位
 void isp_reset(void)
@@ -674,7 +692,6 @@ uint8_t isp_mode_check(void)
     if(ISP_MODE_CHECK_VAL !=  check_val) 
         return FALSE;
     return TRUE;
-
 }
 
 

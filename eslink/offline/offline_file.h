@@ -31,7 +31,7 @@ error_t ofl_file_get_image_checksum(uint8_t *data);
 void ofl_file_init_partition( void);
 void ofl_file_add_partition( partition_t * part);
 error_t ofl_file_save_partition(void);
-
+void ofl_file_set_type(uint32_t type);
 error_t ofl_file_get_partition(char *path, ofl_file_partition * partition);
 error_t ofl_file_lseek_write(char *path, uint32_t addr, uint8_t *buf, uint32_t size);
 

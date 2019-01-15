@@ -91,8 +91,7 @@ error_t online_file_write(uint8_t type, uint32_t addr, const uint8_t *buf, uint3
    if(config_spi_flash_verify_program())
    {
         if(sf_cmp_data(addr, buf, size) != 0)    //比较写入的数据
-            return ERROR_SPI_FLASH_WRITE;   
-   
+            return ERROR_SPI_FLASH_WRITE;        
    }
 
    return ERROR_SUCCESS;

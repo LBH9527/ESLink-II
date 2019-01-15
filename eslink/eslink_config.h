@@ -102,7 +102,10 @@ static __forceinline void     PIN_ISPSDA_CLR(void)
 */
 static __forceinline void     PIN_ISPSDA_OUT(uint32_t bit)
 {
-    BITBAND_REG(PIN_ISPSDA_OUT_GPIO->PDOR, PIN_ISPSDA_OUT_BIT) = bit;
+    if (bit & 1)
+        PIN_ISPSDA_OUT_GPIO->PSOR = 1 << PIN_ISPSDA_OUT_BIT;
+    else
+        PIN_ISPSDA_OUT_GPIO->PCOR = 1 << PIN_ISPSDA_OUT_BIT;        
 }
 
 /** ISPSDA I/O pin: Switch to Output mode (used in SWD mode only).

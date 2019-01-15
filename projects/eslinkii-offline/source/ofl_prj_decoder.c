@@ -331,9 +331,9 @@ error_t ofl_prj_update(char *path)
     ret = update_ofl_user_hex(&ofl_partition.part[5]);
     if(ERROR_SUCCESS != ret)
         return ret; 
-    if(ofl_partition.record_type == 0x01)    //RTC功能
+    if(ofl_partition.type == OFL_TYPE_RTC)    //RTC功能
     {
-        ret = update_ofl_rtc_hex(&ofl_partition.part[5]);
+        ret = update_ofl_rtc_hex(&ofl_partition.part[6]);
         if(ERROR_SUCCESS != ret)
             return ret;      
     }     

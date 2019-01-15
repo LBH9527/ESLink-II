@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\Objects\eslink_boot.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Objects\eslink_boot.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Thu Jan 03 09:39:29 2019
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Mon Jan 14 19:44:29 2019
 <BR><P>
 <H3>Maximum Stack Usage =       1376 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -18,7 +18,6 @@ Mutually Recursive functions
  <LI><a href="#[6]">SVC_Handler</a>&nbsp;&nbsp;&nbsp;&rArr;&nbsp;&nbsp;&nbsp;<a href="#[6]">SVC_Handler</a><BR>
  <LI><a href="#[7]">DebugMon_Handler</a>&nbsp;&nbsp;&nbsp;&rArr;&nbsp;&nbsp;&nbsp;<a href="#[7]">DebugMon_Handler</a><BR>
  <LI><a href="#[8]">PendSV_Handler</a>&nbsp;&nbsp;&nbsp;&rArr;&nbsp;&nbsp;&nbsp;<a href="#[8]">PendSV_Handler</a><BR>
- <LI><a href="#[2]">HardFault_Handler</a>&nbsp;&nbsp;&nbsp;&rArr;&nbsp;&nbsp;&nbsp;<a href="#[2]">HardFault_Handler</a><BR>
 </UL>
 <P>
 <H3>
@@ -528,7 +527,8 @@ Global Symbols
 <BR>[Address Reference Count : 1]<UL><LI> startup_mk22f12810.o(RESET)
 </UL>
 <P><STRONG><a name="[99]"></a>__aeabi_memcpy</STRONG> (Thumb, 36 bytes, Stack size 0 bytes, memcpya.o(.text))
-<BR><BR>[Called By]<UL><LI><a href="#[fe]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;config_rom_set
+<BR><BR>[Called By]<UL><LI><a href="#[115]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;info_rom_set
+<LI><a href="#[fe]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;config_rom_set
 <LI><a href="#[100]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;iap_flash_program
 <LI><a href="#[117]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;settings_rom_init
 <LI><a href="#[98]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FLASH_PrepareExecuteInRamFunctions
@@ -703,11 +703,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[100]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;iap_flash_program
 </UL>
 
-<P><STRONG><a name="[2]"></a>HardFault_Handler</STRONG> (Thumb, 2 bytes, Stack size 0 bytes, main.o(i.HardFault_Handler))
-<BR><BR>[Calls]<UL><LI><a href="#[2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HardFault_Handler
-</UL>
-<BR>[Called By]<UL><LI><a href="#[2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HardFault_Handler
-</UL>
+<P><STRONG><a name="[2]"></a>HardFault_Handler</STRONG> (Thumb, 26 bytes, Stack size 0 bytes, main.o(i.HardFault_Handler))
 <BR>[Address Reference Count : 1]<UL><LI> startup_mk22f12810.o(RESET)
 </UL>
 <P><STRONG><a name="[6b]"></a>SPI0_DriverIRQHandler</STRONG> (Thumb, 10 bytes, Stack size 0 bytes, fsl_dspi.o(i.SPI0_DriverIRQHandler))
@@ -989,8 +985,8 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[c4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ResetEP
 </UL>
-<BR>[Called By]<UL><LI><a href="#[cd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetClrFeature
-<LI><a href="#[79]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_EndPoint0
+<BR>[Called By]<UL><LI><a href="#[79]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_EndPoint0
+<LI><a href="#[cd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetClrFeature
 </UL>
 
 <P><STRONG><a name="[c5]"></a>USBD_ConfigEP</STRONG> (Thumb, 18 bytes, Stack size 0 bytes, usbd_mk20d5.o(i.USBD_ConfigEP))
@@ -998,8 +994,8 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[c4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ResetEP
 </UL>
-<BR>[Called By]<UL><LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetConfiguration
-<LI><a href="#[d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetInterface
+<BR>[Called By]<UL><LI><a href="#[d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetInterface
+<LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetConfiguration
 </UL>
 
 <P><STRONG><a name="[f8]"></a>USBD_Configure</STRONG> (Thumb, 2 bytes, Stack size 0 bytes, usbd_mk20d5.o(i.USBD_Configure))
@@ -1012,7 +1008,7 @@ Global Symbols
 <BR>[Address Reference Count : 1]<UL><LI> usb_config.o(.constdata)
 </UL>
 <P><STRONG><a name="[127]"></a>USBD_Connect</STRONG> (Thumb, 42 bytes, Stack size 0 bytes, usbd_mk20d5.o(i.USBD_Connect))
-<BR><BR>[Called By]<UL><LI><a href="#[11d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usbd_connect
+<BR><BR>[Called By]<UL><LI><a href="#[11c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usbd_connect
 </UL>
 
 <P><STRONG><a name="[c7]"></a>USBD_DataInStage</STRONG> (Thumb, 48 bytes, Stack size 8 bytes, usbd_core.o(i.USBD_DataInStage))
@@ -1038,23 +1034,19 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[f7]"></a>USBD_DisableEP</STRONG> (Thumb, 38 bytes, Stack size 0 bytes, usbd_mk20d5.o(i.USBD_DisableEP))
-<BR><BR>[Called By]<UL><LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetConfiguration
-<LI><a href="#[d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetInterface
+<BR><BR>[Called By]<UL><LI><a href="#[d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetInterface
+<LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetConfiguration
 </UL>
 
 <P><STRONG><a name="[f9]"></a>USBD_EnableEP</STRONG> (Thumb, 38 bytes, Stack size 0 bytes, usbd_mk20d5.o(i.USBD_EnableEP))
-<BR><BR>[Called By]<UL><LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetConfiguration
-<LI><a href="#[d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetInterface
+<BR><BR>[Called By]<UL><LI><a href="#[d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetInterface
+<LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetConfiguration
 </UL>
 
 <P><STRONG><a name="[79]"></a>USBD_EndPoint0</STRONG> (Thumb, 460 bytes, Stack size 32 bytes, usbd_core.o(i.USBD_EndPoint0))
-<BR><BR>[Stack]<UL><LI>Max Depth = 96<LI>Call Chain = USBD_EndPoint0 &rArr; USBD_ReqSetConfiguration &rArr; USBD_ResetEP
+<BR><BR>[Stack]<UL><LI>Max Depth = 96<LI>Call Chain = USBD_EndPoint0 &rArr; USBD_ReqSetInterface &rArr; USBD_ResetEP
 </UL>
-<BR>[Calls]<UL><LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetConfiguration
-<LI><a href="#[cd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetClrFeature
-<LI><a href="#[cb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqGetStatus
-<LI><a href="#[cf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqGetDescriptor
-<LI><a href="#[d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_EndPoint0_Setup_MSC_ReqToIF
+<BR>[Calls]<UL><LI><a href="#[d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_EndPoint0_Setup_MSC_ReqToIF
 <LI><a href="#[d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_SetStallEP
 <LI><a href="#[ce]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_SetAddress
 <LI><a href="#[ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_DirCtrlEP
@@ -1069,6 +1061,10 @@ Global Symbols
 <LI><a href="#[c8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_DataOutStage
 <LI><a href="#[c7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_DataInStage
 <LI><a href="#[d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetInterface
+<LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetConfiguration
+<LI><a href="#[cd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetClrFeature
+<LI><a href="#[cb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqGetStatus
+<LI><a href="#[cf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqGetDescriptor
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> usb_config.o(.constdata)
 </UL>
@@ -1220,11 +1216,11 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[f1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__NVIC_EnableIRQ
 </UL>
-<BR>[Called By]<UL><LI><a href="#[11c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usbd_init
+<BR>[Called By]<UL><LI><a href="#[11b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usbd_init
 </UL>
 
 <P><STRONG><a name="[128]"></a>USBD_RTX_TaskInit</STRONG> (Thumb, 2 bytes, Stack size 0 bytes, usb_config.o(i.USBD_RTX_TaskInit))
-<BR><BR>[Called By]<UL><LI><a href="#[11c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usbd_init
+<BR><BR>[Called By]<UL><LI><a href="#[11b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usbd_init
 </UL>
 
 <P><STRONG><a name="[ae]"></a>USBD_ReadEP</STRONG> (Thumb, 198 bytes, Stack size 32 bytes, usbd_mk20d5.o(i.USBD_ReadEP))
@@ -1266,10 +1262,10 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[a6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;protected_or
 <LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;protected_and
 </UL>
-<BR>[Called By]<UL><LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetConfiguration
-<LI><a href="#[c5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ConfigEP
+<BR>[Called By]<UL><LI><a href="#[c5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ConfigEP
 <LI><a href="#[c3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ClrStallEP
 <LI><a href="#[d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetInterface
+<LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetConfiguration
 </UL>
 
 <P><STRONG><a name="[77]"></a>USBD_Reset_Event</STRONG> (Thumb, 14 bytes, Stack size 8 bytes, usb_config.o(i.USBD_Reset_Event))
@@ -1297,8 +1293,8 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[d5]"></a>USBD_SetStallEP</STRONG> (Thumb, 20 bytes, Stack size 0 bytes, usbd_mk20d5.o(i.USBD_SetStallEP))
-<BR><BR>[Called By]<UL><LI><a href="#[cd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetClrFeature
-<LI><a href="#[79]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_EndPoint0
+<BR><BR>[Called By]<UL><LI><a href="#[79]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_EndPoint0
+<LI><a href="#[cd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReqSetClrFeature
 </UL>
 
 <P><STRONG><a name="[c9]"></a>USBD_SetupStage</STRONG> (Thumb, 10 bytes, Stack size 0 bytes, usbd_core.o(i.USBD_SetupStage))
@@ -1364,7 +1360,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[61]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[11b]"></a>bsp_init_systick</STRONG> (Thumb, 44 bytes, Stack size 0 bytes, systick.o(i.bsp_init_systick))
+<P><STRONG><a name="[11a]"></a>bsp_init_systick</STRONG> (Thumb, 44 bytes, Stack size 0 bytes, systick.o(i.bsp_init_systick))
 <BR><BR>[Called By]<UL><LI><a href="#[61]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
@@ -1420,7 +1416,7 @@ Global Symbols
 <LI><a href="#[108]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_timing_info
 </UL>
 
-<P><STRONG><a name="[101]"></a>debug_process_command</STRONG> (Thumb, 418 bytes, Stack size 72 bytes, debug_boot.o(i.debug_process_command))
+<P><STRONG><a name="[101]"></a>debug_process_command</STRONG> (Thumb, 414 bytes, Stack size 72 bytes, debug_boot.o(i.debug_process_command))
 <BR><BR>[Stack]<UL><LI>Max Depth = 1328<LI>Call Chain = debug_process_command &rArr; set_hr_timing_info &rArr; config_rom_set &rArr; iap_flash_program &rArr; FLASH_VerifyProgram &rArr; flash_get_matched_operation_info
 </UL>
 <BR>[Calls]<UL><LI><a href="#[103]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_hr_timing_info
@@ -1453,10 +1449,6 @@ Global Symbols
 <LI><a href="#[104]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_app_update
 </UL>
 <BR>[Called By]<UL><LI><a href="#[10d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prog_process_command
-</UL>
-
-<P><STRONG><a name="[11a]"></a>es_set_trget_power</STRONG> (Thumb, 48 bytes, Stack size 0 bytes, eslink.o(i.es_set_trget_power))
-<BR><BR>[Called By]<UL><LI><a href="#[61]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
 <P><STRONG><a name="[c1]"></a>eslink_process_command</STRONG> (Thumb, 50 bytes, Stack size 8 bytes, usbd_user_cls_icd.o(i.eslink_process_command))
@@ -1573,32 +1565,33 @@ Global Symbols
 <LI><a href="#[105]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;update_app_program
 </UL>
 
-<P><STRONG><a name="[115]"></a>info_rom_set</STRONG> (Thumb, 56 bytes, Stack size 24 bytes, settings_rom.o(i.info_rom_set))
-<BR><BR>[Stack]<UL><LI>Max Depth = 1168<LI>Call Chain = info_rom_set &rArr; iap_flash_program &rArr; FLASH_VerifyProgram &rArr; flash_get_matched_operation_info
+<P><STRONG><a name="[115]"></a>info_rom_set</STRONG> (Thumb, 56 bytes, Stack size 32 bytes, settings_rom.o(i.info_rom_set))
+<BR><BR>[Stack]<UL><LI>Max Depth = 1176<LI>Call Chain = info_rom_set &rArr; iap_flash_program &rArr; FLASH_VerifyProgram &rArr; flash_get_matched_operation_info
 </UL>
 <BR>[Calls]<UL><LI><a href="#[100]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;iap_flash_program
 <LI><a href="#[ff]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;iap_erase_sector
 <LI><a href="#[82]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memset
+<LI><a href="#[99]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy
 </UL>
 <BR>[Called By]<UL><LI><a href="#[104]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_app_update
 </UL>
 
-<P><STRONG><a name="[61]"></a>main</STRONG> (Thumb, 118 bytes, Stack size 0 bytes, main.o(i.main))
+<P><STRONG><a name="[61]"></a>main</STRONG> (Thumb, 108 bytes, Stack size 0 bytes, main.o(i.main))
 <BR><BR>[Stack]<UL><LI>Max Depth = 56<LI>Call Chain = main &rArr; BOARD_BootClockRUN &rArr; CLOCK_BootToFeeMode &rArr; CLOCK_SetFeeMode
 </UL>
-<BR>[Calls]<UL><LI><a href="#[11b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;bsp_init_systick
+<BR>[Calls]<UL><LI><a href="#[11a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;bsp_init_systick
 <LI><a href="#[8a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BOARD_InitPins
 <LI><a href="#[111]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gpio_init
 <LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BOARD_BootClockRUN
 <LI><a href="#[116]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BOARD_InitDebugConsole
-<LI><a href="#[11a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;es_set_trget_power
-<LI><a href="#[11c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usbd_init
-<LI><a href="#[11d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usbd_connect
-<LI><a href="#[11e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usbd_configured
+<LI><a href="#[11b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usbd_init
+<LI><a href="#[11c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usbd_connect
+<LI><a href="#[11d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usbd_configured
 <LI><a href="#[119]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;stay_in_bootloader
 <LI><a href="#[117]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;settings_rom_init
 <LI><a href="#[118]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_offlink_app_version
 <LI><a href="#[fb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;application_check_and_run
+<LI><a href="#[11e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay_ms
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> entry9a.o(.ARM.Collect$$$$0000000B)
 </UL>
@@ -1639,7 +1632,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[104]"></a>set_app_update</STRONG> (Thumb, 20 bytes, Stack size 8 bytes, settings_rom.o(i.set_app_update))
-<BR><BR>[Stack]<UL><LI>Max Depth = 1176<LI>Call Chain = set_app_update &rArr; info_rom_set &rArr; iap_flash_program &rArr; FLASH_VerifyProgram &rArr; flash_get_matched_operation_info
+<BR><BR>[Stack]<UL><LI>Max Depth = 1184<LI>Call Chain = set_app_update &rArr; info_rom_set &rArr; iap_flash_program &rArr; FLASH_VerifyProgram &rArr; flash_get_matched_operation_info
 </UL>
 <BR>[Calls]<UL><LI><a href="#[115]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;info_rom_set
 </UL>
@@ -1664,8 +1657,8 @@ Global Symbols
 <LI><a href="#[10c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;download_timinginfo
 </UL>
 
-<P><STRONG><a name="[117]"></a>settings_rom_init</STRONG> (Thumb, 84 bytes, Stack size 16 bytes, settings_rom.o(i.settings_rom_init))
-<BR><BR>[Stack]<UL><LI>Max Depth = 56<LI>Call Chain = settings_rom_init &rArr; iap_Init &rArr; FLASH_Init &rArr; FLASH_PrepareExecuteInRamFunctions
+<P><STRONG><a name="[117]"></a>settings_rom_init</STRONG> (Thumb, 82 bytes, Stack size 8 bytes, settings_rom.o(i.settings_rom_init))
+<BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = settings_rom_init &rArr; iap_Init &rArr; FLASH_Init &rArr; FLASH_PrepareExecuteInRamFunctions
 </UL>
 <BR>[Calls]<UL><LI><a href="#[113]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;iap_Init
 <LI><a href="#[99]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy
@@ -1715,14 +1708,14 @@ Global Symbols
 <LI><a href="#[125]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usbd_hid_init
 <LI><a href="#[b1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CDC_ACM_Initialize
 </UL>
-<BR>[Called By]<UL><LI><a href="#[11c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usbd_init
+<BR>[Called By]<UL><LI><a href="#[11b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usbd_init
 </UL>
 
-<P><STRONG><a name="[11e]"></a>usbd_configured</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, usbd_core.o(i.usbd_configured))
+<P><STRONG><a name="[11d]"></a>usbd_configured</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, usbd_core.o(i.usbd_configured))
 <BR><BR>[Called By]<UL><LI><a href="#[61]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[11d]"></a>usbd_connect</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, usbd_core.o(i.usbd_connect))
+<P><STRONG><a name="[11c]"></a>usbd_connect</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, usbd_core.o(i.usbd_connect))
 <BR><BR>[Calls]<UL><LI><a href="#[127]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_Connect
 </UL>
 <BR>[Called By]<UL><LI><a href="#[61]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
@@ -1750,7 +1743,7 @@ Global Symbols
 <LI><a href="#[db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_HID_SetReport
 </UL>
 
-<P><STRONG><a name="[11c]"></a>usbd_init</STRONG> (Thumb, 24 bytes, Stack size 8 bytes, usbd_core.o(i.usbd_init))
+<P><STRONG><a name="[11b]"></a>usbd_init</STRONG> (Thumb, 24 bytes, Stack size 8 bytes, usbd_core.o(i.usbd_init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = usbd_init &rArr; usbd_class_init &rArr; USBD_CDC_ACM_Initialize
 </UL>
 <BR>[Calls]<UL><LI><a href="#[124]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usbd_class_init
@@ -1784,6 +1777,10 @@ Local Symbols
 
 <P><STRONG><a name="[8c]"></a>PORT_SetPinMux</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, pin_mux.o(i.PORT_SetPinMux))
 <BR><BR>[Called By]<UL><LI><a href="#[8a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BOARD_InitPins
+</UL>
+
+<P><STRONG><a name="[11e]"></a>delay_ms</STRONG> (Thumb, 24 bytes, Stack size 0 bytes, main.o(i.delay_ms))
+<BR><BR>[Called By]<UL><LI><a href="#[61]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
 <P><STRONG><a name="[10a]"></a>download_offline_hex_end</STRONG> (Thumb, 94 bytes, Stack size 16 bytes, eslink_boot.o(i.download_offline_hex_end))

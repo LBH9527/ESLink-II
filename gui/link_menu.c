@@ -263,7 +263,7 @@ void ofl_program_display(void)
 //            oled_clr_scr(0x00);	
 //            oled_display_str(0,16,"   PROG FAILE   ", &Font16); 
 //            oled_display_str(0,32,"08 erase        ", &Font16);    
-            break;
+//            break;
         case MSG_KEY_ENTER:                         //长按回到联机模式      
             if(set_link_mode(LINK_ONLINE_MODE) != TRUE )
             {
@@ -330,7 +330,7 @@ void logo_display(void)
 *******************************************************************************/
 void init_display(void)
 {
-	uint8_t msg = MSG_NULL;
+//	uint8_t msg = MSG_NULL;
 	FONT_T Font16;
 	static uint8_t disp_init = 0 ;
 	
@@ -360,14 +360,10 @@ void init_display(void)
 *******************************************************************************/
 void menu_init(uint8_t mode)
 {         
-    if(mode == 1)
-    {
-         cur_menu  = &ofl_prog_menu;
-//         get_ofl_menu();
-    }
-        
-    else if(mode == 0)
+    if (mode == MENU_ONLINE_MODE)
         cur_menu  = &logo_menu;
+    else if (mode == MENU_OFFLINE_MODE)
+        cur_menu  = &ofl_prog_menu;
 }
 /*******************************************************************************
 *	函 数 名: menu_display

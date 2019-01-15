@@ -28,15 +28,13 @@ static error_t download_hr_chipinfo(uint8_t *data)
     if(size != sizeof(hr_target_cfg))
         result = ERR_CHECKSUM ;
     if(set_hr_timing_info(data+FRAME_CODE_OFFSET) != TRUE )
-        result = ERROR_IAP_WRITE; 
-    
+        result = ERROR_IAP_WRITE;     
     
     if(set_app_update(UPDATE_LINK_APP) != TRUE )
         result = ERROR_IAP_WRITE; 
         //跳转前关闭USB中断，不回复上位机数据，上位机会在跳转前延时1.5s发送下条命令
     USB0->INTEN  = 0;
-    return ERROR_SUCCESS;       
-    
+    return result;       
 }
 
 /*
@@ -87,7 +85,7 @@ debug_comm_frame_t dbg_data;
 
 uint32_t debug_process_command(uint8_t *request, uint8_t *response)     
 {
-    uint16_t i;
+//    uint16_t i;
     error_t result ;
     
     dbg_data.wrbuf = request;

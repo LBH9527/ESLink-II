@@ -384,11 +384,6 @@
           <GroupName>eslink</GroupName>
           <Files>
             <File>
-              <FileName>usbd_user_cls_icd.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\eslink\usbd_user_cls_icd.c</FilePath>
-            </File>
-            <File>
               <FileName>eslink.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\eslink\eslink.c</FilePath>
@@ -427,6 +422,11 @@
               <FileName>sflash_port.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\eslink\sflash_port.c</FilePath>
+            </File>
+            <File>
+              <FileName>usbd_user_cls.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\eslink\usbd_user_cls.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -591,27 +591,14 @@
             <File>
               <FileName>isp_prog_intf.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\source\es-isp\M939_ISP\isp_prog_intf.c</FilePath>
+              <FilePath>..\source\es-isp\M621_ISP\isp_prog_intf.c</FilePath>
             </File>
             <File>
-              <FileName>isp_prog_intf.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\source\es-isp\M939_ISP\isp_prog_intf.h</FilePath>
-            </File>
-            <File>
-              <FileName>M939_ISP.c</FileName>
+              <FileName>M621_ISP.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\source\es-isp\M939_ISP\M939_ISP.c</FilePath>
-            </File>
-            <File>
-              <FileName>es_isp.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\source\es-isp\M939_ISP\es_isp.h</FilePath>
+              <FilePath>..\source\es-isp\M621_ISP\M621_ISP.c</FilePath>
             </File>
           </Files>
-        </Group>
-        <Group>
-          <GroupName>es-debug</GroupName>
         </Group>
         <Group>
           <GroupName>es-bootisp</GroupName>
@@ -645,18 +632,6 @@
         </Group>
         <Group>
           <GroupName>es-rtc</GroupName>
-          <Files>
-            <File>
-              <FileName>rtc_calibrate.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\source\es-rtc\rtc_calibrate.c</FilePath>
-            </File>
-            <File>
-              <FileName>rtc_target.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\source\es-rtc\rtc_target.h</FilePath>
-            </File>
-          </Files>
         </Group>
         <Group>
           <GroupName>es-swd</GroupName>
@@ -897,9 +872,6 @@
               <FilePath>..\startup\startup_MK22F12810.s</FilePath>
             </File>
           </Files>
-        </Group>
-        <Group>
-          <GroupName>rl-flashfs</GroupName>
         </Group>
         <Group>
           <GroupName>fatfs</GroupName>

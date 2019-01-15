@@ -431,7 +431,7 @@ void ofl_file_init_partition( void)
     file_partition.magic_word = OFL_PARTITION_MAGIC_WORD;
     file_partition.size = 0;
     file_partition.checksum = 0;
-    file_partition.record_type = 0;
+    file_partition.type = 0;
     ofl_file_write_start();
     ofl_file_write(file_partition.buf, OFL_PRJ_PARTITION_LEN);
     ofl_file_write_end();    
@@ -445,6 +445,12 @@ void ofl_file_add_partition( partition_t * part)
     file_partition.part[file_partition.size].start =  part->start;
     file_partition.part[file_partition.size].data =  part->data;
     file_partition.size++;
+}
+//方案类型 
+//1、普通：0x00 2、包括RTC时序的方案类型：0x01
+void ofl_file_set_type(uint32_t type)
+{
+    file_partition.type = type;
 }
 //保存分区信息
 error_t ofl_file_save_partition(void)

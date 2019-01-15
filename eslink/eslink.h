@@ -67,7 +67,7 @@ uint8_t ofl_start_in_low(void);
 void serial_number_intercept_write(serial_number_t *sn, uint32_t addr, uint8_t *data, uint32_t size);
 void eslink_set_target_hold_reset(void);
 void eslink_set_target_reset_run(uint8_t delay_ms);
-   
+void eslink_set_target_power_reset(uint8_t delay_ms);   
 #ifdef __cplusplus
 }
 #endif
