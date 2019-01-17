@@ -94,6 +94,7 @@ void BOARD_InitPins(void)
     /* PORTB16 (pin 39) is configured as FTM_CLKIN0 */
     PORT_SetPinMux(PORTB, 16U, kPORT_MuxAlt4);
     
+    PORT_SetPinMux(PORTB, 17U, kPORT_MuxAlt4);
     
     /* PORTC0 (pin 43) is configured as ADC0_SE14 */
     PORT_SetPinMux(PORTC, 0U, kPORT_PinDisabledOrAnalog);
@@ -108,7 +109,7 @@ void BOARD_InitPins(void)
     PORT_SetPinMux(PIN_OLED_SDA_PORT, PIN_OLED_SDA_BIT, kPORT_MuxAsGpio);
 
     /* PORTC4 (pin 49) is configured as PTC4 */
-    PORT_SetPinMux(PIN_RST_PORT, PIN_RST_BIT, kPORT_MuxAsGpio);
+//    PORT_SetPinMux(PIN_RST_PORT, PIN_RST_BIT, kPORT_MuxAsGpio);
 
     /* PORTC8 (pin 53) is configured as PTC8 */
     PORT_SetPinMux(PIN_ISPSCK_NOE_PORT, PIN_ISPSCK_NOE_BIT, kPORT_MuxAsGpio);

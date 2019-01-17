@@ -409,8 +409,8 @@ static error_t isp_prog_erase_chip (uint8_t  para)
     if(isp_erase_code(isp_target_dev->code_start, isp_target_dev->code_size) != TRUE)
 		return ERROR_ISP_ERASE;   
 
-    //擦除info6
-    if(isp_erase_info6() != TRUE)
+    //擦除info7
+    if(isp_erase_info7() != TRUE)
 		return ERROR_ISP_ERASE;
          
     return ERROR_SUCCESS;

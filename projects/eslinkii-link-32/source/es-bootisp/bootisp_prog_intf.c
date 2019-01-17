@@ -20,10 +20,7 @@ static uint8_t buf[BOOTSIP_DATA_MAX_LEN];
 
 //复位方式有多种
 //1、硬件复位
-__attribute__((weak)) void bootisp_set_target_reset(uint8_t asserted)
-{
-//    (asserted) ? PIN_nRESET_OUT(0) : PIN_nRESET_OUT(1);
-}
+
 //2、RESET=SUPPOT
 //go oxffffffff
 

@@ -20,13 +20,13 @@ static inline void PORT_ISP_SETUP(void)
     PIN_ISPSDA_OUT_GPIO->PSOR = 1 << PIN_ISPSDA_OUT_BIT;    
     PIN_ISPSDA_NOE_GPIO->PCOR = 1 << PIN_ISPSDA_NOE_BIT;    
     PIN_ISPSCK_NOE_GPIO->PCOR = 1 << PIN_ISPSCK_NOE_BIT;    
-    PIN_RST_GPIO->PSOR        = 1 << PIN_RST_BIT;    
+    PIN_RST_O_GPIO->PSOR        = 1 << PIN_RST_O_BIT;    
     PIN_ISPSCK_NOE_GPIO->PDDR = PIN_ISPSCK_NOE_GPIO->PDDR | (1 << PIN_ISPSCK_NOE_BIT );   
     PIN_ISPSCK_NOE_GPIO->PCOR = 1 << PIN_ISPSCK_NOE_BIT;    
     PIN_ISPSDA_NOE_GPIO->PCOR = 1 << PIN_ISPSDA_NOE_BIT;    
-    PIN_RST_GPIO->PSOR = PIN_RST;
-    PIN_RST_GPIO->PDDR |= PIN_RST; //output
-    PIN_RST_PORT->PCR[PIN_RST_BIT] = PORT_PCR_PS_MASK | PORT_PCR_PE_MASK | PORT_PCR_PFE_MASK | PORT_PCR_MUX(1);
+    PIN_RST_O_GPIO->PSOR = PIN_RST_O;
+    PIN_RST_O_GPIO->PDDR |= PIN_RST_O; //output
+//    PIN_RST_O_PORT->PCR[PIN_RST_O_BIT] = PORT_PCR_PS_MASK | PORT_PCR_PE_MASK | PORT_PCR_PFE_MASK | PORT_PCR_MUX(1);
 }
 
 /** Disable JTAG/SWD I/O Pins.
@@ -37,10 +37,10 @@ static inline void PORT_ISP_OFF(void)
 {
     PIN_ISPSDA_NOE_GPIO->PSOR = 1 << PIN_ISPSDA_NOE_BIT;
     PIN_ISPSCK_NOE_GPIO->PSOR = 1 << PIN_ISPSCK_NOE_BIT;
-    PIN_RST_GPIO->PSOR    = 1 << PIN_RST_BIT;
-    PIN_RST_GPIO->PDDR &= ~PIN_RST; //input    
-    PIN_RST_PORT->PCR[PIN_RST_BIT] |= PORT_PCR_ISF_MASK;
-    PIN_RST_PORT->PCR[PIN_RST_BIT] = PORT_PCR_PS_MASK | PORT_PCR_PE_MASK | PORT_PCR_PFE_MASK | PORT_PCR_MUX(1);
+//    PIN_RST_O_GPIO->PSOR    = 1 << PIN_RST_O_BIT;
+    PIN_RST_O_GPIO->PDDR &= ~PIN_RST_O; //input    
+//    PIN_RST_O_PORT->PCR[PIN_RST_O_BIT] |= PORT_PCR_ISF_MASK;
+//    PIN_RST_O_PORT->PCR[PIN_RST_O_BIT] = PORT_PCR_PS_MASK | PORT_PCR_PE_MASK | PORT_PCR_PFE_MASK | PORT_PCR_MUX(1);
 }
 
 
@@ -133,7 +133,7 @@ static __forceinline void     PIN_ISPSDA_OUT_DISABLE(void)
 */
 static __forceinline uint32_t PIN_RST_IN(void)
 {
-    return ((PIN_RST_GPIO->PDIR >> PIN_RST_BIT) & 1);
+    return ((PIN_RST_I_GPIO->PDIR >> PIN_RST_I_BIT) & 1);
 //    return ((PIN_SWO_GPIO->PDIR >> PIN_SWO_BIT) & 1);
 }
 
@@ -144,8 +144,7 @@ static __forceinline uint32_t PIN_RST_IN(void)
 */
 static __forceinline void     PIN_RST_OUT(uint32_t bit)
 {
-    BITBAND_REG(PIN_RST_GPIO->PDOR, PIN_RST_BIT) = bit;
-//     BITBAND_REG(PIN_CTL_GPIO->PDOR, PIN_CTL_BIT) = bit;
+    BITBAND_REG(PIN_RST_O_GPIO->PDOR, PIN_RST_O_BIT) = bit;
 }
 
 //CMSIS-DAP Hardware I/O and LED Pins are initialized with the function \ref DAP_SETUP.
@@ -190,13 +189,26 @@ static inline void ISP_SETUP(void)
              PORT_PCR_DSE_MASK; /* High drive strength */
     PIN_ISPSCK_NOE_GPIO->PSOR  = 1 << PIN_ISPSCK_NOE_BIT;                  /* High level */
     PIN_ISPSCK_NOE_GPIO->PDDR |= 1 << PIN_ISPSCK_NOE_BIT;                  /* Output */
-    /* Configure I/O pin nRESET */
-    PIN_RST_PORT->PCR[PIN_RST_BIT]       = PORT_PCR_MUX(1)  |  /* GPIO */
+//    /* Configure I/O pin nRESET */
+//    PIN_RST_O_PORT->PCR[PIN_RST_O_BIT]       = PORT_PCR_MUX(1)  |  /* GPIO */
+//            PORT_PCR_PE_MASK |  /* Pull enable */
+//            PORT_PCR_PS_MASK |  /* Pull-up */
+//            PORT_PCR_ODE_MASK;  /* Open-drain */
+//    PIN_RST_O_GPIO->PSOR  = 1 << PIN_RST_O_BIT;                    /* High level */
+//    PIN_RST_O_GPIO->PDDR &= ~(1 << PIN_RST_O_BIT);                    /* Input */
+    
+    /* Configure I/O pin RST O */
+    PIN_RST_O_PORT->PCR[PIN_RST_O_BIT] = PORT_PCR_MUX(1) |   /* GPIO */
+             PORT_PCR_DSE_MASK; /* High drive strength */
+    PIN_RST_O_GPIO->PSOR  = 1 << PIN_RST_O_BIT;              /* High level */
+    PIN_RST_O_GPIO->PDDR |= 1 << PIN_RST_O_BIT;              /* Output */
+    
+    /* Configure I/O pin RST In */
+    PIN_RST_I_PORT->PCR[PIN_RST_I_BIT]   = PORT_PCR_MUX(1)  |  /* GPIO */
             PORT_PCR_PE_MASK |  /* Pull enable */
-            PORT_PCR_PS_MASK |  /* Pull-up */
-            PORT_PCR_ODE_MASK;  /* Open-drain */
-    PIN_RST_GPIO->PSOR  = 1 << PIN_RST_BIT;                    /* High level */
-    PIN_RST_GPIO->PDDR &= ~(1 << PIN_RST_BIT);                    /* Input */
+            PORT_PCR_PS_MASK;   /* Pull-up */
+    PIN_RST_I_GPIO->PDDR &= ~(1 << PIN_RST_I_BIT);             /* Input */
+    
 //    /* Configure LED */
 //    LED_CONNECTED_PORT->PCR[LED_CONNECTED_BIT] = PORT_PCR_MUX(1)  |  /* GPIO */
 //            PORT_PCR_ODE_MASK;  /* Open-drain */

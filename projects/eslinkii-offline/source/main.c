@@ -72,7 +72,7 @@ int main(void)
     menu_init();
     bsp_init_systick();
 	
-    LED_GREEN_ON();             
+    LED_GREEN_ON();            
     while (1)
     {            
 		if(key_read_data(&key_value) != 0)        //有按键按下

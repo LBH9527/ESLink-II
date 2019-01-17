@@ -27,9 +27,9 @@ void gpio_init(void)
     V33_SELECT_INIT(1);         //connfig pin as 3.3V select  
     V5_SELECT_INIT(1);         //connfig pin as 5V select  
     
-    LED_GREEN_PASS_INIT(1);
-    LED_YELLOW_BUSY_INIT(1);
-    LED_RED_ERROR_INIT(1);
+    LED_GREEN_PASS_INIT(0);
+    LED_YELLOW_BUSY_INIT(0);
+    LED_RED_ERROR_INIT(0);
 
     BEEP_INIT(0);    
 

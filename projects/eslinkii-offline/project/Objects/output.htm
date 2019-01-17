@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\Objects\output.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Objects\output.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Wed Jan 09 10:46:34 2019
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Wed Jan 16 10:39:17 2019
 <BR><P>
 <H3>Maximum Stack Usage =       2472 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -617,7 +617,7 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[61]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[86]"></a>BOARD_InitPins</STRONG> (Thumb, 380 bytes, Stack size 16 bytes, pin_mux.o(i.BOARD_InitPins))
+<P><STRONG><a name="[86]"></a>BOARD_InitPins</STRONG> (Thumb, 370 bytes, Stack size 16 bytes, pin_mux.o(i.BOARD_InitPins))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = BOARD_InitPins
 </UL>
 <BR>[Calls]<UL><LI><a href="#[88]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PORT_SetPinMux
@@ -1335,7 +1335,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[132]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;menu_init
 </UL>
 
-<P><STRONG><a name="[121]"></a>gpio_init</STRONG> (Thumb, 284 bytes, Stack size 16 bytes, gpio.o(i.gpio_init))
+<P><STRONG><a name="[121]"></a>gpio_init</STRONG> (Thumb, 280 bytes, Stack size 16 bytes, gpio.o(i.gpio_init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = gpio_init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[122]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GPIO_PinWrite
@@ -1439,7 +1439,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;bsp_detect_key
 </UL>
 
-<P><STRONG><a name="[61]"></a>main</STRONG> (Thumb, 120 bytes, Stack size 16 bytes, main.o(i.main))
+<P><STRONG><a name="[61]"></a>main</STRONG> (Thumb, 124 bytes, Stack size 16 bytes, main.o(i.main))
 <BR><BR>[Stack]<UL><LI>Max Depth = 584<LI>Call Chain = main &rArr; ofl_file_init &rArr; get_all_ofl_file &rArr; file_find &rArr; f_opendir &rArr; follow_path &rArr; dir_find &rArr; dir_next &rArr; create_chain &rArr; put_fat &rArr; move_window &rArr; sync_window &rArr; disk_write &rArr; spi_flash_write &rArr; sf_page_write &rArr; sf_wait_busy
 </UL>
 <BR>[Calls]<UL><LI><a href="#[133]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;bsp_init_systick
@@ -1832,7 +1832,8 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[15f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sf_read_id
 </UL>
-<BR>[Called By]<UL><LI><a href="#[e6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;disk_initialize
+<BR>[Called By]<UL><LI><a href="#[130]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;spi_flash_init
+<LI><a href="#[e6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;disk_initialize
 </UL>
 
 <P><STRONG><a name="[162]"></a>spi_falsh_hw_init</STRONG> (Thumb, 106 bytes, Stack size 40 bytes, spi_flash.o(i.spi_falsh_hw_init))
@@ -1844,10 +1845,11 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[130]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;spi_flash_init
 </UL>
 
-<P><STRONG><a name="[130]"></a>spi_flash_init</STRONG> (Thumb, 30 bytes, Stack size 8 bytes, spi_flash.o(i.spi_flash_init))
+<P><STRONG><a name="[130]"></a>spi_flash_init</STRONG> (Thumb, 34 bytes, Stack size 8 bytes, spi_flash.o(i.spi_flash_init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 148<LI>Call Chain = spi_flash_init &rArr; spi_falsh_hw_init &rArr; DSPI_MasterInit &rArr; DSPI_MasterSetDelayTimes &rArr; DSPI_MasterSetDelayScaler
 </UL>
 <BR>[Calls]<UL><LI><a href="#[162]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;spi_falsh_hw_init
+<LI><a href="#[e7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sf_read_info
 <LI><a href="#[15d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sf_write_disable
 <LI><a href="#[15c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sf_wait_busy
 <LI><a href="#[159]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sf_set_cs
@@ -1881,7 +1883,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[14d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ofl_update_app_program
 </UL>
 
-<P><STRONG><a name="[7a]"></a>update_display</STRONG> (Thumb, 174 bytes, Stack size 32 bytes, update_menu.o(i.update_display))
+<P><STRONG><a name="[7a]"></a>update_display</STRONG> (Thumb, 178 bytes, Stack size 32 bytes, update_menu.o(i.update_display))
 <BR><BR>[Stack]<UL><LI>Max Depth = 2472<LI>Call Chain = update_display &rArr; ofl_prj_update &rArr; update_ofl_target_info &rArr; set_timing_info &rArr; config_rom_set &rArr; iap_flash_program &rArr; FLASH_VerifyProgram &rArr; flash_get_matched_operation_info
 </UL>
 <BR>[Calls]<UL><LI><a href="#[163]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;bsp_delay_ms

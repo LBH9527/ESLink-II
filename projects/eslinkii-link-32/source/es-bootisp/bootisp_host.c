@@ -39,7 +39,8 @@ static bool write_data(uint8_t *wr_data, uint8_t wr_size)
     uint8_t len_data;
     
     timeout = wr_size*0xffff;
-    while(wr_size > 0){          
+    while(wr_size > 0)
+    {          
         len_data = uart_write_data(wr_data, wr_size);
         if(wr_size >= len_data)
             wr_size -= len_data;     

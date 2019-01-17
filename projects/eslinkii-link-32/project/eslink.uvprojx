@@ -524,11 +524,6 @@
               <FilePath>..\source\target_chip\target_program_config.h</FilePath>
             </File>
             <File>
-              <FileName>booisp_target_info.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\source\target_chip\booisp_target_info.c</FilePath>
-            </File>
-            <File>
               <FileName>swd_target_info.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\source\target_chip\swd_target_info.c</FilePath>
@@ -591,12 +586,12 @@
             <File>
               <FileName>isp_prog_intf.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\source\es-isp\M621_ISP\isp_prog_intf.c</FilePath>
+              <FilePath>..\source\es-isp\M939_ISP\isp_prog_intf.c</FilePath>
             </File>
             <File>
-              <FileName>M621_ISP.c</FileName>
+              <FileName>M939_ISP.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\source\es-isp\M621_ISP\M621_ISP.c</FilePath>
+              <FilePath>..\source\es-isp\M939_ISP\M939_ISP.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -632,6 +627,13 @@
         </Group>
         <Group>
           <GroupName>es-rtc</GroupName>
+          <Files>
+            <File>
+              <FileName>rtc_calibrate.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\es-rtc\rtc_calibrate.c</FilePath>
+            </File>
+          </Files>
         </Group>
         <Group>
           <GroupName>es-swd</GroupName>

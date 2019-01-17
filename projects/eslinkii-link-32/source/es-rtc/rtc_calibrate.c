@@ -37,7 +37,7 @@
 #define FTM_IRQ_NUM FTM1_IRQn
 /* Get source clock for FTM driver */
 //#define FTM_SOURCE_CLOCK (CLOCK_GetFreq(kCLOCK_BusClk)/1)
-#define FTM_SOURCE_CLOCK    10000000  
+//#define FTM_SOURCE_CLOCK    10000000  
 //输入捕获
 /* FTM channel used for input capture */
 #define FTM_INPUT_CAPTURE_CHANNEL kFTM_Chnl_1
@@ -79,12 +79,14 @@ static void Init_FTM(void)
 //    FTM_SetupInputCapture(FTM_BASEADDR, FTM_INPUT_CAPTURE_CHANNEL, kFTM_FallingEdge, 0);
 //    FTM_EnableInterrupts(FTM_BASEADDR, FTM_CHANNEL_INTERRUPT_ENABLE); 
     //定时器溢出中断
-//    FTM_EnableInterrupts(FTM_BASEADDR, kFTM_TimeOverflowInterruptEnable); 
-//    EnableIRQ(FTM_IRQ_NUM);  
-//    FTM_StartTimer(FTM_BASEADDR, kFTM_ExternalClock); 
-//     FTM_StartTimer(FTM_BASEADDR, kFTM_SystemClock);             
-    NVIC_DisableIRQ(FTM_IRQ_NUM);
-    FTM_StopTimer(FTM_BASEADDR);    
+    FTM_EnableInterrupts(FTM_BASEADDR, kFTM_TimeOverflowInterruptEnable); 
+    EnableIRQ(FTM_IRQ_NUM);  
+    FTM_StartTimer(FTM_BASEADDR, kFTM_ExternalClock); 
+//     FTM_StartTimer(FTM_BASEADDR, kFTM_SystemClock); 
+
+            
+//    NVIC_DisableIRQ(FTM_IRQ_NUM);
+//    FTM_StopTimer(FTM_BASEADDR);    
 }
 static void rtc_gpio_init(void)
 {
@@ -93,7 +95,7 @@ static void rtc_gpio_init(void)
 }
 static void rtc_gpio_uninit(void)
 {
-    PIN_RST_GPIO->PDDR &= ~(1 << PIN_RST_BIT);            /* Input */
+    PIN_RTC_OUT_GPIO->PDDR &= ~(1 << PIN_RTC_OUT_BIT);            /* Input */
 }
 //开始自校正脉冲   
 static void start_self_cali(void)

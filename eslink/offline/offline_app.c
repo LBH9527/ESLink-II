@@ -39,7 +39,7 @@ ofl_error_t ofl_prog_init(uint8_t mode)
         online_file_read(OFL_PROG_INFO, 0,(uint8_t*) &ofl_prj_info, sizeof(ofl_prj_info_t)); 
         //获取脱机序列号
         get_offline_serial_number((uint8_t*) &sn_info, sizeof(ofl_serial_number_t) );
-        type = ofl_prj_info.intf;
+        type = (prog_intf_type_t)ofl_prj_info.intf;
     }
     else if(mode == OFFLINE_PROG_MINI_MODE)
     {

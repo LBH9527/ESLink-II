@@ -166,13 +166,15 @@ static inline void PORT_SWD_SETUP(void)
     PIN_SWDIO_OUT_GPIO->PSOR = 1 << PIN_SWDIO_OUT_BIT;
     PIN_SWDIO_NOE_GPIO->PCOR = 1 << PIN_SWDIO_NOE_BIT;
     PIN_SWD_NOE_GPIO->PCOR   = 1 << PIN_SWD_NOE_BIT;
-    PIN_nRESET_GPIO->PSOR    = 1 << PIN_nRESET_BIT;
+    PIN_nRESET_O_GPIO->PSOR    = 1 << PIN_nRESET_O_BIT;
     PIN_SWD_NOE_GPIO->PDDR = PIN_SWD_NOE_GPIO->PDDR | (1 << PIN_SWD_NOE_BIT);
     PIN_SWD_NOE_GPIO->PCOR = 1 << PIN_SWD_NOE_BIT;
     PIN_SWDIO_NOE_GPIO->PCOR = 1 << PIN_SWDIO_NOE_BIT;
-    PIN_nRESET_GPIO->PSOR = PIN_nRESET;
-    PIN_nRESET_GPIO->PDDR |= PIN_nRESET; //output
-    PIN_nRESET_PORT->PCR[PIN_nRESET_BIT] = PORT_PCR_PS_MASK | PORT_PCR_PE_MASK | PORT_PCR_PFE_MASK | PORT_PCR_MUX(1);
+    PIN_nRESET_O_GPIO->PSOR = PIN_nRESET_O;
+    PIN_nRESET_O_GPIO->PDDR |= PIN_nRESET_O; //output
+//    PIN_nRESET_O_PORT->PCR[PIN_nRESET_O_BIT] = PORT_PCR_PS_MASK | PORT_PCR_PE_MASK | PORT_PCR_PFE_MASK | PORT_PCR_MUX(1);
+    
+    
 }
 
 /** Disable JTAG/SWD I/O Pins.
@@ -183,10 +185,11 @@ static inline void PORT_OFF(void)
 {
     PIN_SWDIO_NOE_GPIO->PSOR = 1 << PIN_SWDIO_NOE_BIT;
     PIN_SWD_NOE_GPIO->PSOR   = 1 << PIN_SWD_NOE_BIT;
-    PIN_nRESET_GPIO->PSOR    = 1 << PIN_nRESET_BIT;
-    PIN_nRESET_GPIO->PDDR &= ~PIN_nRESET; //input
-    PIN_nRESET_PORT->PCR[PIN_nRESET_BIT] |= PORT_PCR_ISF_MASK;
-    PIN_nRESET_PORT->PCR[PIN_nRESET_BIT] = PORT_PCR_PS_MASK | PORT_PCR_PE_MASK | PORT_PCR_PFE_MASK | PORT_PCR_MUX(1);
+    
+//    PIN_nRESET_O_GPIO->PSOR    = 1 << PIN_nRESET_O_BIT;
+    PIN_nRESET_O_GPIO->PDDR &= ~PIN_nRESET_O; //input
+//    PIN_nRESET_O_PORT->PCR[PIN_nRESET_O_BIT] |= PORT_PCR_ISF_MASK;
+//    PIN_nRESET_O_PORT->PCR[PIN_nRESET_O_BIT] = PORT_PCR_PS_MASK | PORT_PCR_PE_MASK | PORT_PCR_PFE_MASK | PORT_PCR_MUX(1);
 }
 
 
@@ -335,8 +338,7 @@ static __forceinline void     PIN_nTRST_OUT(uint32_t bit)
 */
 static __forceinline uint32_t PIN_nRESET_IN(void)
 {
-    return ((PIN_nRESET_GPIO->PDIR >> PIN_nRESET_BIT) & 1);
-//     return ((PIN_SWO_GPIO->PDIR >> PIN_SWO_BIT) & 1);
+    return ((PIN_nRESET_I_GPIO->PDIR >> PIN_nRESET_I_BIT) & 1);
 }
 
 /** nRESET I/O pin: Set Output.
@@ -346,8 +348,7 @@ static __forceinline uint32_t PIN_nRESET_IN(void)
 */
 static __forceinline void     PIN_nRESET_OUT(uint32_t bit)
 {
-    BITBAND_REG(PIN_nRESET_GPIO->PDOR, PIN_nRESET_BIT) = bit;
-//    BITBAND_REG(PIN_CTL_GPIO->PDOR, PIN_CTL_BIT) = bit;
+    BITBAND_REG(PIN_nRESET_O_GPIO->PDOR, PIN_nRESET_O_BIT) = bit;
 }
 
 ///@}
@@ -385,7 +386,7 @@ static inline void LED_CONNECTED_OUT(uint32_t bit)
 */
 static inline void LED_RUNNING_OUT(uint32_t bit)
 {
-    LED_GREEN_TOGGLE();  ;             // Not available
+    LED_GREEN_PASS_TOGGLE();  ;             // Not available
 }
 
 ///@}
@@ -447,9 +448,17 @@ static inline void DAP_SETUP(void)
 //    PIN_nRESET_GPIO->PSOR  = 1 << PIN_nRESET_BIT;                    /* High level */
 //    PIN_nRESET_GPIO->PDDR &= ~(1 << PIN_nRESET_BIT);                    /* Input */
     
-    PIN_nRESET_GPIO->PSOR = PIN_nRESET;
-    PIN_nRESET_GPIO->PDDR |= PIN_nRESET; //output
-    PIN_nRESET_PORT->PCR[PIN_nRESET_BIT] = PORT_PCR_PS_MASK | PORT_PCR_PE_MASK | PORT_PCR_PFE_MASK | PORT_PCR_MUX(1);
+       /* Configure I/O pin RST O */
+    PIN_nRESET_O_PORT->PCR[PIN_RST_O_BIT] = PORT_PCR_MUX(1) |   /* GPIO */
+             PORT_PCR_DSE_MASK; /* High drive strength */
+    PIN_nRESET_O_GPIO->PSOR  = 1 << PIN_nRESET_O_BIT;              /* High level */
+    PIN_nRESET_O_GPIO->PDDR |= 1 << PIN_nRESET_O_BIT;              /* Output */
+    
+    /* Configure I/O pin RST In */
+    PIN_nRESET_I_PORT->PCR[PIN_nRESET_I_BIT]   = PORT_PCR_MUX(1)  |  /* GPIO */
+            PORT_PCR_PE_MASK |  /* Pull enable */
+            PORT_PCR_PS_MASK;   /* Pull-up */
+    PIN_nRESET_I_GPIO->PDDR &= ~(1 << PIN_nRESET_I_BIT);             /* Input */
     
     /* Configure LED */
 //    LED_CONNECTED_PORT->PCR[LED_CONNECTED_BIT] = PORT_PCR_MUX(1)  |  /* GPIO */

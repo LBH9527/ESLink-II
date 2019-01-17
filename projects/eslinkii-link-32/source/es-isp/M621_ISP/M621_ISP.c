@@ -225,7 +225,7 @@ static uint8_t page_erase_and_check(uint8_t area, uint32_t addr)
             return FALSE;
         if(temp == 0x00)
             break;
-        es_delay_us(20);
+        es_delay_ms(1);
     }  
     if(i >= wait)
         return FALSE;
@@ -421,19 +421,19 @@ uint8_t isp_erase_code(uint32_t addr, uint32_t size)
     return TRUE;
 } 
 /*******************************************************************************
-*函数名：isp_erase_info6
+*函数名：isp_erase_info7
 * 描述 ：info区擦除
 * 输入 ：
 * 输出 ：
 *******************************************************************************/
-uint8_t isp_erase_info6(void)
+uint8_t isp_erase_info7(void)
 {
     if( page_erase_and_check(INFO_AREA, CHIP_INFO_PART2_ADDR) != TRUE)
-            return FALSE;
+        return FALSE;
 
     return TRUE;
 }
-uint8_t isp_erase_info7(void)
+uint8_t isp_erase_info6(void)
 {
     if( page_erase_and_check(INFO_AREA, CHIP_INFO_PART1_ADDR) != TRUE)
             return FALSE;

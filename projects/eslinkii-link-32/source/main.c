@@ -108,13 +108,6 @@ uint8_t rtc_out_mode(uint8_t enable)
 
      return TRUE;
 }
-void rtc_handler_event(void)
-{
-    flag_send(task_flags, FLAGS_RTC_HANDLER);
-    return;
-}
-
-
 #endif
 
 int main (void) 
@@ -130,7 +123,12 @@ int main (void)
     key_init();              
     spi_flash_init();     
     
-    LED_GREEN_ON();  
+//LED_RED_ERROR_ON();
+//LED_RED_ERROR_OFF();
+//LED_YELLOW_BUSY_ON(); 
+//LED_YELLOW_BUSY_OFF(); 
+    LED_GREEN_ON();
+    
     if(eslink_is_mini() != TRUE)
     {
         ofl_file_init(); 
@@ -253,10 +251,9 @@ void ofl_app(void)
         switch(state)
         {
             case IN_MODE_CHECK :
-                //保证信号正确，LED应该存在问题
-                LED_RED_ERROR_ON();  
-                LED_GREEN_PASS_ON(); 
-                LED_YELLOW_BUSY_ON();  
+                LED_RED_ERROR_OFF();  
+                LED_GREEN_PASS_OFF(); 
+                LED_YELLOW_BUSY_OFF();  
                 if(ofl_in_prog_mode() == TRUE)
                 {                       
                      state = OFL_PROG_ING;
@@ -266,17 +263,17 @@ void ofl_app(void)
                 }
                 break;
             case OFL_PROG_ING:   
-                LED_YELLOW_BUSY_OFF();  
+                LED_YELLOW_BUSY_ON();  
                 prog_error = ofl_prog() ;                  
                 LED_YELLOW_BUSY_OFF();                
                 if( prog_error != OFL_SUCCESS)      //编程失败
                 {
-                    LED_RED_ERROR_OFF();   
+                    LED_RED_ERROR_ON();   
                     beep_prog_fail();                     
                 }
                 else
                 {
-                    LED_GREEN_PASS_OFF();                          
+                    LED_GREEN_PASS_ON();                          
                     beep_prog_success();
                 }                 
                 switch(prog_error)
@@ -412,25 +409,25 @@ void ofl_mini_app(void)
         {
             case IN_MODE_CHECK :
                 //保证信号正确，LED应该存在问题
-                LED_RED_ERROR_ON();  
-                LED_GREEN_PASS_ON(); 
-                LED_YELLOW_BUSY_ON();  
+                LED_RED_ERROR_OFF();  
+                LED_GREEN_PASS_OFF(); 
+                LED_YELLOW_BUSY_OFF();  
                 if(ofl_in_prog_mode() == TRUE)
                 {                       
                     state = OFL_PROG_ING;
                 }
                 break;
             case OFL_PROG_ING:   
-                LED_YELLOW_BUSY_OFF();  
+                LED_YELLOW_BUSY_ON();  
                 prog_error = ofl_mini_prog() ;                  
                 LED_YELLOW_BUSY_OFF();                
                 if( prog_error != OFL_SUCCESS)      //编程失败
                 {
-                    LED_RED_ERROR_OFF();                     
+                    LED_RED_ERROR_ON();                     
                 }
                 else
                 {
-                    LED_GREEN_PASS_OFF();                          
+                    LED_GREEN_PASS_ON();                          
                 }                 
                 state = OUT_MODE_CHECK; 
                 break;
@@ -497,10 +494,9 @@ void rt_hw_hard_fault_exception(struct exception_stack_frame *exception_stack)
 
 void HardFault_Handler()
 {   
-//    SystemSoftReset();
-//     printf("\r\n HardFault_Handler interrupt!\r\n");
-    rt_hw_hard_fault_exception((struct exception_stack_frame *)__get_PSP());
-    rt_hw_hard_fault_exception((struct exception_stack_frame *)__get_MSP());
+    SystemSoftReset();
+//    rt_hw_hard_fault_exception((struct exception_stack_frame *)__get_PSP());
+//    rt_hw_hard_fault_exception((struct exception_stack_frame *)__get_MSP());
     
     while (1); // Wait for reset
 }

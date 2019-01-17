@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\Objects\eslink_boot.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Objects\eslink_boot.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Mon Jan 14 19:44:29 2019
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Wed Jan 16 16:47:59 2019
 <BR><P>
 <H3>Maximum Stack Usage =       1376 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -597,7 +597,7 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[61]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[8a]"></a>BOARD_InitPins</STRONG> (Thumb, 380 bytes, Stack size 16 bytes, pin_mux.o(i.BOARD_InitPins))
+<P><STRONG><a name="[8a]"></a>BOARD_InitPins</STRONG> (Thumb, 370 bytes, Stack size 16 bytes, pin_mux.o(i.BOARD_InitPins))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = BOARD_InitPins
 </UL>
 <BR>[Calls]<UL><LI><a href="#[8c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PORT_SetPinMux
@@ -1508,7 +1508,7 @@ Global Symbols
 <LI><a href="#[10a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;download_offline_hex_end
 </UL>
 
-<P><STRONG><a name="[111]"></a>gpio_init</STRONG> (Thumb, 282 bytes, Stack size 16 bytes, gpio.o(i.gpio_init))
+<P><STRONG><a name="[111]"></a>gpio_init</STRONG> (Thumb, 284 bytes, Stack size 16 bytes, gpio.o(i.gpio_init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = gpio_init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[112]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GPIO_PinWrite
@@ -1576,7 +1576,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[104]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_app_update
 </UL>
 
-<P><STRONG><a name="[61]"></a>main</STRONG> (Thumb, 108 bytes, Stack size 0 bytes, main.o(i.main))
+<P><STRONG><a name="[61]"></a>main</STRONG> (Thumb, 118 bytes, Stack size 0 bytes, main.o(i.main))
 <BR><BR>[Stack]<UL><LI>Max Depth = 56<LI>Call Chain = main &rArr; BOARD_BootClockRUN &rArr; CLOCK_BootToFeeMode &rArr; CLOCK_SetFeeMode
 </UL>
 <BR>[Calls]<UL><LI><a href="#[11a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;bsp_init_systick

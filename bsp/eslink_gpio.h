@@ -41,11 +41,19 @@ extern "C" {
 #define PIN_SWD_NOE_GPIO        PTC
 #define PIN_SWD_NOE_BIT         8
 
-// nRESET Pin                   PTC4
-#define PIN_nRESET_PORT         PORTC
-#define PIN_nRESET_GPIO         PTC
-#define PIN_nRESET_BIT          4
-#define PIN_nRESET              (1 << PIN_nRESET_BIT)  
+
+// nRESET out Pin                PTC4
+#define PIN_nRESET_O_PORT        PORTC
+#define PIN_nRESET_O_GPIO        PTC
+#define PIN_nRESET_O_BIT         4
+#define PIN_nRESET_O             (1 << PIN_nRESET_O_BIT)
+
+// nRESET in Pin                 PTC11
+#define PIN_nRESET_I_PORT         PORTC
+#define PIN_nRESET_I_GPIO         PTC
+#define PIN_nRESET_I_BIT          11
+#define PIN_nRESET_I              (1 << PIN_nRESET_I_BIT)
+
 /******************************************************************************/
 /*
  * ESSEMI-ISP IO define
@@ -75,17 +83,17 @@ extern "C" {
 #define PIN_ISPSCK_NOE_GPIO     PTC
 #define PIN_ISPSCK_NOE_BIT      8
 
-// RST out Pin                      PTC4
-#define PIN_RST_PORT            PORTC
-#define PIN_RST_GPIO            PTC
-#define PIN_RST_BIT             4
-#define PIN_RST                 (1 << PIN_RST_BIT)
+// RST out Pin                  PTC4
+#define PIN_RST_O_PORT        PORTC
+#define PIN_RST_O_GPIO        PTC
+#define PIN_RST_O_BIT         4
+#define PIN_RST_O             (1 << PIN_RST_O_BIT)
 
-//// RST in Pin                      PTC11
-//#define PIN_RST_PORT            PORTC
-//#define PIN_RST_GPIO            PTC
-//#define PIN_RST_BIT             4
-//#define PIN_RST                 (1 << PIN_RST_BIT)
+// RST in Pin                   PTC11
+#define PIN_RST_I_PORT         PORTC
+#define PIN_RST_I_GPIO         PTC
+#define PIN_RST_I_BIT          11
+#define PIN_RST_I              (1 << PIN_RST_I_BIT)
 
 // Control Pin PTC10
 #define PIN_CTL_PORT            PORTC
@@ -123,23 +131,28 @@ extern "C" {
 
 // Target Running LED           Not available   //busy    
 
-//START_IN Pin   PTB17
+//START_IN Pin   PTB16
 #define PIN_START_IN_PORT       PORTB
 #define PIN_START_IN_GPIO       PTB
-#define PIN_START_IN_BIT        (17)
+#define PIN_START_IN_BIT        (16)
 #define PIN_START_IN            (1 << PIN_START_IN_BIT) 
 
-//name PORTC1 (number 60), BEEP   
+//CTL IO Pin   PTA4
+#define PIN_CTL_1_PORT            PORTA
+#define PIN_CTL_1_GPIO            PTA
+#define PIN_CTL_1_BIT             4 
+
+//BEEP  PORTC1 (number 44) 
 #define BEEP_PORT               PORTC 
 #define BEEP_GPIO               GPIOC 
-#define BEEP_PIN                1    
+#define BEEP_PIN                1   
 
 /******************************************************************************/
 //KEY Port I/O Pins
-// KEY0 PTA4
-#define PIN_KEY0_PORT           PORTA
-#define PIN_KEY0_GPIO           PTA
-#define PIN_KEY0_BIT            (4)
+// KEY1  PTD3  
+#define PIN_KEY0_PORT           PORTD
+#define PIN_KEY0_GPIO           PTD
+#define PIN_KEY0_BIT            (3)
 #define PIN_KEY0                (1<<PIN_KEY0_BIT)
 
 /******************************************************************************/
@@ -205,20 +218,19 @@ extern "C" {
 #define LED_GREEN_PASS_INIT(output)  \
     GPIO_PinWrite(LED_G_PASS_GPIO, LED_G_PASS_PIN, output); \
     LED_G_PASS_GPIO->PDDR |= (1U << LED_G_PASS_PIN) 
-#define LED_GREEN_PASS_ON() \
-    GPIO_PortClear(LED_G_PASS_GPIO, 1U << LED_G_PASS_PIN) 
 #define LED_GREEN_PASS_OFF() \
+    GPIO_PortClear(LED_G_PASS_GPIO, 1U << LED_G_PASS_PIN) 
+#define LED_GREEN_PASS_ON() \
     GPIO_PortSet(LED_G_PASS_GPIO, 1U << LED_G_PASS_PIN) 
 #define LED_GREEN_PASS_TOGGLE() \
     GPIO_PortToggle(LED_G_PASS_GPIO, 1U << LED_G_PASS_PIN) 
 
-
 #define LED_YELLOW_BUSY_INIT(output)    \
     GPIO_PinWrite(LED_Y_BUSY_GPIO, LED_Y_BUSY_PIN, output); \
     LED_Y_BUSY_GPIO->PDDR |= (1U << LED_Y_BUSY_PIN) 
-#define LED_YELLOW_BUSY_ON() \
+#define LED_YELLOW_BUSY_OFF() \
     GPIO_PortClear(LED_Y_BUSY_GPIO, 1U << LED_Y_BUSY_PIN) 
-#define LED_YELLOW_BUSY_OFF()   \
+#define LED_YELLOW_BUSY_ON()   \
     GPIO_PortSet(LED_Y_BUSY_GPIO, 1U << LED_Y_BUSY_PIN) 
 #define LED_YELLOW_BUSY_TOGGLE() \
     GPIO_PortToggle(LED_Y_BUSY_GPIO, 1U << LED_Y_BUSY_PIN) 
@@ -227,30 +239,33 @@ extern "C" {
     GPIO_PinWrite(LED_R_ERROR_GPIO, LED_R_ERROR_PIN, output);   \
     LED_Y_BUSY_GPIO->PDDR |= (1U << LED_R_ERROR_PIN)        
 
-#define LED_RED_ERROR_ON()  \
+#define LED_RED_ERROR_OFF()  \
     GPIO_PortClear(LED_R_ERROR_GPIO, 1U << LED_R_ERROR_PIN) 
-#define LED_RED_ERROR_OFF() \
+#define LED_RED_ERROR_ON() \
     GPIO_PortSet(LED_R_ERROR_GPIO, 1U << LED_R_ERROR_PIN) 
 #define LED_RED_ERROR_TOGGLE() \
     GPIO_PortToggle(LED_R_ERROR_GPIO, 1U << LED_R_ERROR_PIN)     
  
  //绿灯亮     
 #define LED_GREEN_ON() \
-        LED_YELLOW_BUSY_OFF(); \
+        LED_RED_ERROR_OFF();    \
+        LED_YELLOW_BUSY_OFF();  \
         LED_GREEN_PASS_ON()  
         
- //红灯亮             
+//红灯亮             
 #define LED_RED_ON()   \
-        LED_YELLOW_BUSY_ON();   \
-        LED_GREEN_PASS_OFF()   
- //黄灯亮   
+        LED_RED_ERROR_ON();    \
+        LED_YELLOW_BUSY_OFF();  \
+        LED_GREEN_PASS_OFF()    
+//黄灯亮   
 #define LED_YELLOW_ON() \
-        LED_YELLOW_BUSY_ON(); \
-        LED_GREEN_PASS_ON() 
+        LED_RED_ERROR_OFF();    \
+        LED_YELLOW_BUSY_ON();  \
+        LED_GREEN_PASS_OFF()   
 
-#define LED_GREEN_TOGGLE()   \
-        LED_YELLOW_BUSY_OFF(); \
-        LED_GREEN_PASS_TOGGLE() 
+//#define LED_GREEN_TOGGLE()   \
+//        LED_YELLOW_BUSY_OFF(); \
+//        LED_GREEN_PASS_TOGGLE() 
 
         
 /*******************************************************************************
@@ -378,27 +393,11 @@ typedef enum {
     TRGET_POWER_ENABLE,
     TRGET_POWER_3V3,
     TRGET_POWER_5V,
-}trget_power_t;   
-    
-//// wiring on PCB is unknown so implementations may vary
-//typedef enum led_state {
-//    GPIO_LED_OFF = 0,
-//    GPIO_LED_ON
-//} gpio_led_state_t;
+}trget_power_t;      
 
-void gpio_init(void);
-
-uint8_t gpio_get_reset_btn_no_fwrd(void);
-//uint8_t gpio_get_reset_btn_fwrd(void);
-
-//static inline uint8_t gpio_get_reset_btn(void)
-//{
-//    return gpio_get_reset_btn_no_fwrd() || gpio_get_reset_btn_fwrd();
-//}
-
+void gpio_init(void);     
+uint8_t gpio_get_reset_btn_no_fwrd(void); 
 uint8_t gpio_key0_down(void);
-//uint8_t gpio_key1_down(void);
-//uint8_t gpio_key2_down(void);
 
 #ifdef __cplusplus
 }

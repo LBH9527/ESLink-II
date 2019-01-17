@@ -52,7 +52,7 @@ static void delay_ms(uint32_t delay)
  */
 int main(void)
 {     
-    uint8_t i;
+    uint32_t i = 0;
     /* Init board hardware. */
     BOARD_InitPins();
     BOARD_BootClockRUN();
@@ -68,6 +68,10 @@ int main(void)
     }         
     
     gpio_init();
+    LED_RED_ERROR_OFF();    
+    LED_YELLOW_BUSY_OFF();  
+    LED_GREEN_PASS_OFF(); 
+    
 //    es_set_trget_power(TRGET_POWER_3V3);
     bsp_init_systick();  
     usbd_init();                          /* USB Device Initialization          */
@@ -84,8 +88,11 @@ int main(void)
         }  
         else
         {
-            if(i++ % 10)
-                LED_RED_ERROR_TOGGLE();                          
+            if(i++ == 100)
+            {
+                LED_RED_ERROR_TOGGLE();            
+                i = 0;
+            }                                
             delay_ms(10);   //for USB ack  
         }                 
     }

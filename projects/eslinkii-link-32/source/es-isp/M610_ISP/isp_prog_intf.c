@@ -765,8 +765,7 @@ static error_t read_save_info1(uint8_t *data)
 	uint32_t i = 0;	
 	for(i=0;i<3;i++)
 	{
-		ret = isp_prog_read_config(CHIP_INFO1_ADDR,data,CHIP_INFO1_SIZE);
-        if(ERROR_SUCCESS == ret)
+        if(isp_read_config(CHIP_INFO1_ADDR, (uint32_t*)data, CHIP_INFO1_SIZE/4) == TRUE)
         {
             ret = isp_prog_verify_config(CHIP_INFO1_ADDR,data,CHIP_INFO1_SIZE, NULL, NULL); 
             if(ERROR_SUCCESS == ret)
@@ -777,7 +776,7 @@ static error_t read_save_info1(uint8_t *data)
                     (data[248] ==(isp_target_dev->chipid_value & 0x000000FF))   ) 
                 break; 
             }          
-        }	
+        }
 	}
 	if(i>=3) 
 		return ERROR_ISP_CFG_WORD_VERIFY;

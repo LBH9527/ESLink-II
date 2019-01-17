@@ -123,8 +123,7 @@ static error_t isp_prog_uninit(void)
     isp_out_mode();
     if(isp_mode_check() != TRUE)
         return  ERROR_SUCCESS;
-//        isp_set_target_reset(0);
-//        PORT_ISP_OFF();  
+
     return ERROR_OUT_ISP_MODE;
 }   
 
