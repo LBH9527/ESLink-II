@@ -1,7 +1,7 @@
 #include "eslink.h" 
 #include "main.h" 
 #include "es_debug.h" 
-#include "settings_spi_flash.h"
+#include "sflash_port.h"
 #include "isp_prog_intf.h"   
 #include "settings_rom.h"
 #include "update.h" 
@@ -145,7 +145,7 @@ error_t download_userhex(uint8_t *data)
         ret = isp_prog_intf.erase_chip(0);
         if( ERROR_SUCCESS != ret)
             return ERR_ERASE;
-        ret = isp_prog_intf.program_config_word( dbg_target_device.config_word_start, (uint8_t*)config, dbg_target_device.config_word_size, &failaddr);
+//        ret = isp_prog_intf.program_config_word( dbg_target_device.config_word_start, (uint8_t*)config, dbg_target_device.config_word_size, &failaddr);
         if( ERROR_SUCCESS != ret)
             return ERR_ERASE;
         flash_initialized = true;
@@ -165,7 +165,7 @@ error_t download_userhex(uint8_t *data)
 error_t download_userhex_end(void)
 {    
     error_t ret = ERROR_SUCCESS;
-    ret = isp_prog_intf.chipid_check(); //判断chipid
+//    ret = isp_prog_intf.chipid_check(); //判断chipid
     isp_prog_intf.prog_uninit();        //退出isp模式
     if(ERROR_SUCCESS != ret)
         return  ERR_CHIP_ID_NOT_MATCH;

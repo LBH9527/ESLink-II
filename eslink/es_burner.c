@@ -8,7 +8,13 @@
 #include "eeprom_port.h"
 #include "offline_file.h"
 #include "isp_prog_intf.h" 
+#include "target_program_config.h"  
+#if ESLINK_SWD_ENABLE
 #include "swd_prog_intf.h"
+#endif
+#if ESLINK_BOOTISP_ENABLE
+#include "bootisp_prog_intf.h"
+#endif
 
 #if ESLINK_RTC_ENABLE
 #include "rtc_calibrate.h"  
@@ -52,20 +58,28 @@ error_t es_prog_set_intf(prog_intf_type_t type)
 {
     if(PRG_INTF_ISP == type )
     {
-         online_prog_intf =  &isp_prog_intf;    
-    }
+         online_prog_intf =  &isp_prog_intf; 
+         online_prog_intf->init(&es_target_device);   
+    }      
+#if ESLINK_SWD_ENABLE
     else if (PRG_INTF_SWD ==  type )
     {
-//         online_prog_intf =  &swd_prog_intf; 
+         online_prog_intf =  &swd_prog_intf; 
+         online_prog_intf->init(&es_target_device);
     }
+#endif
+#if ESLINK_BOOTISP_ENABLE
     else if ( PRG_INTF_BOOTISP == type)
     {
-    
+         online_prog_intf =  &bootisp_prog_intf; 
+         online_prog_intf->init(&es_target_device);
     } 
+#endif
     else
     {
         return ERROR_PROG_INTF;
     }
+    
     return ERROR_SUCCESS;
 
 }
@@ -77,15 +91,18 @@ static error_t es_prog_get_intf(uint8_t *data)
     {
         type = PRG_INTF_ISP;
     }
-//    else if(online_prog_intf ==  &swd_prog_intf)
-//    {
-//        type = PRG_INTF_SWD;
-//    }
-//    else if(online_prog_intf ==  &isp_prog_intf)
-//    {
-//    
-//    
-//    }
+#if ESLINK_SWD_ENABLE
+    else if(online_prog_intf ==  &swd_prog_intf)
+    {
+        type = PRG_INTF_SWD;
+    }
+#endif
+#if ESLINK_BOOTISP_ENABLE
+    else if(online_prog_intf ==  &isp_prog_intf)
+    {
+        type = PRG_INTF_BOOTISP;      
+    }
+#endif
     else
     {
           return ERROR_PROG_INTF;
@@ -234,7 +251,6 @@ static error_t es_download_config_word_end(uint8_t *data)
     //TODO:
     //实现CRC校验
     return ret;   
-
 }
 
 /*
@@ -1338,17 +1354,14 @@ uint32_t prog_process_command(uint8_t *request, uint8_t *response)
 *	形    参: 无
 *	返 回 值: 无
 *******************************************************************************/
-error_t es_burner_init(prog_intf_type_t type)
+error_t es_burner_init(void)
 {    
     error_t ret;
 	get_target_info((uint8_t*)&es_target_device);       //获取目标芯片信息
-	ret = es_prog_set_intf(type);                       //上电后默认是ISP编程
-	online_prog_intf->init(&es_target_device);
+	ret = es_prog_set_intf(ESLINK_ONLINE_DEFAULT_INTF);                       //上电后默认是ISP编程
+//    es_prog_set_intf(PRG_INTF_SWD);
 	ISP_SETUP();
 //	PORT_ISP_SETUP();   
-
-//    swd_test();
-
     return ret;       
 }
 

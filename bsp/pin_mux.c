@@ -22,16 +22,6 @@ void BOARD_InitPins(void)
     /* PORTA0 (pin 22) is configured as JTAG_TCLK */
     PORT_SetPinMux(PORTA, 0U, kPORT_MuxAlt7);
 
-    /* PORTA1 (pin 23) is configured as PTA1 */
-    PORT_SetPinMux(PIN_KEY0_PORT, PIN_KEY0_BIT, kPORT_MuxAsGpio);
-
-    PORTA->PCR[1] = ((PORTA->PCR[1] &
-                      /* Mask bits to zero which are setting */
-                      (~(PORT_PCR_PE_MASK | PORT_PCR_ISF_MASK)))
-
-                     /* Pull Enable: Internal pullup or pulldown resistor is not enabled on the corresponding pin. */
-                     | PORT_PCR_PE(kPORT_PullDisable));
-
     /* PORTA12 (pin 28) is configured as gpio */
     PORT_SetPinMux(PIN_RTC_OUT_PORT, PIN_RTC_OUT_BIT, kPORT_MuxAsGpio);
 
@@ -44,78 +34,14 @@ void BOARD_InitPins(void)
     /* PORTA19 (pin 33) is configured as XTAL0 */
     PORT_SetPinMux(PORTA, 19U, kPORT_PinDisabledOrAnalog);
 
-
-
-    PORTA->PCR[2] = ((PORTA->PCR[2] &
-                      /* Mask bits to zero which are setting */
-                      (~(PORT_PCR_PE_MASK | PORT_PCR_ISF_MASK)))
-
-                     /* Pull Enable: Internal pullup or pulldown resistor is not enabled on the corresponding pin. */
-                     | PORT_PCR_PE(kPORT_PullDisable));
-
     /* PORTA3 (pin 25) is configured as JTAG_TMS */
     PORT_SetPinMux(PORTA, 3U, kPORT_MuxAlt7);
 
-//    /* PORTA4 (pin 26) is configured as PTA4 */
-//    PORT_SetPinMux(BOARD_KEY1_PORT, BOARD_KEY1_PIN, kPORT_MuxAsGpio);
-
-    PORTA->PCR[4] = ((PORTA->PCR[4] &
-                      /* Mask bits to zero which are setting */
-                      (~(PORT_PCR_PE_MASK | PORT_PCR_ISF_MASK)))
-
-                     /* Pull Enable: Internal pullup or pulldown resistor is not enabled on the corresponding pin. */
-                     | PORT_PCR_PE(kPORT_PullDisable));
-
-    /* PORTA5 (pin 27) is configured as PTA5 */
-    PORT_SetPinMux(LED_G_PASS_PORT, LED_G_PASS_PIN, kPORT_MuxAsGpio);
-
-    PORTA->PCR[5] = ((PORTA->PCR[5] &
-                      /* Mask bits to zero which are setting */
-                      (~(PORT_PCR_PE_MASK | PORT_PCR_ISF_MASK)))
-
-                     /* Pull Enable: Internal pullup or pulldown resistor is enabled on the corresponding pin. */
-                     | (uint32_t)(PORT_PCR_PE_MASK));
-
-//    /* PORTB0 (pin 35) is configured as I2C0_SCL */
-//    PORT_SetPinMux(PORTB, 0U, kPORT_MuxAlt2);
-//    /* PORTB1 (pin 36) is configured as I2C0_SDA */
-//    PORT_SetPinMux(PORTB, 1U, kPORT_MuxAlt2);
-    /* PORTB19 (pin 42) is configured as PTB19 */
-    PORT_SetPinMux(PIN_OLED_CS_PORT, PIN_OLED_CS_BIT, kPORT_MuxAsGpio);
-
-    /* PORTB18 (pin 41) is configured as PTB18 */
-    PORT_SetPinMux(PIN_OLED_RST_PORT, PIN_OLED_RST_BIT, kPORT_MuxAsGpio);
-
-    /* PORTB2 (pin 37) is configured as PTB2 */
-    PORT_SetPinMux(LED_R_ERROR_PORT, LED_R_ERROR_PIN, kPORT_MuxAsGpio);
-    /* PORTB3 (pin 38) is configured as PTB3 */
-    PORT_SetPinMux(LED_Y_BUSY_PORT, LED_Y_BUSY_PIN, kPORT_MuxAsGpio);
-
-    /* PORTB16 (pin 39) is configured as FTM_CLKIN0 */
-    PORT_SetPinMux(PORTB, 16U, kPORT_MuxAlt4);
-    
+    /* PORTB17 (pin 40) is configured as FTM_CLKIN1 */
     PORT_SetPinMux(PORTB, 17U, kPORT_MuxAlt4);
     
     /* PORTC0 (pin 43) is configured as ADC0_SE14 */
     PORT_SetPinMux(PORTC, 0U, kPORT_PinDisabledOrAnalog);
-
-    /* PORTC10 (pin 55) is configured as PTC10 */
-    PORT_SetPinMux(PIN_CTL_PORT, PIN_CTL_BIT, kPORT_MuxAsGpio);
-
-    /* PORTC2 (pin 45) is configured as PTC2 */
-    PORT_SetPinMux(PIN_OLED_SCK_PORT, PIN_OLED_SCK_BIT, kPORT_MuxAsGpio);
-
-    /* PORTC3 (pin 46) is configured as PTC3 */
-    PORT_SetPinMux(PIN_OLED_SDA_PORT, PIN_OLED_SDA_BIT, kPORT_MuxAsGpio);
-
-    /* PORTC4 (pin 49) is configured as PTC4 */
-//    PORT_SetPinMux(PIN_RST_PORT, PIN_RST_BIT, kPORT_MuxAsGpio);
-
-    /* PORTC8 (pin 53) is configured as PTC8 */
-    PORT_SetPinMux(PIN_ISPSCK_NOE_PORT, PIN_ISPSCK_NOE_BIT, kPORT_MuxAsGpio);
-
-    /* PORTC9 (pin 54) is configured as PTC9 */
-    PORT_SetPinMux(PIN_SWDIO_NOE_PORT, PIN_SWDIO_NOE_BIT, kPORT_MuxAsGpio);
 
     /* PORTD0 (pin 57) is configured as PTD0 */
     PORT_SetPinMux(PIN_SELECT_5V_PORT, PIN_SELECT_5V_BIT, kPORT_MuxAsGpio);
@@ -124,11 +50,7 @@ void BOARD_InitPins(void)
     PORT_SetPinMux(PIN_SELECT_3V3_PORT, PIN_SELECT_3V3_BIT, kPORT_MuxAsGpio);
 
     /* PORTD2 (pin 59) is configured as UART2_RX */
-//    PORT_SetPinMux(PORTD, 2U, kPORT_MuxAlt3);
     PORT_SetPinMux(PIN_SWO_PORT, PIN_SWO_BIT, kPORT_MuxAsGpio);
-    
-    /* PORTD3 (pin 60) is configured as PTD3 */
-    PORT_SetPinMux(BEEP_PORT, BEEP_PIN, kPORT_MuxAsGpio);
 
     /* PORTD4 (pin 61) is configured as SPI1_PCS0 */
     PORT_SetPinMux(PORTD, 4U, kPORT_MuxAsGpio);
@@ -142,28 +64,29 @@ void BOARD_InitPins(void)
     /* PORTD7 (pin 64) is configured as SPI1_SIN */
     PORT_SetPinMux(PORTD, 7U, kPORT_MuxAlt7);
 
-//    /* PORTE0 (pin 1) is configured as UART1_TX */
-//    PORT_SetPinMux(PORTE, 0U, kPORT_MuxAlt3);
+//    SIM->SOPT4 = ((SIM->SOPT4 &
+//                   /* Mask bits to zero which are setting */
+//                   (~(SIM_SOPT4_FTM1CH0SRC_MASK | SIM_SOPT4_FTM1CLKSEL_MASK)))
 
-//    /* PORTE1 (pin 2) is configured as UART1_RX */
-//    PORT_SetPinMux(PORTE, 1U, kPORT_MuxAlt3);
+//                  /* FTM1 channel 0 input capture source select: FTM1_CH0 signal. */
+//                  | SIM_SOPT4_FTM1CH0SRC(SOPT4_FTM1CH0SRC_FTM)
+
+//                  /* FTM1 External Clock Pin Select: FTM_CLK0 pin. */
+//                  | SIM_SOPT4_FTM1CLKSEL(SOPT4_FTM1CLKSEL_CLK0));
 
     SIM->SOPT4 = ((SIM->SOPT4 &
                    /* Mask bits to zero which are setting */
-                   (~(SIM_SOPT4_FTM1CH0SRC_MASK | SIM_SOPT4_FTM1CLKSEL_MASK)))
+                   (~(SIM_SOPT4_FTM1CLKSEL_MASK)))
 
-                  /* FTM1 channel 0 input capture source select: FTM1_CH0 signal. */
-                  | SIM_SOPT4_FTM1CH0SRC(SOPT4_FTM1CH0SRC_FTM)
+                  /* FTM1 External Clock Pin Select: FTM_CLK1 pin. */
+                  | SIM_SOPT4_FTM1CLKSEL(SOPT4_FTM1CLKSEL_CLK1));
+//    SIM->SOPT5 = ((SIM->SOPT5 &
+//                   /* Mask bits to zero which are setting */
+//                   (~(SIM_SOPT5_UART1TXSRC_MASK)))
 
-                  /* FTM1 External Clock Pin Select: FTM_CLK0 pin. */
-                  | SIM_SOPT4_FTM1CLKSEL(SOPT4_FTM1CLKSEL_CLK0));
+//                  /* UART 1 transmit data source select: UART1_TX pin. */
+//                  | SIM_SOPT5_UART1TXSRC(SOPT5_UART1TXSRC_UART_TX));
 
-    SIM->SOPT5 = ((SIM->SOPT5 &
-                   /* Mask bits to zero which are setting */
-                   (~(SIM_SOPT5_UART1TXSRC_MASK)))
-
-                  /* UART 1 transmit data source select: UART1_TX pin. */
-                  | SIM_SOPT5_UART1TXSRC(SOPT5_UART1TXSRC_UART_TX));
 }
 /***********************************************************************************************************************
  * EOF

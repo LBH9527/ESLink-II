@@ -144,7 +144,7 @@ extern "C" {
 
 //BEEP  PORTC1 (number 44) 
 #define BEEP_PORT               PORTC 
-#define BEEP_GPIO               GPIOC 
+#define BEEP_GPIO               PTC 
 #define BEEP_PIN                1   
 
 /******************************************************************************/

@@ -242,8 +242,6 @@ sf_err sf_page_write(uint32_t addr,const uint8_t * _pBuf, uint32_t _usSize)
 {
 	uint32_t i;
     
-    if( (addr&0xFF) != 0 )
-        return SF_ERR_ADDR_OUT_BOUND;
     sf_write_enable();		
     /* 发送写使能命令 */
     sf_wait_busy();	
@@ -253,7 +251,9 @@ sf_err sf_page_write(uint32_t addr,const uint8_t * _pBuf, uint32_t _usSize)
     flash_send_byte((addr & 0xFF00) >> 8);		/* 发送扇区地址中间8bit */
     flash_send_byte(addr & 0xFF);				/* 发送扇区地址低8bit */ 
     
-    for (i = 0; i < FLASH_PAGE_SIZE; i++)
+    if( _usSize > FLASH_PAGE_SIZE)
+        _usSize =  FLASH_PAGE_SIZE;
+    for (i = 0; i < _usSize; i++)
     {
         flash_send_byte(*_pBuf);					/* 发送数据 */
         _pBuf++;
@@ -361,45 +361,117 @@ sf_err sf_erase_block_32K(uint32_t offset, uint32_t length)
 
 /*******************************************************************************
 *	函 数 名: spi_flash_write
-*	功能说明: 对FLASH写入数据，函数自动完成擦除工作
+*	功能说明: 对FLASH写入数据，在写入前需要先擦除
 *	形    参:  	_pBuf : 数据源缓冲区；
 *				_uiWrAddr ：目标区域首地址
 *				_usSize ：数据个数，不能超过页面大小
 *	返 回 值: 1 : 成功， 0 ： 失败
 *******************************************************************************/
-sf_err spi_flash_write( uint32_t _uiWriteAddr, const uint8_t* _pBuf,uint32_t _usWriteSize)
+//sf_err spi_flash_write( uint32_t _uiWriteAddr, const uint8_t* _pBuf,uint32_t _usWriteSize)
+//{
+//	uint32_t NumOfPage = 0, NumOfSingle = 0;
+//    
+//    
+//	if(_uiWriteAddr % FLASH_PAGE_SIZE != 0)     /* 起始地址是页面首地址  */
+//        return SF_ERR_ADDR_OUT_BOUND;
+//	NumOfPage =  _usWriteSize / FLASH_PAGE_SIZE;
+//    NumOfSingle = _usWriteSize % FLASH_PAGE_SIZE;
+//    if (NumOfPage == 0) /* 数据长度小于页面大小 */
+//    {
+//        if (sf_page_write( _uiWriteAddr,_pBuf, _usWriteSize ) != SF_SUCCESS)
+//            return SF_ERR_WRITE;
+//    }
+//    else 	/* 数据长度大于等于页面大小 */
+//    {
+//        while (NumOfPage--)
+//        {
+//            if (sf_page_write( _uiWriteAddr, _pBuf, FLASH_PAGE_SIZE) != SF_SUCCESS)
+//                return SF_ERR_WRITE;
+//            _uiWriteAddr +=  FLASH_PAGE_SIZE;
+//            _pBuf += FLASH_PAGE_SIZE;
+//        }
+//        if( NumOfSingle != 0)
+//        {
+//            if (sf_page_write( _uiWriteAddr, _pBuf, NumOfSingle) != SF_SUCCESS)
+//                return SF_ERR_WRITE;
+//        }
+//        
+//    }
+//	
+//	return SF_SUCCESS;	/* 成功 */
+//}
+
+sf_err spi_flash_write( uint32_t WriteAddr, uint8_t* pBuffer, uint32_t NumByteToWrite)
 {
-	uint32_t NumOfPage = 0, NumOfSingle = 0;
+    uint32_t NumOfPage = 0, NumOfSingle = 0, Addr = 0, count = 0, temp = 0;
 
-	if(_uiWriteAddr % FLASH_PAGE_SIZE != 0)     /* 起始地址是页面首地址  */
-        return SF_ERR_ADDR_OUT_BOUND;
-	NumOfPage =  _usWriteSize / FLASH_PAGE_SIZE;
-    NumOfSingle = _usWriteSize % FLASH_PAGE_SIZE;
-    if (NumOfPage == 0) /* 数据长度小于页面大小 */
+    Addr = WriteAddr % FLASH_PAGE_SIZE;
+    count = FLASH_PAGE_SIZE - Addr;
+    NumOfPage =  NumByteToWrite / FLASH_PAGE_SIZE;
+    NumOfSingle = NumByteToWrite % FLASH_PAGE_SIZE;
+
+    if (Addr == 0) /* WriteAddr is SPI_FLASH_PageSize aligned  */
     {
-        if (sf_page_write( _uiWriteAddr,_pBuf, _usWriteSize ) != SF_SUCCESS)
-            return SF_ERR_WRITE;
+        if (NumOfPage == 0) /* NumByteToWrite < SPI_FLASH_PageSize */
+        {
+            sf_page_write( WriteAddr, pBuffer, NumByteToWrite);
+        }
+        else /* NumByteToWrite > SPI_FLASH_PageSize */
+        {
+            while (NumOfPage--)
+            {
+                sf_page_write( WriteAddr, pBuffer, FLASH_PAGE_SIZE);
+                WriteAddr +=  FLASH_PAGE_SIZE;
+                pBuffer += FLASH_PAGE_SIZE;
+            }
+
+            sf_page_write(WriteAddr, pBuffer, NumOfSingle);
+        }
     }
-    else 	/* 数据长度大于等于页面大小 */
+    else /* WriteAddr is not SPI_FLASH_PageSize aligned  */
     {
-        while (NumOfPage--)
+        if (NumOfPage == 0) /* NumByteToWrite < SPI_FLASH_PageSize */
         {
-            if (sf_page_write( _uiWriteAddr, _pBuf, FLASH_PAGE_SIZE) != SF_SUCCESS)
-                return SF_ERR_WRITE;
-            _uiWriteAddr +=  FLASH_PAGE_SIZE;
-            _pBuf += FLASH_PAGE_SIZE;
+            if (NumOfSingle > count) /* (NumByteToWrite + WriteAddr) > SPI_FLASH_PageSize */
+            {
+                temp = NumOfSingle - count;
+
+                sf_page_write( WriteAddr, pBuffer, count);
+                WriteAddr +=  count;
+                pBuffer += count;
+
+                sf_page_write( WriteAddr, pBuffer, temp);
+            }
+            else
+            {
+                sf_page_write( WriteAddr, pBuffer, NumByteToWrite);
+            }
         }
-        if( NumOfSingle != 0)
+        else /* NumByteToWrite > SPI_FLASH_PageSize */
         {
-            if (sf_page_write( _uiWriteAddr, _pBuf, NumOfSingle) != SF_SUCCESS)
-                return SF_ERR_WRITE;
+            NumByteToWrite -= count;
+            NumOfPage =  NumByteToWrite / FLASH_PAGE_SIZE;
+            NumOfSingle = NumByteToWrite % FLASH_PAGE_SIZE;
+
+            sf_page_write( WriteAddr, pBuffer, count);
+            WriteAddr +=  count;
+            pBuffer += count;
+
+            while (NumOfPage--)
+            {
+                sf_page_write( WriteAddr, pBuffer, FLASH_PAGE_SIZE);
+                WriteAddr +=  FLASH_PAGE_SIZE;
+                pBuffer += FLASH_PAGE_SIZE;
+            }
+
+            if (NumOfSingle != 0)
+            {
+                sf_page_write( WriteAddr, pBuffer, NumOfSingle);
+            }
         }
-        
     }
-	
-	return SF_SUCCESS;	/* 成功 */
+    return SF_SUCCESS;	/* 成功 */
 }
-
 
 /*
 ********************************************************************************

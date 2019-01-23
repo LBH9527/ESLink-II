@@ -7,7 +7,10 @@
 #include "offline_app.h"
 #include "eeprom_port.h"
 #include "menu.h"
+
+#if ESLINK_RTC_ENABLE   
 #include "rtc_calibrate.h"
+#endif
 
 static struct es_prog_ops *ofl_prog_intf;   //脱机编程接口
 static es_target_cfg ofl_target_device;     //目标芯片信息    

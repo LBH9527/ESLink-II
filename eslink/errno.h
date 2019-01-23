@@ -99,15 +99,17 @@ typedef enum {
     ERROR_OFL_EXIT = 0X84,                      //脱机工程已存在  the file is existing.
     ERROR_OFL_DELETE = 0x85,                    //工程删除失败
     //------------------------------
-    ERROR_OFL_NUM_OVERSTEP = 0x85,          //脱机文件超过支持的最大文件数
-    ERROR_OFL_DATA_FORMAT = 0x86,           //脱机文件数据格式错误，此脱机方案数据出错
-    ERROR_OFL_DECODE = 0x87,                //脱机文件解析失败
+    ERROR_OFL_NUM_OVERSTEP = 0x86,          //脱机文件超过支持的最大文件数
+    ERROR_OFL_DATA_FORMAT = 0x87,           //脱机文件数据格式错误，此脱机方案数据出错
+    ERROR_OFL_DECODE = 0x88,                //脱机文件解析失败
     //RTC
     
     ERROR_RTC_CALI_START = 0x90,            //调教前编程失败
     ERROR_RTC_CALI_TIMEOUT = 0x91,            //调教超时，没有符合要求得脉冲 
     ERROR_RTC_CALI_PROG = 0x92,             //RTC编程失败
     ERROR_RTC_CALI_VERIFY = 0x93,           //RTC验证失败
+    ERROR_RTC_SELF_CAIL = 0X94,             //rtc未自校正
+    ERROR_RTC_DATA_FORMAT = 0X95,              //rtc数据格式错误____NEW
     //DEBUG
     ERR_FRAME_HEAD    = 0xA0,
     ERR_DEVICE_TYPE   = 0xA1,
