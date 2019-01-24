@@ -22,13 +22,9 @@
 #include "string.h"  
 #include "swd_target_config.h"
 #include "swd_target_reset.h"
-//#include "gpio.h"
-//#include "validation.h"
 #include "swd_target_config.h"
-//#include "intelhex.h"
 #include "swd_host.h"
 #include "swd_flash_intf.h"
-//#include "util.h"
 #include "target_program_config.h"
 #include "es_common.h"
 

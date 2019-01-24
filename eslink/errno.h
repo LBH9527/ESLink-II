@@ -90,6 +90,7 @@ typedef enum {
     ERROR_BOOTISP_CHECK_EMPTY = 0x73,           //bootisp查空失败     
     ERROR_BOOTISP_PROG      = 0x74,             //bootisp编程失败
     ERROR_BOOTISP_PROG_CFG_WORD = 0x75,         //bootisp编程失败
+    ERROR_BOOTISP_READ     = 0x76,            //bootisp写失败____NEW
     
     //脱机
     ERROR_PROG_INTF = 0x80,                     //烧录接口设置错误  

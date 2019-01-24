@@ -620,8 +620,8 @@ void USB0_IRQHandler(void)
     UsbSuspended |= suspended ? 1 : 0;
     USB0->ISTAT = istat;
 
-//    USBD_SignalHandler();
-    USBD_Handler();
+    USBD_SignalHandler();
+//    USBD_Handler();
 }
 
 /*

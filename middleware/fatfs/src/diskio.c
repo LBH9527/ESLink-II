@@ -25,7 +25,7 @@ DSTATUS disk_initialize (
 	switch (pdrv) {
 
 		case FS_SPI_FLASH :
-            if( sf_read_info() != 1)
+            if( sf_read_info() != SF_SUCCESS)
                 return STA_NOINIT;
 
             // translate the reslut code here

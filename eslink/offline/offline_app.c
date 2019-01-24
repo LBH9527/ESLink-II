@@ -8,20 +8,31 @@
 #include "eeprom_port.h"
 #include "menu.h"
 
-#if ESLINK_RTC_ENABLE   
-#include "rtc_calibrate.h"
+#if ESLINK_SWD_ENABLE
+#include "swd_prog_intf.h"
 #endif
+#if ESLINK_BOOTISP_ENABLE
+#include "bootisp_prog_intf.h"
+#endif
+
+#if ESLINK_RTC_ENABLE
+#include "rtc_calibrate.h"  
+#endif
+
+typedef uint8_t (* program_start)(void );                                   
+program_start  ofl_prog_start;  
 
 static struct es_prog_ops *ofl_prog_intf;   //脱机编程接口
 static es_target_cfg ofl_target_device;     //目标芯片信息    
 static ofl_prj_info_t ofl_prj_info;         //脱机方案信息
-static ofl_serial_number_t sn_info;                //序列号信息
+static ofl_serial_number_t sn_info;         //序列号信息
 //更新序列号
 static error_t  update_serial_number_8bit(uint64_t sn_data, uint8_t *buf, uint8_t size);
 static error_t  update_serial_number_32bit(uint64_t sn_data, uint8_t *buf, uint8_t size);
 static error_t  get_serial_number_8bit(uint64_t *sn_data, uint8_t *buf, uint8_t size);
 static error_t  get_serial_number_32bit(uint64_t *sn_data, uint8_t *buf, uint8_t size);
-
+static uint8_t ofl_machine_start(void);
+static uint8_t ofl_auto_check_start(void);
 /*******************************************************************************
 *	函 数 名: ofl_prog_init
 *	功能说明: 脱机编程初始化
@@ -31,11 +42,10 @@ static error_t  get_serial_number_32bit(uint64_t *sn_data, uint8_t *buf, uint8_t
 ofl_error_t ofl_prog_init(uint8_t mode)
 {
     ofl_error_t ret = OFL_SUCCESS;
-    prog_intf_type_t type;
+    prog_intf_type_t type;     
     
     PORT_ISP_SETUP();
-    ISP_SETUP();
-    
+    ISP_SETUP();     
     if(mode == OFFLINE_PROG_PLUS_MODE)
     {           
         //获取方案信息
@@ -48,25 +58,54 @@ ofl_error_t ofl_prog_init(uint8_t mode)
     {
         type = OFFLINE_PROG_MINI_DEFAULT_INTF;
     }
-    
+//烧录接口    
     if(PRG_INTF_ISP ==  type)
-        ofl_prog_intf = &isp_prog_intf;   
+        ofl_prog_intf = &isp_prog_intf; 
+#if ESLINK_SWD_ENABLE        
     else if (PRG_INTF_SWD ==  type )
-          ;
+       ofl_prog_intf = &swd_prog_intf;   
+#endif
+#if ESLINK_BOOTISP_ENABLE
     else if ( PRG_INTF_BOOTISP == type)
-          ;
+       ofl_prog_intf = &bootisp_prog_intf;  
+#endif
     else
     {
         //todo 接口类型错误
         return OFL_ERR_PROG_INTF;       
     }  
+
     //获取目标芯片信息
     get_target_info((uint8_t*)&ofl_target_device);         
     //烧录接口初始化
     ofl_prog_intf->init(&ofl_target_device); 
-     
+
+//启动烧写的方式
+    if(OFL_PROG_START_MACHINE_MODE == sn_info.start_mode )    //自动检测
+          ofl_prog_start = ofl_machine_start;
+//    else if(OFL_PROG_START_KEY_MODE == sn_info.start_mode）
+//        ;
+    else
+        ofl_prog_start = ofl_auto_check_start;
+
+    
     return ret;
 }
+
+//脱机启动/退出信号 ----外部机台触发
+uint8_t ofl_machine_start(void)
+{
+    if( gpio_start_in_low() != 1)
+        return  TRUE;
+    return FALSE;
+}
+//脱机启动/退出信号 ----自动检测
+uint8_t ofl_auto_check_start(void)
+{
+    if(ofl_prog_intf->prog_init() != ERROR_SUCCESS) 
+        return FALSE;
+    return TRUE;
+}  
 
 /*******************************************************************************
 *	函 数 名: ofl_in_prog_mode
@@ -76,36 +115,18 @@ ofl_error_t ofl_prog_init(uint8_t mode)
 *******************************************************************************/
 uint8_t ofl_in_prog_mode(void)
 {
-    static uint8_t check_time = 0;
-    
-    //外部触发
-    if(OFL_PROG_START_MACHINE_MODE == sn_info.start_mode )    //自动检测
+    static uint8_t check_time = 0;      
+
+    if( ofl_prog_start() != TRUE)    
     {
-        if( ofl_start_in_low() != 1)    //按键按下
-        {
-            check_time = 0;  
-        }
-        else
-        {
-            es_delay_ms(20);
-            if(check_time ++ >= PROG_MODE_CHECK_TIME )
-                return TRUE; 
-        }         
-    } 
-    else
-    {      
-        if(ofl_prog_intf->prog_init() != ERROR_SUCCESS)        //连续检测5次OK，间隔20ms ，表示进入检测到了芯片    
-        {
-            check_time = 0;          
-        }
-        else
-        {
-            es_delay_ms(20);
-            if(check_time ++ >= PROG_MODE_CHECK_TIME )
-                return TRUE;        
-        }      
+        check_time = 0;  
     }
-    
+    else
+    {
+        es_delay_ms(20);
+        if(check_time ++ >= PROG_MODE_CHECK_TIME )
+            return TRUE; 
+    }  
     return FALSE;    
 }
 /*******************************************************************************
@@ -117,34 +138,17 @@ uint8_t ofl_in_prog_mode(void)
 uint8_t ofl_out_prog_mode(void)
 {
     static uint8_t check_time = 0;
-    
-    //外部触发
-    if(OFL_PROG_START_MACHINE_MODE == sn_info.start_mode )    //自动检测
+       
+    if( ofl_prog_start() == TRUE)        //连续检测5次OK，间隔20ms ，表示进入检测到了芯片    
     {
-        if( ofl_start_in_low() != 0)    //按键弹起
-        {
-            check_time = 0;  
-        }
-        else
-        {
-            es_delay_ms(20);
-            if(check_time ++ >= PROG_MODE_CHECK_TIME )
-                return TRUE; 
-        }           
-    } 
-    else
-    {      
-        if(ofl_prog_intf->prog_init() == ERROR_SUCCESS)        //连续检测5次OK，间隔20ms ，表示进入检测到了芯片    
-        {
-            check_time = 0;          
-        }
-        else
-        {
-            es_delay_ms(20);
-            if(check_time ++ >= PROG_MODE_CHECK_TIME )
-                return TRUE;        
-        }      
+        check_time = 0;          
     }
+    else
+    {
+        es_delay_ms(20);
+        if(check_time ++ >= PROG_MODE_CHECK_TIME )
+            return TRUE;        
+    }   
     
     return FALSE;   
 }

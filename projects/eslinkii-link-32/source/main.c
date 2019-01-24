@@ -54,8 +54,8 @@ uint32_t  task_flags = 0;
 
 #define FLAGS_GUI_REFRESH       (1 << 3) 
 #define FLAGS_RTC_OUT           (1 << 4)        //RTC自校正
-#define FLAGS_RTC_HANDLER       (1 << 5)            
-
+          
+#define FLAGS_USB_HANDLER           (1 << 15)        //RTC自校正
 ///*******************************************************************************
 //							函数声明
 //*******************************************************************************/
@@ -65,6 +65,13 @@ void oline_mini_app(void);
 void ofl_mini_app(void);
 
 extern void cdc_process_event(void);
+
+void USBD_SignalHandler(void)
+{
+    flag_send(task_flags, FLAGS_USB_HANDLER);
+}
+
+
 // Start CDC processing
 void main_cdc_send_event(void)
 {
@@ -86,14 +93,6 @@ void main_reset_target(uint8_t send_unique_id)
     flag_send(task_flags, FLAGS_MAIN_RESET_TARGET);
     return;
 }
-// Flash CDC LED using 30mS tick
-void main_blink_cdc_led(main_led_state_t state)
-{
-//    cdc_led_usb_activity = 1;
-//    cdc_led_state = state;
-    return;
-} 
-
 void gui_refresh(void)
 {
     flag_send(task_flags, FLAGS_GUI_REFRESH);
@@ -123,10 +122,6 @@ int main (void)
     key_init();              
     spi_flash_init();     
     
-//LED_RED_ERROR_ON();
-//LED_RED_ERROR_OFF();
-//LED_YELLOW_BUSY_ON(); 
-//LED_YELLOW_BUSY_OFF(); 
     LED_GREEN_ON();
     
     if(eslink_is_mini() != TRUE)
@@ -163,25 +158,34 @@ void oline_app(void)
     menu_init(MENU_ONLINE_MODE);   //联机
     menu_display(); 
             
-    DAP_Setup();       
- 
+    DAP_Setup();  
     usbd_init();                        /* USB Device Initialization          */
     usbd_connect(1);                    /* USB Device Connect                 */
-
-    // Update versions and IDs
-    //    info_init();    
-    es_burner_init(PRG_INTF_ISP);  //上电默认ISp烧录 
+   
+    es_burner_init();  
     while (1) 
     {    
-        // 检测usb是否联机
-        if(!usbd_configured () )
-        {
-            //未联机
-            bsp_delay_ms(10); 
-        }
-        else
+//        // 检测usb是否联机
+//        if(!usbd_configured () )
+//        {
+//            //未联机
+//            USBD_Handler();
+//            bsp_delay_ms(10); 
+//        }
+//        else
         {
             //usb已经联机
+            if( flag_recv(task_flags, FLAGS_USB_HANDLER) )
+            {
+                flag_clr(task_flags, FLAGS_USB_HANDLER);
+                USBD_Handler();
+            }
+            if(!usbd_configured () )  // 检测usb是否联机
+            {
+//                usbd_connect(0);
+                bsp_delay_ms(10); 
+                usbd_connect(1);
+            }
             if( flag_recv(task_flags, FLAGS_MAIN_RESET) )
             {
                 flag_clr(task_flags, FLAGS_MAIN_RESET);
@@ -356,16 +360,16 @@ void oline_mini_app(void)
  
     usbd_init();                        /* USB Device Initialization          */
     usbd_connect(1);                    /* USB Device Connect                 */
-    es_burner_init(PRG_INTF_ISP);       //上电默认ISp烧录 
+    es_burner_init();        
     while (1) 
     {    
-        // 检测usb是否联机
-        if(!usbd_configured () )
-        {
-            //未联机
-            bsp_delay_ms(10); 
-        }
-        else
+//        // 检测usb是否联机
+//        if(!usbd_configured () )
+//        {
+//            //未联机
+//            bsp_delay_ms(10); 
+//        }
+//        else
         {
             //usb已经联机
             if( flag_recv(task_flags, FLAGS_MAIN_RESET) )
@@ -376,6 +380,13 @@ void oline_mini_app(void)
                 bsp_delay_ms(10);       //延时，USB回复数据。
                 SystemSoftReset();           
             }
+            if(!usbd_configured () )  // 检测usb是否联机
+            {
+//                usbd_connect(0);
+                bsp_delay_ms(10); 
+                usbd_connect(1);
+            }
+            
             if( flag_recv(task_flags, FLAGS_MAIN_RESET_TARGET) )
             {
                 flag_clr(task_flags, FLAGS_MAIN_RESET_TARGET);

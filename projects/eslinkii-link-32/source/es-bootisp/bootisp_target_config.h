@@ -3,6 +3,16 @@
 
 
 #include "es_common.h"
+//写入的最大数据块长度
+#define BOOTSIP_DATA_SIZE               0x80 //packet_size
+
+#define BOOTISP_DEFAULT_BAUDRATE        115200              //默认波特率
+//115200波特率下的时间
+#define BOOTISP_ERASE_TIME              10                  //全擦时间10
+#define BOOTISP_CHECK_EMPTY_TIME        50                  //查空时间 
+#define BOOTISP_READ_PAGE_TIME          2                   //读一页时间(0x80个字)
+#define BOOTISP_WRITE_PAGE_TIME         20                  //写一页时间(0x80个字)
+
 /******************************************************************************/
 //bootisp配置,根据bootisp中的939.map文件修改。
 #define BOOTISP_ACK         0x79        //ACK                     
@@ -15,8 +25,7 @@
 #define CMD_ERASE           0xC4  	    /* 擦除一个到全部falsh */
 #define CMD_GET_CRC         0xD0		/* 读取若干字节的CRC32 */
 #define CMD_CHECK_EMPTY     0xD1		/* 查空 */
-//写入的最大数据块长度
-#define BOOTSIP_DATA_MAX_LEN        0x80 //packet_size
+
 
 
 /******************************************************************************/
@@ -50,7 +59,7 @@ typedef struct  {
     uint32_t flash_start;       //flash起始地址     
     uint32_t flash_size;        //flash大小
     uint8_t reset_suppot;       //是否支持
-    uint8_t ack ;               //应答
+//    uint8_t ack ;               //应答
     uint8_t start ;
     uint8_t checksum;
     uint8_t packet_size;

@@ -354,54 +354,9 @@ sf_err sf_erase_block_32K(uint32_t offset, uint32_t length)
     }      
     sf_write_disable();    
     return SF_SUCCESS    ;  
+}  
 
-
-}
-
-
-/*******************************************************************************
-*	函 数 名: spi_flash_write
-*	功能说明: 对FLASH写入数据，在写入前需要先擦除
-*	形    参:  	_pBuf : 数据源缓冲区；
-*				_uiWrAddr ：目标区域首地址
-*				_usSize ：数据个数，不能超过页面大小
-*	返 回 值: 1 : 成功， 0 ： 失败
-*******************************************************************************/
-//sf_err spi_flash_write( uint32_t _uiWriteAddr, const uint8_t* _pBuf,uint32_t _usWriteSize)
-//{
-//	uint32_t NumOfPage = 0, NumOfSingle = 0;
-//    
-//    
-//	if(_uiWriteAddr % FLASH_PAGE_SIZE != 0)     /* 起始地址是页面首地址  */
-//        return SF_ERR_ADDR_OUT_BOUND;
-//	NumOfPage =  _usWriteSize / FLASH_PAGE_SIZE;
-//    NumOfSingle = _usWriteSize % FLASH_PAGE_SIZE;
-//    if (NumOfPage == 0) /* 数据长度小于页面大小 */
-//    {
-//        if (sf_page_write( _uiWriteAddr,_pBuf, _usWriteSize ) != SF_SUCCESS)
-//            return SF_ERR_WRITE;
-//    }
-//    else 	/* 数据长度大于等于页面大小 */
-//    {
-//        while (NumOfPage--)
-//        {
-//            if (sf_page_write( _uiWriteAddr, _pBuf, FLASH_PAGE_SIZE) != SF_SUCCESS)
-//                return SF_ERR_WRITE;
-//            _uiWriteAddr +=  FLASH_PAGE_SIZE;
-//            _pBuf += FLASH_PAGE_SIZE;
-//        }
-//        if( NumOfSingle != 0)
-//        {
-//            if (sf_page_write( _uiWriteAddr, _pBuf, NumOfSingle) != SF_SUCCESS)
-//                return SF_ERR_WRITE;
-//        }
-//        
-//    }
-//	
-//	return SF_SUCCESS;	/* 成功 */
-//}
-
-sf_err spi_flash_write( uint32_t WriteAddr, uint8_t* pBuffer, uint32_t NumByteToWrite)
+sf_err spi_flash_write( uint32_t WriteAddr, const uint8_t* pBuffer, uint32_t NumByteToWrite)
 {
     uint32_t NumOfPage = 0, NumOfSingle = 0, Addr = 0, count = 0, temp = 0;
 
@@ -535,12 +490,12 @@ uint8_t sf_cmp_data(uint32_t _uiSrcAddr, const uint8_t *_ucpTar, uint32_t _uiSiz
 	/* 如果读取的数据长度为0或者超出串行Flash地址空间，则直接返回 */
 	if ((_uiSrcAddr + _uiSize) > g_flash.block_end * FLASH_BLOCK_SIZE)
 	{
-		return FALSE;
+		return SF_ERR_WRITE;
 	}
 
 	if (_uiSize == 0)
 	{
-		return TRUE;
+		return SF_SUCCESS;
 	}
 
 	sf_set_cs(0);									/* 使能片选 */
@@ -555,12 +510,12 @@ uint8_t sf_cmp_data(uint32_t _uiSrcAddr, const uint8_t *_ucpTar, uint32_t _uiSiz
 		if (*_ucpTar++ != ucValue)
 		{
 			sf_set_cs(1);
-			return FALSE;
+			return SF_ERR_WRITE;
 		}
 	}
 	sf_set_cs(1);
     
-	return TRUE;
+	return SF_SUCCESS;
 }
 
 
@@ -612,47 +567,9 @@ int sf_read_info(void)
     g_flash.block_end = 2048;
     g_flash.capacity = g_flash.block_size * g_flash.block_end ;
     if( chip_id == MX25L64_ID)
-        return TRUE;
-    return FALSE;
+        return SF_SUCCESS;
+    return SF_ERR_CHIP_INFO;
 }
 
-
-//int spiflash_test(uint32_t begin, uint32_t end)
-//{
-//    uint32_t i, total_sector, j;
-//    static uint8_t buf[FLASH_BLOCK_SIZE];
-//    
-////    printf("spi flash id:0x%X\r\n", w25qxx_get_id());
-//    
-//    total_sector = (end - begin)/FLASH_BLOCK_SIZE;
-//    
-//    /* erase chip */
-////    printf("erase all chips...\r\n");
-//    sf_erase_chip();
-////    printf("erase complete\r\n");
-//    spi_flash_read(0, buf, FLASH_BLOCK_SIZE);
-//    for(i=begin/FLASH_BLOCK_SIZE; i<total_sector; i++)
-//    {
-////        printf("verify addr:0x%X(%d)...\r\n", i*FLASH_BLOCK_SIZE, i);
-//        for(j=0;j<sizeof(buf);j++)
-//        {
-//            buf[j] = j % 0xFF;
-//        }
-//        spi_flash_write(i*FLASH_BLOCK_SIZE, buf, FLASH_BLOCK_SIZE);
-//        memset(buf, 0, FLASH_BLOCK_SIZE);
-//        spi_flash_read(i*FLASH_BLOCK_SIZE, buf, FLASH_BLOCK_SIZE);
-//        
-//        /* varify */
-//        for(j=0;j<sizeof(buf);j++)
-//        {
-//            if(buf[j] != (j%0xFF))
-//            {
-////                printf("%d error\r\n", j);
-//                while(1);
-//            }
-//        }
-//    }
-//    return 0;
-//}
 
 

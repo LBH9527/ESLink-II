@@ -370,7 +370,7 @@
             <TextAddressRange>0x00000000</TextAddressRange>
             <DataAddressRange>0x20000000</DataAddressRange>
             <pXoBase></pXoBase>
-            <ScatterFile>..\..\..\startup\MK22FN128xxx10_flash.scf</ScatterFile>
+            <ScatterFile>..\startup\MK22FN128xxx10_flash.scf</ScatterFile>
             <IncludeLibs></IncludeLibs>
             <IncludeLibsPath></IncludeLibsPath>
             <Misc>--predefine="-I..\..\..\eslink"</Misc>
@@ -389,44 +389,14 @@
               <FilePath>..\..\..\eslink\eslink.c</FilePath>
             </File>
             <File>
-              <FileName>eslink.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\eslink\eslink.h</FilePath>
-            </File>
-            <File>
-              <FileName>eslink_def.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\eslink\eslink_def.h</FilePath>
-            </File>
-            <File>
               <FileName>errno.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\..\eslink\errno.h</FilePath>
             </File>
             <File>
-              <FileName>eslink_addr.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\eslink\eslink_addr.h</FilePath>
-            </File>
-            <File>
               <FileName>eslink_config.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\..\eslink\eslink_config.h</FilePath>
-            </File>
-            <File>
-              <FileName>usbd_user_cls_icd.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\eslink\usbd_user_cls_icd.c</FilePath>
-            </File>
-            <File>
-              <FileName>settings_spi_flash.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\eslink\settings_spi_flash.c</FilePath>
-            </File>
-            <File>
-              <FileName>settings_spi_flash.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\eslink\settings_spi_flash.h</FilePath>
             </File>
             <File>
               <FileName>es_burner.c</FileName>
@@ -437,6 +407,26 @@
               <FileName>es_debug.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\eslink\es_debug.c</FilePath>
+            </File>
+            <File>
+              <FileName>eslink_app_addr.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\eslink\eslink_app_addr.h</FilePath>
+            </File>
+            <File>
+              <FileName>sflash_port.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\eslink\sflash_port.c</FilePath>
+            </File>
+            <File>
+              <FileName>eeprom_port.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\eslink\eeprom_port.c</FilePath>
+            </File>
+            <File>
+              <FileName>usbd_user_cls.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\eslink\usbd_user_cls.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -519,14 +509,9 @@
           <GroupName>es-target</GroupName>
           <Files>
             <File>
-              <FileName>es_target_set.c</FileName>
+              <FileName>target_program_config.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\source\target_chip\es_target_set.c</FilePath>
-            </File>
-            <File>
-              <FileName>es_target_set.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\source\target_chip\es_target_set.h</FilePath>
+              <FilePath>..\source\target_chip\target_program_config.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -597,15 +582,6 @@
               <FilePath>..\source\es-debug\hr7p169b_icd.h</FilePath>
             </File>
           </Files>
-        </Group>
-        <Group>
-          <GroupName>es-bootisp</GroupName>
-        </Group>
-        <Group>
-          <GroupName>es-rtc</GroupName>
-        </Group>
-        <Group>
-          <GroupName>swd-prg</GroupName>
         </Group>
         <Group>
           <GroupName>gui</GroupName>
@@ -695,6 +671,11 @@
               <FileType>5</FileType>
               <FilePath>..\..\..\common\es_types.h</FilePath>
             </File>
+            <File>
+              <FileName>ustdlib.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\common\ustdlib.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -778,12 +759,9 @@
             <File>
               <FileName>startup_MK22F12810.s</FileName>
               <FileType>2</FileType>
-              <FilePath>..\..\..\startup\startup_MK22F12810.s</FilePath>
+              <FilePath>..\startup\startup_MK22F12810.s</FilePath>
             </File>
           </Files>
-        </Group>
-        <Group>
-          <GroupName>rl-flashfs</GroupName>
         </Group>
         <Group>
           <GroupName>fatfs</GroupName>

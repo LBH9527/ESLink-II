@@ -23,6 +23,8 @@ static eslink_state_t cls_state;
 static uint32_t cls_data_ops; 
 static uint32_t cls_wr_cmd_len;                   //主机写命令码数据长度 
 static uint32_t cls_rd_cmd_len;                   //主机读命令码数据长度 
+static volatile uint8_t  usb_receive_full;
+
 uint8_t usb_es_write[ES_COMM_FRAME_MAX_LEN]; //写数据buff         
 uint8_t usb_es_read[ES_COMM_FRAME_MAX_LEN];  //读数据buff
 
@@ -36,6 +38,7 @@ void USBD_CLS_init(void)
     USBD_CLS_WriteBuf =  usb_es_write;
     USBD_CLS_ReadBuf = usb_es_read;
     cls_state =   ESLINK_STATE_CLOSE;
+    usb_receive_full = 0;
     
 }
 void USBD_CLS_Reset_Event(void)
@@ -138,11 +141,14 @@ uint32_t USBD_CLS_DataOutTransfer( uint8_t *data, uint8_t len)
     }
     if( cls_state ==  ESLINK_STATE_READ)
     {
+//        usb_receive_full = 1;
         cls_rd_cmd_len = eslink_process_command(usb_es_write, usb_es_read); 
         return cls_rd_cmd_len;
+        
     }                            
     return 0;  
 }
+
 
 uint32_t eslink_process_command(uint8_t *write_buf, uint8_t *read_buf)
 {
@@ -170,8 +176,7 @@ uint32_t eslink_process_command(uint8_t *write_buf, uint8_t *read_buf)
         
         
     }
-    return read_len;
-    
+    return read_len;      
 }
 
 

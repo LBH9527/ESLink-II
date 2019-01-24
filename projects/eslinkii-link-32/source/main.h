@@ -13,6 +13,7 @@ typedef enum main_led_state {
     MAIN_LED_FLASH_PERMANENT
 } main_led_state_t;
 
+void USBD_SignalHandler(void);
 void main_cdc_send_event(void);
 void main_reset(void );
 void main_reset_target(uint8_t send_unique_id);

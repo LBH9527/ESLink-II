@@ -35,9 +35,6 @@
 /* The Flextimer base address/channel used for board */
 #define FTM_BASEADDR FTM1
 #define FTM_IRQ_NUM FTM1_IRQn
-/* Get source clock for FTM driver */
-//#define FTM_SOURCE_CLOCK (CLOCK_GetFreq(kCLOCK_BusClk)/1)
-//#define FTM_SOURCE_CLOCK    10000000  
 //输入捕获
 /* FTM channel used for input capture */
 #define FTM_INPUT_CAPTURE_CHANNEL kFTM_Chnl_1
@@ -68,25 +65,18 @@ static void Init_FTM(void)
 
     FTM_GetDefaultConfig(&ftmConfigStruct);
 //    ftmConfigStruct.prescale = kFTM_Prescale_Divide_64;
-    FTM_Init(FTM_BASEADDR, &ftmConfigStruct);
-
-    FTM_SetupInputCapture(FTM_BASEADDR, FTM_INPUT_CAPTURE_CHANNEL, kFTM_FallingEdge, 0);
-  
-
+    FTM_Init(FTM_BASEADDR, &ftmConfigStruct); 
+    FTM_SetupInputCapture(FTM_BASEADDR, FTM_INPUT_CAPTURE_CHANNEL, kFTM_FallingEdge, 0); 
     FTM_SetTimerPeriod(FTM_BASEADDR, 0xffff);  
-    //启动rtc调校定时器       =
-    //捕获中断
-//    FTM_SetupInputCapture(FTM_BASEADDR, FTM_INPUT_CAPTURE_CHANNEL, kFTM_FallingEdge, 0);
-//    FTM_EnableInterrupts(FTM_BASEADDR, FTM_CHANNEL_INTERRUPT_ENABLE); 
-    //定时器溢出中断
-    FTM_EnableInterrupts(FTM_BASEADDR, kFTM_TimeOverflowInterruptEnable); 
-    EnableIRQ(FTM_IRQ_NUM);  
-    FTM_StartTimer(FTM_BASEADDR, kFTM_ExternalClock); 
-//     FTM_StartTimer(FTM_BASEADDR, kFTM_SystemClock); 
+//    //定时器溢出中断
+//    FTM_EnableInterrupts(FTM_BASEADDR, kFTM_TimeOverflowInterruptEnable); 
+//    EnableIRQ(FTM_IRQ_NUM);  
+//    FTM_StartTimer(FTM_BASEADDR, kFTM_ExternalClock); 
+////     FTM_StartTimer(FTM_BASEADDR, kFTM_SystemClock); 
 
             
-//    NVIC_DisableIRQ(FTM_IRQ_NUM);
-//    FTM_StopTimer(FTM_BASEADDR);    
+    NVIC_DisableIRQ(FTM_IRQ_NUM);
+    FTM_StopTimer(FTM_BASEADDR);    
 }
 static void rtc_gpio_init(void)
 {
@@ -97,6 +87,8 @@ static void rtc_gpio_uninit(void)
 {
     PIN_RTC_OUT_GPIO->PDDR &= ~(1 << PIN_RTC_OUT_BIT);            /* Input */
 }
+#define RTC_OUT_TOGGLE() \
+    PIN_RTC_OUT_GPIO->PTOR = 1 << PIN_RTC_OUT_BIT               //翻转
 //开始自校正脉冲   
 static void start_self_cali(void)
 {
@@ -114,10 +106,7 @@ void rtc_Init(void)
 {       
     Init_FTM(); 
     rtc_gpio_uninit();
-    stop_self_cali();
-    get_rtc_self_calibrate((uint8_t*)&rtc_self_cali_freq, 4); 
-    state = STATE_CALI_START;
-    
+    stop_self_cali();     
 //    rtc_self_cali_freq =  9999853;
 }
 //rtc输出
@@ -172,6 +161,7 @@ static error_t rtc_calibration_start(uint8_t mode)
     uint8_t result;  
     uint32_t reg_temp[6] = {0x00};    //寄存器临时变量
     uint32_t rtc_info_reg[RTC_INFO_SIZE];          //rtc info寄存器值
+    uint32_t temp1, temp2;
     
     //ISP编程
     ret = isp_prog_intf.prog_init();      
@@ -187,7 +177,17 @@ static error_t rtc_calibration_start(uint8_t mode)
     if(ERROR_SUCCESS != ret)
         return ret;
     result = isp_read_config(INFO_TEMPT_ADDR, reg_temp, 6);
-    
+    if(result != TRUE)
+        return ERROR_RTC_CALI_START;
+    //判断温感标定温度值是否正确
+#if 0
+    temp1 = (reg_temp[0] >> 16) & 0x0000ffff;
+    temp2 = reg_temp[0]  & 0x0000ffff;
+    if( (temp1 + temp2) != 0xffff )
+        return ERROR_RTC_DATA_FORMAT;
+    if( (reg_temp[2] + reg_temp[4]) != 0xFFFFFFFF)
+        return ERROR_RTC_DATA_FORMAT;
+#endif
     //调教前写入数据
     //读info寄存器
     result = isp_read_config(RTC_INFO_BASC_ADDR, rtc_info_reg, RTC_INFO_SIZE);
@@ -274,6 +274,8 @@ static error_t rtc_calibration_end(void)
  
     //当前温度
     isp_read_code(RTC_TEMP_BEFORE_CALI_ADDR, reg_temp, 2);
+//    if((reg_temp[0] + reg_temp[1]) != 0xFFFFFFFF)
+//         return ERROR_RTC_DATA_FORMAT;
     current_temp =  reg_temp[0];
     
     //读info寄存器
@@ -337,6 +339,9 @@ error_t rtc_calibration_handler(uint8_t mode)
 {
     error_t ret = ERROR_SUCCESS;
     
+    get_rtc_self_calibrate((uint8_t*)&rtc_self_cali_freq, 4); 
+    if( (rtc_self_cali_freq >= 10000200) || (rtc_self_cali_freq <= 9999800) )
+        return ERROR_RTC_SELF_CAIL;
     state = STATE_CALI_START;
     if(STATE_CALI_START ==  state)
     {
@@ -393,6 +398,10 @@ error_t rtc_calibration_verify(void)
     uint32_t reg_temp[2] = {0xffffffff, 0xffffffff};    //寄存器临时变量
 //    uint32_t fail_temp;
     
+    get_rtc_self_calibrate((uint8_t*)&rtc_self_cali_freq, 4); 
+    if( (rtc_self_cali_freq >= 10000200) || (rtc_self_cali_freq <= 9999800) )
+        return ERROR_RTC_SELF_CAIL;
+        
     eslink_set_target_power_reset(10);
     es_delay_ms(3000);
     FTM_SetTimerPeriod(FTM_BASEADDR, 0xffff); 
@@ -426,6 +435,8 @@ error_t rtc_calibration_verify(void)
         return ret;
     //写调校后温度
     isp_read_code(RTC_TEMP_AFTER_CALI_ADDR, reg_temp, 2);  
+//    if((reg_temp[0] + reg_temp[1]) != 0xffffffff)
+//        return ERROR_RTC_DATA_FORMAT;
     //读info寄存器
     isp_read_config(RTC_INFO_BASC_ADDR, rtc_info_reg, RTC_INFO_SIZE);
     rtc_info_reg[21] =  reg_temp[0];
@@ -436,9 +447,11 @@ error_t rtc_calibration_verify(void)
     if(result != TRUE)
         return ERROR_RTC_CALI_PROG ;     
      //频率偏差是否在范围内都要写调校后温度
-    if(target_freq_ppm > RTC_TARGET_FREQ_PPM_VALUE)
+    if( (target_freq_ppm > 0)  && (target_freq_ppm > RTC_TARGET_FREQ_PPM_VALUE) )
          return ERROR_RTC_CALI_VERIFY;
          
+     if( (target_freq_ppm < 0) && ((0-target_freq_ppm) > RTC_TARGET_FREQ_PPM_VALUE))
+         return ERROR_RTC_CALI_VERIFY;     
     eslink_set_target_power_reset(10);
     return ERROR_SUCCESS;
 }
@@ -476,7 +489,7 @@ void FTM1_IRQHandler(void)
             time_cnt++ ;
             if( time_cnt % 100 == 0)
             {
-                PIN_RTC_OUT_GPIO->PTOR = 1 << PIN_RTC_OUT_BIT;      //翻转
+                RTC_OUT_TOGGLE();
                 time_cnt = 0; 
             }                 
         }

@@ -24,11 +24,13 @@
 #include "main.h"
 
 #include "uart.h"
+#include "eslink_gpio.h"
 //add by 9527
 #include "systick.h"
 #ifdef ES_32BIT
  #include "swd_target_reset.h"
 #endif
+
 
 UART_Configuration UART_Config;
 
@@ -124,7 +126,7 @@ int32_t USBD_CDC_ACM_SendBreak(uint16_t dur)
     // reset and send the unique id over CDC
     if (dur != 0) {
         start_break_time = bsp_time_get();
-        target_set_state(RESET_HOLD);
+//        target_set_state(RESET_HOLD);
     } else {
 //        end_break_time = os_time_get();
         end_break_time = bsp_time_get();
@@ -173,6 +175,8 @@ void cdc_process_event()
     if (len_data) {
         if (USBD_CDC_ACM_DataSend(data , len_data)) {
 //            main_blink_cdc_led(MAIN_LED_FLASH);
+            
+            LED_YELLOW_TOGGLE();
         }
     }
 
@@ -189,6 +193,7 @@ void cdc_process_event()
     if (len_data) {
         if (uart_write_data(data, len_data)) {
 //            main_blink_cdc_led(MAIN_LED_FLASH);
+            LED_YELLOW_TOGGLE();
         }
     }
  

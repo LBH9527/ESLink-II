@@ -53,9 +53,7 @@ struct  es_prog_ops isp_prog_intf = {
 #if ESLINK_RTC_ENABLE  
     isp_target_program_rtc,
 #endif
-};
-
-
+};  
 static const es_target_cfg *isp_target_dev;   
 
 void isp_init(es_target_cfg *target)
@@ -89,7 +87,7 @@ static error_t isp_entry_mode(void)
 //退出isp模式
 static error_t isp_out_mode(void)
 {      
-    isp_reset(); 
+//    isp_reset(); 
     return ERROR_SUCCESS; 
 }
 //判断是否检测到芯片 
@@ -157,8 +155,9 @@ static error_t isp_prog_read_checksum(uint8_t *buf)
     error_t ret = ERROR_SUCCESS;
     ret = isp_chipid_check();
     if(ERROR_SUCCESS != ret)
-        return ret; 
-        
+        return ret;   
+//    uint32_t temp = 0xFFFE0001;
+//    if(isp_program_config(0x038, &temp, 1, NULL) != TRUE)
     if(isp_read_config(CHIP_CHECKSUM_ADDR, (uint32_t*)buf, 1) != TRUE)
         return ERROR_ISP_READ_CFG_WORD;
     return ERROR_SUCCESS;     

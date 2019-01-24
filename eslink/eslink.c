@@ -60,11 +60,7 @@ void es_set_trget_power(trget_power_t power)
     }        
 }
 
-//脱机启动/退出信号
-uint8_t ofl_start_in_low(void)
-{
-    return (PIN_START_IN_GPIO->PDIR & PIN_START_IN) ? 0 : 1;
-}
+
 
 
 /*

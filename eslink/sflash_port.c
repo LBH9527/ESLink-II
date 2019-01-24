@@ -58,13 +58,13 @@ error_t online_file_erase(uint8_t type, uint32_t size )
     if(size < 0x4000)       //小于16K
     {
         erase_size = ROUND_UP(size, 0x1000);
-        if(sf_erase_sector(erase_addr , erase_size)  != 0)
+        if(sf_erase_sector(erase_addr , erase_size)  != SF_SUCCESS)
             return ERROR_SPI_FLASH_ERASE;      
     }
     else
     {
         erase_size = ROUND_UP(size, 0x10000);
-        if(sf_erase_block_64K(erase_addr , erase_size)  != 0)
+        if(sf_erase_block_64K(erase_addr , erase_size)  != SF_SUCCESS)
             return ERROR_SPI_FLASH_ERASE;     
     }    
     return ERROR_SUCCESS;
@@ -86,11 +86,11 @@ error_t online_file_write(uint8_t type, uint32_t addr, const uint8_t *buf, uint3
         return ret;
     addr +=  addr_offset;
 
-    if(spi_flash_write(addr, buf, size) != 0)
+    if(spi_flash_write(addr, buf, size) != SF_SUCCESS)
        return ERROR_SPI_FLASH_WRITE;
    if(config_spi_flash_verify_program())
    {
-        if(sf_cmp_data(addr, buf, size) != 0)    //比较写入的数据
+        if(sf_cmp_data(addr, buf, size) != SF_SUCCESS)    //比较写入的数据
             return ERROR_SPI_FLASH_WRITE;        
    }
 
@@ -106,7 +106,7 @@ error_t online_file_read(uint8_t type, uint32_t addr, uint8_t *buf, uint32_t siz
         return ret;
         
     addr +=  addr_offset;
-    if(spi_flash_read(addr, buf, size) != 0)
+    if(spi_flash_read(addr, buf, size) != SF_SUCCESS)
         return ERROR_SPI_FLASH_READ;
     return ERROR_SUCCESS;  
 }

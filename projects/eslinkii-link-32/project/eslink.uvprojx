@@ -523,11 +523,6 @@
               <FileType>5</FileType>
               <FilePath>..\source\target_chip\target_program_config.h</FilePath>
             </File>
-            <File>
-              <FileName>swd_target_info.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\source\target_chip\swd_target_info.c</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>
@@ -627,31 +622,54 @@
         </Group>
         <Group>
           <GroupName>es-rtc</GroupName>
-          <Files>
-            <File>
-              <FileName>rtc_calibrate.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\source\es-rtc\rtc_calibrate.c</FilePath>
-            </File>
-          </Files>
         </Group>
         <Group>
           <GroupName>es-swd</GroupName>
           <Files>
+            <File>
+              <FileName>swd_prog_intf.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\swd\M939_SWD\swd_prog_intf.c</FilePath>
+            </File>
+            <File>
+              <FileName>swd_prog_intf.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\source\swd\swd_prog_intf.h</FilePath>
+            </File>
+            <File>
+              <FileName>swd_target_info.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\swd\M939_SWD\swd_target_info.c</FilePath>
+            </File>
+            <File>
+              <FileName>swd_target_reset.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\swd\M939_SWD\swd_target_reset.c</FilePath>
+            </File>
             <File>
               <FileName>swd_host.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\source\swd\swd_host.c</FilePath>
             </File>
             <File>
-              <FileName>swd_target_flash.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\source\swd\swd_target_flash.c</FilePath>
+              <FileName>swd_host.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\source\swd\swd_host.h</FilePath>
             </File>
             <File>
-              <FileName>swd_target_reset.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\source\swd\swd_target_reset.c</FilePath>
+              <FileName>swd_flash_blob.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\source\swd\swd_flash_blob.h</FilePath>
+            </File>
+            <File>
+              <FileName>swd_target_config.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\source\swd\swd_target_config.h</FilePath>
+            </File>
+            <File>
+              <FileName>swd_target_reset.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\source\swd\swd_target_reset.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -957,11 +975,6 @@
               <FileName>usbd_cls.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\middleware\RL-USB\usb\cls\usbd_cls.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbd_core_cls.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\middleware\RL-USB\usb\cls\usbd_core_cls.c</FilePath>
             </File>
           </Files>
         </Group>

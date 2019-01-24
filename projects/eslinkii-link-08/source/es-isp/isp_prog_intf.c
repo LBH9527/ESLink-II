@@ -4,7 +4,6 @@
 #include "errno.h"
 #include "isp.h"
 #include "isp_prog_intf.h"
-#include "es_target_set.h"  
 
 
 static void isp_init(es_target_cfg *target);
@@ -32,7 +31,7 @@ struct  es_prog_ops isp_prog_intf = {
     isp_prog_uninit,
     isp_prog_erase_chip,
     isp_prog_check_empty,
-    isp_prog_read_chipid,
+//    isp_prog_read_chipid,
     isp_chipid_check,
     isp_prog_read_chip_chksum,
     isp_prog_encrypt_chip,
@@ -362,27 +361,27 @@ static error_t isp_prog_programe_config(uint32_t addr, uint8_t *data, uint32_t s
     ret = isp_program_config(addr/2, (uint16_t*)data, size_in_words, (uint16_t*)failed_addr);
     if(ret != TRUE)
         return ERROR_ISP_PROG_CFG_WORD;
-    if (config_isp_verify_program())
-    {
-        while (size_in_words > 0) 
-        {          
-            verify_size = MIN(size_in_words, sizeof(rd_buf));
-            ret = isp_read_config(addr, rd_buf, verify_size); 
-            if( ret != TRUE)
-                return ERROR_ISP_READ_CFG_WORD;
-            for(i=0; i< verify_size; i++)
-            {
-                if( (data[i*2]   != ((rd_buf[i]>>0)&0xFF))  ||                        
-                    (data[i*2+1] != ((rd_buf[i]>>8)&0xFF)) )
-                {
-                    *failed_addr = addr + i ;  
-                    return  ERROR_ISP_PROG;  
-                } 
-            } 
-            addr += verify_size;
-            size_in_words -= verify_size;
-        }     
-    }
+//    if (config_isp_verify_program())
+//    {
+//        while (size_in_words > 0) 
+//        {          
+//            verify_size = MIN(size_in_words, sizeof(rd_buf));
+//            ret = isp_read_config(addr, rd_buf, verify_size); 
+//            if( ret != TRUE)
+//                return ERROR_ISP_READ_CFG_WORD;
+//            for(i=0; i< verify_size; i++)
+//            {
+//                if( (data[i*2]   != ((rd_buf[i]>>0)&0xFF))  ||                        
+//                    (data[i*2+1] != ((rd_buf[i]>>8)&0xFF)) )
+//                {
+//                    *failed_addr = addr + i ;  
+//                    return  ERROR_ISP_PROG;  
+//                } 
+//            } 
+//            addr += verify_size;
+//            size_in_words -= verify_size;
+//        }     
+//    }
 
     return ERROR_SUCCESS;        
 }

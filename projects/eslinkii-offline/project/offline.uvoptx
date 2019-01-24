@@ -118,8 +118,8 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGUARM</Key>
-          <Name>逮{
-4鼂
+          <Name>?|
+?|
 ?聅</Name>
         </SetRegEntry>
         <SetRegEntry>
@@ -154,7 +154,7 @@
           <Type>0</Type>
           <LineNumber>343</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>34054</Address>
+          <Address>34046</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -453,7 +453,7 @@
 
   <Group>
     <GroupName>source</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -529,7 +529,7 @@
 
   <Group>
     <GroupName>iap</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -573,7 +573,7 @@
 
   <Group>
     <GroupName>gui</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>

@@ -3,9 +3,9 @@
 <title>Static Call Graph - [.\Objects\eslink_boot.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Objects\eslink_boot.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Wed Jan 16 16:47:59 2019
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Wed Jan 23 09:25:37 2019
 <BR><P>
-<H3>Maximum Stack Usage =       1376 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
+<H3>Maximum Stack Usage =       1384 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
 USBD_CLS_EP_BULK_Event &rArr; USBD_CLS_EP_BULKOUT_Event &rArr; USBD_CLS_BulkOut &rArr; USBD_CLS_DataOutTransfer &rArr; eslink_process_command &rArr; debug_process_command &rArr; set_hr_timing_info &rArr; config_rom_set &rArr; iap_flash_program &rArr; FLASH_VerifyProgram &rArr; flash_get_matched_operation_info
 <P>
@@ -597,8 +597,8 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[61]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[8a]"></a>BOARD_InitPins</STRONG> (Thumb, 370 bytes, Stack size 16 bytes, pin_mux.o(i.BOARD_InitPins))
-<BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = BOARD_InitPins
+<P><STRONG><a name="[8a]"></a>BOARD_InitPins</STRONG> (Thumb, 206 bytes, Stack size 8 bytes, pin_mux.o(i.BOARD_InitPins))
+<BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = BOARD_InitPins
 </UL>
 <BR>[Calls]<UL><LI><a href="#[8c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PORT_SetPinMux
 <LI><a href="#[8b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CLOCK_EnableClock
@@ -923,7 +923,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[bb]"></a>USBD_CLS_BulkOut</STRONG> (Thumb, 32 bytes, Stack size 8 bytes, usbd_cls.o(i.USBD_CLS_BulkOut))
-<BR><BR>[Stack]<UL><LI>Max Depth = 1360<LI>Call Chain = USBD_CLS_BulkOut &rArr; USBD_CLS_DataOutTransfer &rArr; eslink_process_command &rArr; debug_process_command &rArr; set_hr_timing_info &rArr; config_rom_set &rArr; iap_flash_program &rArr; FLASH_VerifyProgram &rArr; flash_get_matched_operation_info
+<BR><BR>[Stack]<UL><LI>Max Depth = 1368<LI>Call Chain = USBD_CLS_BulkOut &rArr; USBD_CLS_DataOutTransfer &rArr; eslink_process_command &rArr; debug_process_command &rArr; set_hr_timing_info &rArr; config_rom_set &rArr; iap_flash_program &rArr; FLASH_VerifyProgram &rArr; flash_get_matched_operation_info
 </UL>
 <BR>[Calls]<UL><LI><a href="#[bc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CLS_DataOutTransfer
 <LI><a href="#[bd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CLS_DataInTransfer
@@ -941,8 +941,8 @@ Global Symbols
 <LI><a href="#[bb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CLS_BulkOut
 </UL>
 
-<P><STRONG><a name="[bc]"></a>USBD_CLS_DataOutTransfer</STRONG> (Thumb, 102 bytes, Stack size 16 bytes, usbd_user_cls_icd.o(i.USBD_CLS_DataOutTransfer))
-<BR><BR>[Stack]<UL><LI>Max Depth = 1352<LI>Call Chain = USBD_CLS_DataOutTransfer &rArr; eslink_process_command &rArr; debug_process_command &rArr; set_hr_timing_info &rArr; config_rom_set &rArr; iap_flash_program &rArr; FLASH_VerifyProgram &rArr; flash_get_matched_operation_info
+<P><STRONG><a name="[bc]"></a>USBD_CLS_DataOutTransfer</STRONG> (Thumb, 114 bytes, Stack size 24 bytes, usbd_user_cls.o(i.USBD_CLS_DataOutTransfer))
+<BR><BR>[Stack]<UL><LI>Max Depth = 1360<LI>Call Chain = USBD_CLS_DataOutTransfer &rArr; eslink_process_command &rArr; debug_process_command &rArr; set_hr_timing_info &rArr; config_rom_set &rArr; iap_flash_program &rArr; FLASH_VerifyProgram &rArr; flash_get_matched_operation_info
 </UL>
 <BR>[Calls]<UL><LI><a href="#[c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;eslink_process_command
 <LI><a href="#[c0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;cls_packet_write
@@ -953,7 +953,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[c2]"></a>USBD_CLS_EP_BULKOUT_Event</STRONG> (Thumb, 28 bytes, Stack size 8 bytes, usbd_cls.o(i.USBD_CLS_EP_BULKOUT_Event))
-<BR><BR>[Stack]<UL><LI>Max Depth = 1368<LI>Call Chain = USBD_CLS_EP_BULKOUT_Event &rArr; USBD_CLS_BulkOut &rArr; USBD_CLS_DataOutTransfer &rArr; eslink_process_command &rArr; debug_process_command &rArr; set_hr_timing_info &rArr; config_rom_set &rArr; iap_flash_program &rArr; FLASH_VerifyProgram &rArr; flash_get_matched_operation_info
+<BR><BR>[Stack]<UL><LI>Max Depth = 1376<LI>Call Chain = USBD_CLS_EP_BULKOUT_Event &rArr; USBD_CLS_BulkOut &rArr; USBD_CLS_DataOutTransfer &rArr; eslink_process_command &rArr; debug_process_command &rArr; set_hr_timing_info &rArr; config_rom_set &rArr; iap_flash_program &rArr; FLASH_VerifyProgram &rArr; flash_get_matched_operation_info
 </UL>
 <BR>[Calls]<UL><LI><a href="#[ae]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_ReadEP
 <LI><a href="#[bb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CLS_BulkOut
@@ -962,21 +962,21 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[7a]"></a>USBD_CLS_EP_BULK_Event</STRONG> (Thumb, 28 bytes, Stack size 8 bytes, usbd_cls.o(i.USBD_CLS_EP_BULK_Event))
-<BR><BR>[Stack]<UL><LI>Max Depth = 1376<LI>Call Chain = USBD_CLS_EP_BULK_Event &rArr; USBD_CLS_EP_BULKOUT_Event &rArr; USBD_CLS_BulkOut &rArr; USBD_CLS_DataOutTransfer &rArr; eslink_process_command &rArr; debug_process_command &rArr; set_hr_timing_info &rArr; config_rom_set &rArr; iap_flash_program &rArr; FLASH_VerifyProgram &rArr; flash_get_matched_operation_info
+<BR><BR>[Stack]<UL><LI>Max Depth = 1384<LI>Call Chain = USBD_CLS_EP_BULK_Event &rArr; USBD_CLS_EP_BULKOUT_Event &rArr; USBD_CLS_BulkOut &rArr; USBD_CLS_DataOutTransfer &rArr; eslink_process_command &rArr; debug_process_command &rArr; set_hr_timing_info &rArr; config_rom_set &rArr; iap_flash_program &rArr; FLASH_VerifyProgram &rArr; flash_get_matched_operation_info
 </UL>
 <BR>[Calls]<UL><LI><a href="#[c2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CLS_EP_BULKOUT_Event
 <LI><a href="#[bd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CLS_DataInTransfer
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> usb_config.o(.constdata)
 </UL>
-<P><STRONG><a name="[be]"></a>USBD_CLS_Reset_Event</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, usbd_user_cls_icd.o(i.USBD_CLS_Reset_Event))
+<P><STRONG><a name="[be]"></a>USBD_CLS_Reset_Event</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, usbd_user_cls.o(i.USBD_CLS_Reset_Event))
 <BR><BR>[Called By]<UL><LI><a href="#[c0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;cls_packet_write
 <LI><a href="#[bc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CLS_DataOutTransfer
 <LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_Reset_Event
 <LI><a href="#[bd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CLS_DataInTransfer
 </UL>
 
-<P><STRONG><a name="[126]"></a>USBD_CLS_init</STRONG> (Thumb, 26 bytes, Stack size 0 bytes, usbd_user_cls_icd.o(i.USBD_CLS_init))
+<P><STRONG><a name="[126]"></a>USBD_CLS_init</STRONG> (Thumb, 26 bytes, Stack size 0 bytes, usbd_user_cls.o(i.USBD_CLS_init))
 <BR><BR>[Called By]<UL><LI><a href="#[124]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usbd_class_init
 </UL>
 
@@ -1396,7 +1396,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[2b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART1_RX_TX_IRQHandler
 </UL>
 
-<P><STRONG><a name="[c0]"></a>cls_packet_write</STRONG> (Thumb, 64 bytes, Stack size 20 bytes, usbd_user_cls_icd.o(i.cls_packet_write))
+<P><STRONG><a name="[c0]"></a>cls_packet_write</STRONG> (Thumb, 64 bytes, Stack size 20 bytes, usbd_user_cls.o(i.cls_packet_write))
 <BR><BR>[Stack]<UL><LI>Max Depth = 20<LI>Call Chain = cls_packet_write
 </UL>
 <BR>[Calls]<UL><LI><a href="#[be]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CLS_Reset_Event
@@ -1451,7 +1451,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[10d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prog_process_command
 </UL>
 
-<P><STRONG><a name="[c1]"></a>eslink_process_command</STRONG> (Thumb, 50 bytes, Stack size 8 bytes, usbd_user_cls_icd.o(i.eslink_process_command))
+<P><STRONG><a name="[c1]"></a>eslink_process_command</STRONG> (Thumb, 50 bytes, Stack size 8 bytes, usbd_user_cls.o(i.eslink_process_command))
 <BR><BR>[Stack]<UL><LI>Max Depth = 1336<LI>Call Chain = eslink_process_command &rArr; debug_process_command &rArr; set_hr_timing_info &rArr; config_rom_set &rArr; iap_flash_program &rArr; FLASH_VerifyProgram &rArr; flash_get_matched_operation_info
 </UL>
 <BR>[Calls]<UL><LI><a href="#[10d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prog_process_command
@@ -1508,8 +1508,8 @@ Global Symbols
 <LI><a href="#[10a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;download_offline_hex_end
 </UL>
 
-<P><STRONG><a name="[111]"></a>gpio_init</STRONG> (Thumb, 284 bytes, Stack size 16 bytes, gpio.o(i.gpio_init))
-<BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = gpio_init
+<P><STRONG><a name="[111]"></a>gpio_init</STRONG> (Thumb, 302 bytes, Stack size 32 bytes, gpio.o(i.gpio_init))
+<BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = gpio_init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[112]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GPIO_PinWrite
 </UL>
@@ -1760,7 +1760,7 @@ Global Symbols
 <H3>
 Local Symbols
 </H3>
-<P><STRONG><a name="[bf]"></a>get_cmd_data_len</STRONG> (Thumb, 108 bytes, Stack size 0 bytes, usbd_user_cls_icd.o(i.get_cmd_data_len))
+<P><STRONG><a name="[bf]"></a>get_cmd_data_len</STRONG> (Thumb, 108 bytes, Stack size 0 bytes, usbd_user_cls.o(i.get_cmd_data_len))
 <BR><BR>[Called By]<UL><LI><a href="#[bc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CLS_DataOutTransfer
 </UL>
 

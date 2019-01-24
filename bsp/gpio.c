@@ -49,24 +49,15 @@ void gpio_init(void)
     CLT_INIT(1);    
 }
 
-
-uint8_t gpio_get_reset_btn_no_fwrd(void)
+//脱机启动/退出信号
+uint8_t gpio_start_in_low(void)
 {
-    return (PIN_KEY0_GPIO->PDIR & PIN_KEY0) ? 0 : 1; 
-}
+    return (PIN_START_IN_GPIO->PDIR & PIN_START_IN) ? 0 : 1;
+}  
 
 uint8_t gpio_key0_down(void)
 {
     return (PIN_KEY0_GPIO->PDIR & PIN_KEY0) ? 0 : 1;
 }
-//uint8_t gpio_key1_down(void)
-//{
-//    return (PIN_KEY0_GPIO->PDIR & PIN_KEY0) ? 0 : 1;
-//}
-//uint8_t gpio_key2_down(void)
-//{
-//    return (PIN_KEY0_GPIO->PDIR & PIN_KEY0) ? 0 : 1;
-//}
-
 
 

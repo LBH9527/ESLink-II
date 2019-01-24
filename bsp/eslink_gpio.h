@@ -259,13 +259,14 @@ extern "C" {
         LED_GREEN_PASS_OFF()    
 //黄灯亮   
 #define LED_YELLOW_ON() \
-        LED_RED_ERROR_OFF();    \
+        LED_RED_ERROR_OFF();   \
         LED_YELLOW_BUSY_ON();  \
         LED_GREEN_PASS_OFF()   
 
-//#define LED_GREEN_TOGGLE()   \
-//        LED_YELLOW_BUSY_OFF(); \
-//        LED_GREEN_PASS_TOGGLE() 
+#define LED_YELLOW_TOGGLE()    \
+        LED_RED_ERROR_OFF();   \
+        LED_YELLOW_BUSY_TOGGLE();  \
+        LED_GREEN_PASS_OFF()   
 
         
 /*******************************************************************************
@@ -396,9 +397,8 @@ typedef enum {
 }trget_power_t;      
 
 void gpio_init(void);     
-uint8_t gpio_get_reset_btn_no_fwrd(void); 
 uint8_t gpio_key0_down(void);
-
+uint8_t gpio_start_in_low(void);
 #ifdef __cplusplus
 }
 #endif

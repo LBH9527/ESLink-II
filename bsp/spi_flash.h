@@ -28,6 +28,7 @@ typedef enum {
     SF_ERR_READ = 2,                                     /**< read error */
     SF_ERR_TIMEOUT = 3,                                  /**< timeout error */
     SF_ERR_ADDR_OUT_BOUND = 4,                        /**< address is out of flash bound */
+    SF_ERR_CHIP_INFO = 5,
 } sf_err;
 
 typedef struct
@@ -52,7 +53,7 @@ sf_err sf_erase_sector(uint32_t offset, uint32_t length);
 sf_err sf_erase_block_64K(uint32_t offset, uint32_t length);
 sf_err sf_erase_block_32K(uint32_t offset, uint32_t length);  
 sf_err spi_flash_read( uint32_t _uiReadAddr, uint8_t * _pBuf,uint32_t _uiSize );
-sf_err spi_flash_write( uint32_t WriteAddr, uint8_t* pBuffer, uint32_t NumByteToWrite);
+sf_err spi_flash_write( uint32_t WriteAddr, const uint8_t* pBuffer, uint32_t NumByteToWrite);
 //sf_err sf_page_write(uint32_t addr,const uint8_t * _pBuf, uint32_t _usSize); 
 uint8_t sf_cmp_data(uint32_t _uiSrcAddr, const uint8_t *_ucpTar, uint32_t _uiSize);
 //int spiflash_test(uint32_t begin, uint32_t end);
