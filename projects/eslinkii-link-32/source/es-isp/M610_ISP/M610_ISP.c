@@ -1,8 +1,8 @@
 #include "eslink.h"
 #include "M610_ISP.h"
 
-#define PIN_DELAY(n)    ES_DELAY_SLOW(n)
-//#define PIN_DELAY(n)    ES_DELAY_FAST(n)
+#define PIN_DELAY(n)    es_delay_us(500*n)
+
 static void isp_start_bit(void)
 {
     PIN_ISPSDA_SET();       

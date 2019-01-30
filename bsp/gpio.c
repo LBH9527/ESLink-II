@@ -46,7 +46,7 @@ void gpio_init(void)
 
     //CTL IO
     PIN_CTL_PORT->PCR[PIN_CTL_BIT] = PORT_PCR_MUX(1);    
-    CLT_INIT(1);    
+    CLT_INIT(0);    
 }
 
 //脱机启动/退出信号

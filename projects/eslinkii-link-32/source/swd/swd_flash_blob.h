@@ -40,6 +40,8 @@ typedef struct {
     const uint32_t  erase_chip;
     const uint32_t  erase_sector;
     const uint32_t  program_page;
+    const uint32_t  program_info_page;
+    const uint32_t  erase_info;
     const program_syscall_t sys_call_s;
     const uint32_t  program_buffer;
     const uint32_t  algo_start;

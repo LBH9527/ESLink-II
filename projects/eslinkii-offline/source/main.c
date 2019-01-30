@@ -89,7 +89,7 @@ int main(void)
 				default:
 				break;
 			}  
-			msg_write_data(&menu_msg);			
+			gui_msg_write_data(&menu_msg);			
 		}
          menu_display(); 	 
 

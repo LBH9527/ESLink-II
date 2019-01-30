@@ -118,11 +118,8 @@ static error_t isp_prog_init(void)
 //isp退出编程模式
 static error_t isp_prog_uninit(void)
 {
-    isp_out_mode();
-    if(isp_mode_check() != TRUE)
-        return  ERROR_SUCCESS;
-
-    return ERROR_OUT_ISP_MODE;
+//    eslink_set_target_hold_reset();
+    return  ERROR_SUCCESS; 
 }   
 
 //读目标芯片ID
@@ -142,8 +139,7 @@ static error_t isp_chipid_check(void)
         return ERROR_ISP_READ_CFG_WORD;
     if(chipid != isp_target_dev->chipid_value)    
     {
-          //测试模式，不判断ID
-//         return  ERROR_CHIP_ID_NOT_MATCH;
+         return  ERROR_CHIP_ID_NOT_MATCH;
     }
         
     return ERROR_SUCCESS; 
@@ -166,9 +162,6 @@ static error_t isp_prog_read_checksum(uint8_t *buf)
 static error_t isp_prog_program_flash(uint32_t addr, uint8_t *data, uint32_t size, uint32_t *failed_addr)
 {
     uint8_t ret ; 
-    uint32_t i;
-//    uint32_t rd_buf[ISP_PRG_MINI_SIZE/4];
-    uint32_t verify_size;
     uint32_t size_in_words;    
     uint32_t offset;
     

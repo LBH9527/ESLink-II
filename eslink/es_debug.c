@@ -228,7 +228,7 @@ error_t dbg_reset_target(void)
 		if(debug_breakpoint.addr[i] != 0x00)
 		{
 			debug_breakpoint.empty = FALSE;
-            if(icd_write_str(SPCBK_REG_ADDR,&debug_breakpoint.addr[i], 1)!= ERROR_SUCCESS)  
+            if(icd_write_str(SPCBK_REG_ADDR,&debug_breakpoint.addr[i], 1)!= TRUE)  
                 return ERR_CHIP_INFO;
 		}		
     } 
@@ -271,7 +271,7 @@ error_t dbg_run(void)				//
 *******************************************************************************/
 error_t dbg_halt(void)
 {
-    if(icd_halt() !=  ERROR_SUCCESS)
+    if(icd_halt() !=  TRUE)
         return ERR_CHIP_INFO;
     
     if(icd_halt_check() != TRUE)
@@ -386,7 +386,7 @@ error_t dbg_C_step(void)
     //判断是否为复位状态
     for(i=0;i<=2;i++)		
     {
-        if(icd_read_str(PCR_REG_ADDR, &pc_value , 1 ) != ERROR_SUCCESS)    //复位后pc为0，c单步直接到main 20111206
+        if(icd_read_str(PCR_REG_ADDR, &pc_value , 1 ) != TRUE)    //复位后pc为0，c单步直接到main 20111206
             return ERR_CHIP_INFO;
         if(pc_value!=0)        
             break;     
@@ -394,7 +394,7 @@ error_t dbg_C_step(void)
     if(pc_value == 0)
 	{
         //设置断点到main
-        if(icd_write_str(CDBK_REG_ADDR,&debug_main.addr, 1)!= ERROR_SUCCESS) //set breakpoint
+        if(icd_write_str(CDBK_REG_ADDR,&debug_main.addr, 1)!= TRUE) //set breakpoint
             return ERR_CHIP_INFO;
 
         if(icd_run() != ERROR_SUCCESS)
@@ -425,21 +425,21 @@ error_t dbg_C_step(void)
         }
         
         //读状态寄存器，判断有没有溢出标志
-        if(icd_read_str(PSW, &read_data, 1 ) != ERROR_SUCCESS)    // set sram initial address		
+        if(icd_read_str(PSW, &read_data, 1 ) != TRUE)    // set sram initial address		
             return ERR_CHIP_INFO;    		
 		if((read_data&0x0060) != 0 )break;
 
         //读pc值，判断是否为复位值
         for(i=0;i<=2;i++)		
         {
-            if(icd_read_str(PCR_REG_ADDR, &pc_value, 1 ) != ERROR_SUCCESS)    // set sram initial address		
+            if(icd_read_str(PCR_REG_ADDR, &pc_value, 1 ) != TRUE)    // set sram initial address		
                 return ERR_CHIP_INFO;
             if(pc_value!=0)
                 break;     
         }   
 		if(pc_value == 0)	//从程序最后c单步回到main 20111206
 		{
-            if(icd_write_str(CDBK_REG_ADDR, &debug_main.addr, 1)!= ERROR_SUCCESS) //set breakpoint
+            if(icd_write_str(CDBK_REG_ADDR, &debug_main.addr, 1)!= TRUE) //set breakpoint
                 return ERR_CHIP_INFO;
             if(icd_run() != ERROR_SUCCESS)
                 return ERR_CHIP_INFO;

@@ -190,7 +190,7 @@ void ofl_program_display(void)
         disp_init = 1;
     }     
     
-    msg_read_data(&msg);
+    gui_msg_read_data(&msg);
 	if(msg != MSG_NULL)         
     switch(msg)
     {      
@@ -224,46 +224,56 @@ void ofl_program_display(void)
             oled_display_str(0,16,"      OK        ", &Font16); 
             ofl_sn_display(0x02); 
             break;
+        case MSG_ERR:
+            oled_clr_scr(0x00);	
+            oled_display_str(0,16,"   PROG FAILE   ", &Font16); 
+            oled_display_str(0,32,"00 Error        ", &Font16); 
         case MSG_ERR_COUNT_FULL:
             oled_clr_scr(0x00);	
             oled_display_str(0,16,"   PROG FAILE   ", &Font16); 
-            oled_display_str(0,32,"01 count full   ", &Font16); 
+            oled_display_str(0,32,"01 Count Full   ", &Font16); 
             break;
         case MSG_ERR_CHIPID_CHECK:
             oled_clr_scr(0x00);	
             oled_display_str(0,16,"   PROG FAILE   ", &Font16); 
-            oled_display_str(0,32,"02 chipid check ", &Font16); 
+            oled_display_str(0,32,"02 Chipid Check ", &Font16); 
             break;
         case MSG_ERR_ERASE:                         //擦除失败
             oled_clr_scr(0x00);	
             oled_display_str(0,16,"   PROG FAILE   ", &Font16); 
-            oled_display_str(0,32,"03 erase        ", &Font16);    
+            oled_display_str(0,32,"03 Erase        ", &Font16);    
             break;
         case MSG_ERR_CHECK_EMPTY:                   //查空
             oled_clr_scr(0x00);	
             oled_display_str(0,16,"   PROG FAILE   ", &Font16); 
-            oled_display_str(0,32,"04 check empty  ", &Font16);    
+            oled_display_str(0,32,"04 Check Empty  ", &Font16);    
             break;            
         case MSG_ERR_PROG:                          //编程失败
             oled_clr_scr(0x00);	
             oled_display_str(0,16,"   PROG FAILE   ", &Font16); 
-            oled_display_str(0,32,"05 program      ", &Font16);    
+            oled_display_str(0,32,"05 Program      ", &Font16);    
             break;
         case MSG_ERR_VERIFY:                        //校验
             oled_clr_scr(0x00);	
             oled_display_str(0,16,"   PROG FAILE   ", &Font16); 
-            oled_display_str(0,32,"06 verify       ", &Font16);    
+            oled_display_str(0,32,"06 Verify       ", &Font16);    
             break;
         case MSG_ERR_ENCRYPT:                       //加密
             oled_clr_scr(0x00);	
             oled_display_str(0,16,"   PROG FAILE   ", &Font16); 
-            oled_display_str(0,32,"07 encrypt      ", &Font16);    
+            oled_display_str(0,32,"07 Encrypt      ", &Font16);    
             break;
+        
 //        case MSG_ERR_PROG_INTF: 
 //            oled_clr_scr(0x00);	
 //            oled_display_str(0,16,"   PROG FAILE   ", &Font16); 
-//            oled_display_str(0,32,"08 erase        ", &Font16);    
+//            oled_display_str(0,32,"08         ", &Font16);    
 //            break;
+        case MSG_ERR_ENTRY_MODE:
+            oled_clr_scr(0x00);	
+            oled_display_str(0,16,"   PROG FAILE   ", &Font16); 
+            oled_display_str(0,32,"08 Entry Mode   ", &Font16);   
+            break;
         case MSG_KEY_ENTER:                         //长按回到联机模式      
             if(set_link_mode(LINK_ONLINE_MODE) != TRUE )
             {
@@ -314,7 +324,7 @@ void logo_display(void)
         oled_display_str(72,48,&display_temp[1], &Font16);	
 		disp_init = 1;
 	}
-    msg_read_data(&msg);
+    gui_msg_read_data(&msg);
 	if(msg ==  MSG_KEY_ENTER)       //有按键按下
     {
         cur_menu  = cur_menu-> next_menu;	
@@ -344,7 +354,7 @@ void init_display(void)
         oled_display_str(0,16,"Initializing....", &Font16);	
 		disp_init = 1;
 	}
-//    msg_read_data(&msg);
+//    gui_msg_read_data(&msg);
 //	if(msg ==  MSG_KEY_ENTER)       //有按键按下
 //    {
 //        cur_menu  = cur_menu-> next_menu;	

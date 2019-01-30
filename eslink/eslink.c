@@ -7,6 +7,7 @@ void es_delay_ms(uint32_t delay)
     delay *= ((SystemCoreClock/1000U) + (ES_DELAY_SLOW_CYCLES-1U)) / ES_DELAY_SLOW_CYCLES;
     ES_DELAY_SLOW(delay);
 }
+
 // Delay for specified time
 //    delay:  delay time in us
 void es_delay_us(uint32_t delay) 
@@ -36,8 +37,6 @@ uint8_t eslink_is_offline_mode(void)
     return FALSE;
 }
 
-
-
 void es_set_trget_power(trget_power_t power)
 {
     if(power == TRGET_POWER_DISABLE)
@@ -59,8 +58,6 @@ void es_set_trget_power(trget_power_t power)
         V5_ON();      
     }        
 }
-
-
 
 
 /*

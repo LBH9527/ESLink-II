@@ -22,30 +22,51 @@ Dialog DLL:      TCM.DLL V1.27.0.0
  
 <h2>Project:</h2>
 D:\DAPLink_Workspace\eslink-ii\projects\eslinkii-link-08\project\eslink_08.uvprojx
-Project File Date:  01/22/2019
+Project File Date:  01/30/2019
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 4 (build 422)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'es_link_II'
-compiling target_program_config.c...
-compiling main.c...
-compiling es_burner.c...
-..\..\..\eslink\es_burner.c(1375): warning:  #1-D: last line of file ends without a newline
-   
-..\..\..\eslink\es_burner.c: 1 warning, 0 errors
+compiling es_debug.c...
+..\..\..\eslink\es_debug.c(73): warning:  #940-D: missing return statement at end of non-void function "download_timing" 
+  }
+..\..\..\eslink\es_debug.c(92): warning:  #550-D: variable "result"  was set but never used
+      error_t result = ERROR_SUCCESS;
+..\..\..\eslink\es_debug.c(140): warning:  #177-D: variable "failaddr"  was declared but never referenced
+          uint32_t failaddr;
+..\..\..\eslink\es_debug.c(210): warning:  #177-D: variable "halt_data"  was declared but never referenced
+  	uint16_t  halt_data;
+..\..\..\eslink\es_debug.c(298): warning:  #188-D: enumerated type mixed with another type
+          return 
+ALSE;
+..\..\..\eslink\es_debug.c(354): warning:  #188-D: enumerated type mixed with another type
+          return 
+ALSE;
+..\..\..\eslink\es_debug.c(581): warning:  #550-D: variable "pc1"  was set but never used
+  	uint16_t   pc1, pc2;
+..\..\..\eslink\es_debug.c(964): warning:  #177-D: variable "i"  was declared but never referenced
+      uint16_t i;
+..\..\..\eslink\es_debug.c(1246): warning:  #550-D: variable "ret"  was set but never used
+      error_t ret;
+..\..\..\eslink\es_debug.c(70): warning:  #177-D: function "download_timing"  was declared but never referenced
+  static error_t download_timing(uint8_t *data_buf)	
+..\..\..\eslink\es_debug.c(78): warning:  #177-D: function "es_write_chipinfo"  was declared but never referenced
+  static error_t es_write_chipinfo(uint8_t *buf)
+..\..\..\eslink\es_debug.c: 11 warnings, 0 errors
 linking...
-.\Objects\output.axf: Error: L6218E: Undefined symbol config_isp_verify_program (referred from isp_prog_intf.o).
-Not enough information to list image symbols.
-Finished: 1 information, 0 warning and 1 error messages.
-".\Objects\output.axf" - 1 Error(s), 1 Warning(s).
+Program Size: Code=56548 RO-data=8260 RW-data=692 ZI-data=17308  
+FromELF: creating hex file...
+After Build - User command #1: .\CopyHex_Flash.bat
+D:\DAPLink_Workspace\eslink-ii\projects\eslinkii-link-08\project>copy Objects\output.hex ..\..\HR7PXXX 
+已复制         1 个文件。
+".\Objects\output.axf" - 0 Error(s), 11 Warning(s).
 
 <h2>Collection of Component include folders:</h2>
   .\RTE\_es_link_II
   C:\Keil_v5\ARM\PACK\NXP\MK22F12810_DFP\10.0.0
 
 <h2>Collection of Component Files used:</h2>
-Target not created.
-Build Time Elapsed:  00:00:06
+Build Time Elapsed:  00:00:03
 </pre>
 </body>
 </html>

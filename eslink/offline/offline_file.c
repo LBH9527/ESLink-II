@@ -63,7 +63,7 @@ static uint8_t file_mount(void)
      /* Get total sectors and free sectors */
     tot_sect = (fs->n_fatent - 2) * fs->csize;
     fre_sect = fre_clust * fs->csize;
-    //TODO:容量下需要提示
+    //TODO:容量不足需要提示
 //    if( fre_sect < )      //容量单位4K
 //    {
 //        

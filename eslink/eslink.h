@@ -29,7 +29,7 @@ extern "C" {
 
 // Configurable delay for clock generation
 #ifndef ES_DELAY_SLOW_CYCLES
-#define ES_DELAY_SLOW_CYCLES       2U      // Number of cycles for one iteration
+#define ES_DELAY_SLOW_CYCLES       3U      // Number of cycles for one iteration
 #endif
 static __forceinline void ES_DELAY_SLOW (uint32_t delay) {
   uint32_t count;
@@ -38,8 +38,20 @@ static __forceinline void ES_DELAY_SLOW (uint32_t delay) {
   while (--count);
 }
 /*
-80Mhz:
-ES_DELAY_SLOW(1)------>200ns
+60Mhz:
+ES_DELAY_SLOW_CYCLES = 2    ES_DELAY_SLOW(1)------>1.5ms
+ES_DELAY_SLOW_CYCLES = 3    ES_DELAY_SLOW(1)------>1ms
+ES_DELAY_SLOW_CYCLES = 4    ES_DELAY_SLOW(1)------>750ns
+ES_DELAY_SLOW_CYCLES = 5    ES_DELAY_SLOW(1)------>600ns
+ES_DELAY_SLOW_CYCLES = 6    ES_DELAY_SLOW(1)------>500ns
+ES_DELAY_SLOW_CYCLES = 7    ES_DELAY_SLOW(1)------>429ns
+ES_DELAY_SLOW_CYCLES = 8    ES_DELAY_SLOW(1)------>375ns
+ES_DELAY_SLOW_CYCLES = 9    ES_DELAY_SLOW(1)------>333ns
+ES_DELAY_SLOW_CYCLES = 10    ES_DELAY_SLOW(1)------>300ns
+
+ES_DELAY_SLOW_CYCLES = 12    ES_DELAY_SLOW(1)------>250ns
+
+ES_DELAY_SLOW_CYCLES = 14    ES_DELAY_SLOW(1)------>215ns
 */
 
 // Fixed delay for fast clock generation

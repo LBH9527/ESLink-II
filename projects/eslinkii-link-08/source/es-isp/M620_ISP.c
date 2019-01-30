@@ -1,5 +1,6 @@
 #include "eslink.h"
-#include "hr7p169b_isp.h"
+#include "es_isp.h"
+#include "M620_ISP.h"
 
 #define PIN_DELAY(n)    ES_DELAY_SLOW(n)
 //#define PIN_DELAY(n)    ES_DELAY_FAST(n)
@@ -270,7 +271,7 @@ static uint8_t program_and_check(uint8_t mode)
 * 输入 ：mode:编程模式 CHIP_PROG_CMD/PLUS_PROG_CMD 。 addr：地址。data：数据。
 * 输出 ：
 *******************************************************************************/
-static uint8_t program_data(uint16_t addr, uint16_t *data, uint16_t size, uint16_t *failed_addr) 
+static uint8_t program_data(uint16_t addr, uint16_t *data, uint16_t size, uint16_t *failed_offset) 
 {
     uint16_t i;
     
@@ -301,7 +302,7 @@ static uint8_t program_data(uint16_t addr, uint16_t *data, uint16_t size, uint16
          //编程并判断
         if(program_and_check(PLUS_PROG_CMD) != TRUE)    
         {
-             *failed_addr = addr + i;
+            *failed_offset = i;
             return FALSE; 
         }
                
@@ -335,10 +336,10 @@ static uint8_t read_data(uint16_t addr, uint16_t *data, uint16_t size)
 /*******************************************************************************
 *函数名：isp_target_program_code
 * 描述 ：isp编程。flash编程时间约为30us
-* 输入 ：addr：地址。data：数据。size：大小
+* 输入 ：addr：地址。data：数据。size：大小  failed_offset:编程失败偏移地址
 * 输出 ：
 *******************************************************************************/
-uint8_t isp_program_code(uint16_t addr, uint16_t *data, uint16_t size, uint16_t *failed_addr) 
+uint8_t isp_program_code(uint16_t addr, uint16_t *data, uint32_t size, uint16_t *failed_offset) 
 {
     uint8_t i;
     uint8_t retry;
@@ -347,7 +348,7 @@ uint8_t isp_program_code(uint16_t addr, uint16_t *data, uint16_t size, uint16_t 
     retry = 10;    
     for(i=0; i<retry; i++)
     {
-        if(program_data(addr, data, size, failed_addr) != FALSE)
+        if(program_data(addr, data, size, failed_offset) != FALSE)
             break;
     }
     if(i >= retry)
@@ -370,10 +371,10 @@ uint8_t isp_read_code(uint16_t addr, uint16_t *data, uint32_t size)
 /*******************************************************************************
 *函数名：
 * 描述 ：
-* 输入 ：addr：地址。data：数据。size：大小
+* 输入 ：addr：地址。data：数据。size：大小  failed_offset:编程失败偏移地址
 * 输出 ：
 *******************************************************************************/
-uint8_t isp_program_config(uint16_t addr, uint16_t *data, uint32_t size,uint16_t *failed_addr) 
+uint8_t isp_program_config(uint16_t addr, uint16_t *data, uint32_t size,uint16_t *failed_offset) 
 {
     uint8_t i;
     uint8_t retry;
@@ -382,7 +383,7 @@ uint8_t isp_program_config(uint16_t addr, uint16_t *data, uint32_t size,uint16_t
     retry = 10;    
     for(i=0; i<retry; i++)
     {
-        if(program_data(addr, data, size, failed_addr) != FALSE)
+        if(program_data(addr, data, size, failed_offset) != FALSE)
             break;
     }
     if(i >= retry)
@@ -451,7 +452,7 @@ uint8_t isp_id_check(void)
     return TRUE;
 }
 //解锁
-uint8_t isp_unlock(void)
+uint8_t isp_unlock_check(void)
 {
 //    uint8_t ret;
     uint8_t check_val;
@@ -492,7 +493,6 @@ uint8_t isp_unlock(void)
 //isp模式检测
 uint8_t isp_mode_check(void)
 {
-//    uint8_t ret;
     uint8_t check_val;
     uint32_t i;  
     
@@ -508,35 +508,15 @@ uint8_t isp_mode_check(void)
     return TRUE;
 
 }
-//isp 加密字加载并判断
-uint8_t encrypt_check(void)
-{
-    uint16_t data;
-    isp_rcv_bytes(ENCRYPT_CHECK_CMD,(uint8_t*)&data, 2) ;
-    if(data != 0xA5A5)
-        return FALSE;
-    return TRUE;  
-}
-//进入isp模式
-uint8_t isp_entry_isp_mode(void)
-{
-    isp_reset();
-    if(isp_id_check() != TRUE)
-        return ERROR_IN_ISP_MODE;
-    if(isp_unlock() != TRUE)
-        return ERROR_ISP_UNLOCK;
-    if( isp_mode_set() != TRUE)
-        return ERROR_IN_ISP_MODE;
-//    if( encrypt_check() != TRUE)
-//        return ERROR_IN_ISP_MODE;
-    
-    return ERROR_SUCCESS; 
-}
 
-//退出isp模式
-uint8_t isp_out_isp_mode(void)
-{
-    isp_reset();     
-    return ERROR_SUCCESS; 
-}
+////isp 加密字加载并判断 
+//uint8_t is_encrypt_check(void)
+//{
+//    uint16_t data;
+//    isp_rcv_bytes(ENCRYPT_CHECK_CMD,(uint8_t*)&data, 2) ;
+//    if(data != 0xA5A5)
+//        return FALSE;
+//    return TRUE;  
+//}
+
 

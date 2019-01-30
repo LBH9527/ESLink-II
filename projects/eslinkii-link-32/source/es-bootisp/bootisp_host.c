@@ -27,22 +27,7 @@ static uint8_t check_xor(uint8_t *data, uint8_t size)
 	return Xor;
 }
 
-//bootisp 写数据 
-static uint8_t write_data(uint8_t *wr_data, uint8_t wr_size)
-{
-    uint32_t len_data;
-    
-    while(wr_size > 0)
-    {      
-        len_data = uart_write_free();
-        if(len_data > wr_size)
-            len_data = wr_size;
-        uart_write_data(wr_data, len_data);
-        wr_size -= len_data;  
-    }
-    return TRUE;
 
-} 
 
 ////读数据
 //static uint8_t read_data_and_check(uint8_t *rd_data, uint8_t rd_size, uint8_t delay_ms)
@@ -79,6 +64,7 @@ static uint8_t read_data(uint8_t *rd_data, uint8_t rd_size, uint8_t delay_ms)
     {
         len_data = uart_read_data(rd_data, rd_size);
         rd_size -= len_data;
+        rd_data += len_data;
         timeout--;
         bootisp_delay(1);
         if(timeout == 0)
@@ -104,6 +90,23 @@ static uint8_t read_cmd_and_check(uint8_t ack,  uint8_t delay_ms)
         return  FALSE;
     return TRUE;      
 }
+//bootisp 写数据 
+static uint8_t write_data(uint8_t *wr_data, uint8_t wr_size)
+{
+    uint32_t len_data;
+    
+    while(wr_size > 0)
+    {      
+        len_data = uart_write_free();
+        if(len_data > wr_size)
+            len_data = wr_size;
+        uart_write_data(wr_data, len_data);
+        wr_data += 
+        wr_size -= len_data;  
+    }
+    return TRUE;
+
+} 
 //写数据和校验码    
 static uint8_t write_data_oxr(uint8_t *data, uint8_t size)
 {
@@ -113,15 +116,9 @@ static uint8_t write_data_oxr(uint8_t *data, uint8_t size)
 
     xor_temp =  check_xor(data, size); 
     
-    while(size > 0)
-    {
-        len_data = uart_write_free();
-        if(len_data > size)
-            len_data = size;         
-        uart_write_data(data, len_data);
-        size -= len_data;     
-    } 
-       
+    if(write_data(data, size) != TRUE)
+        return FALSE;
+    
     timeout = 0xffff;    
     while(uart_write_free() == 0) 
     {
@@ -135,9 +132,11 @@ static uint8_t write_data_oxr(uint8_t *data, uint8_t size)
 //写cmd并判断校验码
 static uint8_t write_cmd_and_check(uint8_t *cmd, uint8_t size)
 {        
-    if( write_data(cmd, size) != TRUE)     
+    uint32_t len_data;
+    
+    if(write_data(cmd, size) != TRUE)
         return FALSE;
-    if(read_cmd_and_check(BOOTISP_ACK, 2) != TRUE)  
+    if(read_cmd_and_check(BOOTISP_ACK, BOOTISP_DEFAULT_TIME) != TRUE)  
         return FALSE; 
    
     return TRUE;
@@ -170,7 +169,7 @@ uint8_t bootisp_extended_erase(uint8_t *data, uint8_t size)
     uint8_t cmd_buf[2] = {CMD_ERASE, 0xFF - CMD_ERASE};
     
     //send cmd
-    if( write_cmd_and_check(cmd_buf, sizeof(cmd_buf)) != TRUE)     
+    if( write_cmd_and_check(cmd_buf, 2) != TRUE)     
         return FALSE; 
    
     //send data 
@@ -202,10 +201,7 @@ uint8_t bootisp_check_empty(uint32_t addr, uint32_t size)
     if(size & 0x0F )          //flash长度位16的倍数
         return FALSE;
     //send cmd
-    if( write_data(cmd_buf, 2) != TRUE)     
-        return FALSE;         
-    if(read_cmd_and_check(BOOTISP_ACK, 2) != TRUE)  
-        return FALSE; 
+    write_cmd_and_check( cmd_buf, 2);
         
     //send addr    
     wr_buf[0] = (addr & 0xff000000) >> 24;
@@ -215,7 +211,7 @@ uint8_t bootisp_check_empty(uint32_t addr, uint32_t size)
     if(write_data_oxr(wr_buf, 4) != TRUE)
         return FALSE;  
     //check ack
-    if(read_cmd_and_check(BOOTISP_ACK, 3) != TRUE)  
+    if(read_cmd_and_check(BOOTISP_ACK, BOOTISP_DEFAULT_TIME) != TRUE)  
         return FALSE; 
         
     //send size
@@ -226,7 +222,7 @@ uint8_t bootisp_check_empty(uint32_t addr, uint32_t size)
     if(write_data_oxr(wr_buf, 4) != TRUE)
         return FALSE;  
     //check ack
-    if(read_cmd_and_check(BOOTISP_ACK, 3) != TRUE)  
+    if(read_cmd_and_check(BOOTISP_ACK, BOOTISP_DEFAULT_TIME) != TRUE)  
         return FALSE; 
     //empty check
     if(read_cmd_and_check(BOOTISP_ACK, BOOTISP_CHECK_EMPTY_TIME) != TRUE)  
@@ -254,14 +250,14 @@ static uint8_t bootisp_read_block(uint32_t addr, uint8_t *data, uint8_t size)
     if(write_data_oxr(wr_buf, 4) != TRUE)
         return FALSE;   
     //check ack
-    if(read_cmd_and_check(BOOTISP_ACK, 3) != TRUE)  
+    if(read_cmd_and_check(BOOTISP_ACK, BOOTISP_DEFAULT_TIME) != TRUE)  
         return FALSE; 
     //read size
     wr_buf[0] = size - 1; //发送的数据为实际接收数据长度 -1  	    
     if(write_data_oxr(wr_buf, 1) != TRUE)//需要接收数据长度  第一个字节为ACK后面紧接着为数据
         return FALSE;  
     //check ack
-    if(read_cmd_and_check(BOOTISP_ACK, 3) != TRUE)  
+    if(read_cmd_and_check(BOOTISP_ACK, BOOTISP_DEFAULT_TIME) != TRUE)  
         return FALSE; 
     //rcv data
     if( read_data(data,size, BOOTISP_READ_PAGE_TIME) != TRUE) 
@@ -282,16 +278,14 @@ uint8_t bootisp_read_memory(uint32_t addr, uint8_t *data, uint32_t size)
             return FALSE;
         addr += BOOTSIP_DATA_SIZE;
         data += BOOTSIP_DATA_SIZE;
-        size -= BOOTSIP_DATA_SIZE;
+//        size -= BOOTSIP_DATA_SIZE;
         page --;
     }
     
     if (bootisp_read_block(addr, data, single) != TRUE)
         return FALSE;
 
-}
-
-
+}  
 
 //写指定地址数据  
 uint8_t bootisp_write_block(uint32_t addr,  uint8_t *data, uint8_t size)  
@@ -299,7 +293,6 @@ uint8_t bootisp_write_block(uint32_t addr,  uint8_t *data, uint8_t size)
     uint8_t cmd_buf[2] = {CMD_WR_MEMORY, 0xFF - CMD_WR_MEMORY};
     uint8_t ack;
     uint8_t addr_buf[4];
-    uint8_t wr_buf[BOOTSIP_DATA_SIZE+1];
     
     if(size == 0)
         return TRUE;
@@ -319,13 +312,13 @@ uint8_t bootisp_write_block(uint32_t addr,  uint8_t *data, uint8_t size)
     if(write_data_oxr(addr_buf, 4) != TRUE)
         return FALSE;  
      //check ack
-    if(read_cmd_and_check(BOOTISP_ACK, 3) != TRUE)  
+    if(read_cmd_and_check(BOOTISP_ACK, BOOTISP_DEFAULT_TIME) != TRUE)  
         return FALSE; 
         
-    //write data size and data    
-    wr_buf[0] = size;               //发送的数据为实际需要些的数据长度 -1
-    memcpy(&wr_buf[1], data, size); //拷贝需要发送的数据     
-    if(write_data_oxr(wr_buf, size+1) != TRUE)
+    //write data size and data     
+    if(write_data(&size, 1) != TRUE)
+        return FALSE;
+    if(write_data_oxr(data, size) != TRUE)
         return FALSE;  
     //check ack
    if(read_cmd_and_check(BOOTISP_ACK, BOOTISP_WRITE_PAGE_TIME) != TRUE)  
@@ -345,7 +338,6 @@ uint8_t bootisp_write_memory(uint32_t addr,  uint8_t *data, uint32_t size)
             return FALSE;
         addr += BOOTSIP_DATA_SIZE;
         data += BOOTSIP_DATA_SIZE;
-        size -= BOOTSIP_DATA_SIZE;
         page --;
     }
     

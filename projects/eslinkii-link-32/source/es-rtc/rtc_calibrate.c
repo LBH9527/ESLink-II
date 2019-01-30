@@ -256,9 +256,8 @@ static error_t rtc_calibration_end(void)
     uint32_t rtc_info_reg[RTC_INFO_SIZE];          //rtc info寄存器值
     uint32_t current_temp;              //当前温度     
     float parabolic_vertex_ppm;         //顶点频率偏差
-    uint32_t parabolic_vertex_ppm_reg;
+    int32_t parabolic_vertex_ppm_reg;
     float rtc_temp_bdr;                 //硬件补偿温度边界值
-//    uint8_t rtc_tempbdr_reg = 2;      //硬件补偿温度边界值寄存器偏移地址
     uint32_t parabolic_open_reg;        //抛物线开口寄存器值
     float parabolic_open;               //抛物线开口       
     uint32_t parabolic_vertex_temp_reg; //抛物线顶点温度寄存器
@@ -302,7 +301,7 @@ static error_t rtc_calibration_end(void)
     
     //保存计算结果到RTC info
     parabolic_vertex_ppm *= 256  ;
-    parabolic_vertex_ppm_reg = (uint32_t) parabolic_vertex_ppm;
+    parabolic_vertex_ppm_reg = (int32_t) parabolic_vertex_ppm;
     rtc_info_reg[16] =  parabolic_vertex_ppm_reg  & 0x0000ffff;
     rtc_info_reg[17] = parabolic_vertex_ppm_reg  & 0x0000ffff;
     rtc_info_reg[18] = 5888;

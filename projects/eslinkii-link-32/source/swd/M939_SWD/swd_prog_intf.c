@@ -7,6 +7,8 @@
 #include "swd_target_reset.h" 
 #include "es_isp.h"    
 
+#define FLASH_AREA      1
+#define INFO_AREA       0
 //一次编程支持的长度，根据RAM大小可以修改.长度需要为2^n
 #define SWD_PRG_SIZE  1024  
 
@@ -22,7 +24,7 @@ static error_t es_swd_encrypt_chip(void);
 static error_t es_swd_chipid_check(void);
 static error_t es_swd_program_config(uint32_t addr, uint8_t *buf, uint32_t size,uint32_t *failed_addr );
 static error_t es_swd_read_config(uint32_t addr,  uint8_t *buf, uint32_t size);
-static error_t es_swd_verify_config(uint32_t addr,  uint8_t *data, uint32_t size, uint32_t *failed_addr, uint32_t *failed_data);
+static error_t es_swd_verify_config(uint32_t addr,  uint8_t *buf, uint32_t size, uint32_t *failed_addr, uint32_t *failed_data);
 static error_t es_swd_program_flash(uint32_t addr, uint8_t *data, uint32_t size, uint32_t *failed_addr);
 static error_t es_swd_read_flash(uint32_t addr, uint8_t *data, uint32_t size);
 static error_t es_swd_verify_flash(uint32_t addr,  uint8_t *data, uint32_t size, uint32_t *failed_addr, uint32_t *failed_data);
@@ -61,12 +63,55 @@ void swd_prog_init(es_target_cfg *target)
     target_dev = target;
     swd_prog_intf.cb = online_file_read;
 
-    swd_target_device.sector_size    = 1024;
-    swd_target_device.sector_cnt     = (target->code_size / 1024);
-    swd_target_device.flash_start    = 0;
-    swd_target_device.flash_end      = target->code_size;
+//    swd_target_device.sector_size    = 1024;
+//    swd_target_device.sector_cnt     = (target->code_size / 1024);
+//    swd_target_device.flash_start    = 0;
+//    swd_target_device.flash_end      = target->code_size;
 //    swd_target_device.ram_start      = 0x20000000,
 //    swd_target_device.ram_end        = 0x20008000,
+}
+
+//flash / info编程
+static error_t swd_program_flash(uint8_t area, uint32_t addr, uint8_t *buf, uint32_t size)
+{
+    const program_target_t *const flash = swd_target_device.flash_algo;
+    uint32_t entry;
+    
+    // check if security bits were set
+    if (1 == security_bits_set(addr, (uint8_t *)buf, size)) {
+        return ERROR_SECURITY_BITS;
+    }
+    if(area == FLASH_AREA)
+        entry = flash->program_page;
+    else if(area == INFO_AREA)
+        entry = flash->program_info_page;
+    else
+        entry = 0;
+    while (size > 0) 
+    {
+        uint32_t write_size = MIN(size, flash->program_buffer_size);
+
+        // Write page to buffer
+        if (!swd_write_memory(flash->program_buffer, (uint8_t *)buf, write_size)) {
+            return ERROR_ALGO_DATA_SEQ;
+        }
+
+        // Run flash programming
+        if (!swd_flash_syscall_exec(&flash->sys_call_s,
+                                    entry,
+                                    addr,
+                                    write_size,
+                                    flash->program_buffer,
+                                    0)) 
+        {
+            return ERROR_WRITE;
+        }
+        addr += write_size;
+        buf += write_size;
+        size -= write_size;
+    }
+
+    return ERROR_SUCCESS;
 }
 
 //编程初始化，进模式
@@ -93,6 +138,7 @@ static error_t es_swd_init(void)
 
 
 
+
 //isp退出编程模式
 static error_t es_swd_uninit(void)
 {
@@ -103,10 +149,36 @@ static error_t es_swd_uninit(void)
 //        // Leave the target halted until a reset occurs
 //        target_set_state(RESET_PROGRAM);
 //    }
-
+//    // Check to see if anything needs to be done after programming.
+//    // This is usually a no-op for most targets.
+//    target_set_state(POST_FLASH_RESET);
 //    swd_off();
+
     return ERROR_SUCCESS;
 }  
+
+//擦除
+static error_t es_swd_erase_chip (uint8_t para)
+{
+    error_t status = ERROR_SUCCESS;
+    const program_target_t *const flash = swd_target_device.flash_algo;
+    //擦除flash
+    if (0 == swd_flash_syscall_exec(&flash->sys_call_s, flash->erase_chip, 0, 0, 0, 0)) {
+        return ERROR_SWD_ERASE;
+    }
+    //擦除info
+    if (0 == swd_flash_syscall_exec(&flash->sys_call_s, flash->erase_info, 0, 0, 0, 0)) {
+        return ERROR_SWD_ERASE;
+    }
+   
+    // Reset and re-initialize the target after the erase if required
+    if (swd_target_device.erase_reset) {
+        status = es_swd_init();
+    }      
+
+    return status; 
+}
+
 //读芯片chipid
 static error_t es_swd_read_chipid(uint8_t *buf)
 {  
@@ -135,9 +207,9 @@ static error_t es_swd_chipid_check(void)
 static error_t es_swd_read_checksum(uint8_t *buf)
 {
     error_t ret = ERROR_SUCCESS;
-//    ret = isp_chipid_check();
-//    if(ERROR_SUCCESS != ret)
-//        return ret;  
+    ret = es_swd_chipid_check();
+    if(ERROR_SUCCESS != ret)
+        return ret;  
     if (!swd_read_memory(CHIP_INFO_OFFSET + CHIP_CHECKSUM_ADDR, buf, 4))  
     {
         return ERROR_SWD_READ;
@@ -148,58 +220,16 @@ static error_t es_swd_read_checksum(uint8_t *buf)
 //flash编程
 static error_t es_swd_program_flash(uint32_t addr, uint8_t *buf, uint32_t size, uint32_t *failed_addr)
 {
-    const program_target_t *const flash = swd_target_device.flash_algo;
-
-    // check if security bits were set
-    if (1 == security_bits_set(addr, (uint8_t *)buf, size)) {
-        return ERROR_SECURITY_BITS;
+    error_t ret = ERROR_SUCCESS ;  
+    
+    ret = swd_program_flash(FLASH_AREA, addr, buf, size);
+    if( ret !=  ERROR_SUCCESS)
+    {
+         if(failed_addr)
+            *failed_addr = 0xFFFFFFFF;     
     }
-
-    while (size > 0) {
-        uint32_t write_size = MIN(size, flash->program_buffer_size);
-
-        // Write page to buffer
-        if (!swd_write_memory(flash->program_buffer, (uint8_t *)buf, write_size)) {
-            return ERROR_ALGO_DATA_SEQ;
-        }
-
-        // Run flash programming
-        if (!swd_flash_syscall_exec(&flash->sys_call_s,
-                                    flash->program_page,
-                                    addr,
-                                    flash->program_buffer_size,
-                                    flash->program_buffer,
-                                    0)) 
-        {
-            if( failed_addr)
-                *failed_addr = 0xFFFFFFFF;       //错误地址不显示，暂用0xFFFFFFFF代替
-            return ERROR_WRITE;
-        }
-//         //是否需要编程时自动校验
-//        if (config_get_automation_allowed()) {
-//            // Verify data flashed if in automation mode
-//            while (write_size > 0) {
-//                uint8_t rb_buf[16];
-//                uint32_t verify_size = MIN(write_size, sizeof(rb_buf));
-//                if (!swd_read_memory(addr, rb_buf, verify_size)) {
-//                    return ERROR_ALGO_DATA_SEQ;
-//                }
-//                if (memcmp(buf, rb_buf, verify_size) != 0) {
-//                    return ERROR_WRITE;
-//                }
-//                addr += verify_size;
-//                buf += verify_size;
-//                size -= verify_size;
-//                write_size -= verify_size;
-//            }
-//        } else {
-            addr += write_size;
-            buf += write_size;
-            size -= write_size;
-//        }
-    }
-
-    return ERROR_SUCCESS;
+    
+    return ret;
 }
 //读flash
 static error_t es_swd_read_flash(uint32_t addr, uint8_t *buf, uint32_t size)
@@ -236,7 +266,7 @@ static error_t es_swd_verify_flash(uint32_t addr,  uint8_t *data, uint32_t size,
                 *failed_data |= (read_buf[*failed_addr+1] << 8) ; 
                 *failed_data |= (read_buf[*failed_addr+2] << 16) ; 
                 *failed_data |= (read_buf[*failed_addr+3] << 24) ; 
-				return ERROR_ISP_VERIFY;              
+				return ERROR_SWD_VERIFY;              
             }
         } 
         addr += verify_size;
@@ -256,20 +286,20 @@ static error_t es_swd_program_config(uint32_t addr, uint8_t *buf, uint32_t size,
             
     prog_addr  =  CHIP_INFO_OFFSET + 0x400;     //info1的偏移地址
     prog_size = 56;     
-    ret = es_swd_program_flash(prog_addr, buf, prog_size, NULL );
+    ret = swd_program_flash(INFO_AREA, prog_addr, buf, prog_size );
     if(ret != ERROR_SUCCESS)
     {
         if(failed_addr)
             *failed_addr = 0xFFFFFFFF ; 
          return ERROR_SWD_PROG_CFG_WORD;
     } 
-    
+
     buf += prog_size; 
-    prog_addr  =  addr + 0x7C0;     //info1的偏移地址
+    prog_addr  =  CHIP_INFO_OFFSET + 0x7C0;     //info1的偏移地址
     prog_size = 96;     
     
-    ret = es_swd_program_flash(prog_addr, buf, prog_size, NULL);
-    if(ret != TRUE)
+    ret = swd_program_flash(INFO_AREA, prog_addr, buf, prog_size );
+    if(ret != ERROR_SUCCESS)
     {
         if(failed_addr)
             *failed_addr = 0xFFFFFFFF; 
@@ -280,20 +310,16 @@ static error_t es_swd_program_config(uint32_t addr, uint8_t *buf, uint32_t size,
 //读配置字
 static error_t es_swd_read_config(uint32_t addr,  uint8_t *buf, uint32_t size)
 {
-    uint8_t ret;
-    uint32_t size_in_words; 
+    error_t ret;
     uint32_t read_addr;
     uint32_t read_size;
     
-//    ret = swd_chipid_check();
-//    if(ERROR_SUCCESS != ret)
-//        return ret; 
+    ret = es_swd_chipid_check();
+    if(ERROR_SUCCESS != ret)
+        return ret; 
         
     if(size & 0x03)
         return ERROR_OUT_OF_BOUNDS;
-//    size_in_words = size/4; 
-//    if( size_in_words != M939_CONFIG_WORD_SIZE)
-//        return ERROR_ISP_PROG_CFG_WORD;
 
     //配置字在inf1区，保留未用的数据未下发。此信息需要根据XML文件修改。
     read_addr  =  CHIP_INFO_OFFSET + 0x400;     //info1的偏移地址
@@ -311,47 +337,94 @@ static error_t es_swd_read_config(uint32_t addr,  uint8_t *buf, uint32_t size)
     return ERROR_SUCCESS;
 }
 //配置字校验
-static error_t es_swd_verify_config(uint32_t addr,  uint8_t *data, uint32_t size, uint32_t *failed_addr, uint32_t *failed_data)
+static error_t es_swd_verify_config(uint32_t addr,  uint8_t *buf, uint32_t size, uint32_t *failed_addr, uint32_t *failed_data)
 {
-     return ERROR_SUCCESS; 
+    uint32_t i;
+    uint8_t read_buf[SWD_PRG_SIZE];
+    uint32_t verify_size;
+    
+    uint32_t read_addr;
+    uint32_t read_size;
+    
+    if(size & 0x03)
+        return ERROR_OUT_OF_BOUNDS;
+    
+    //配置字在inf1区，保留未用的数据未下发。此信息需要根据XML文件修改。
+    read_addr  =  CHIP_INFO_OFFSET + 0x400;     //info1的偏移地址
+    read_size = 56;     //14个字    
+    while (read_size > 0) 
+    {          
+        verify_size = MIN(read_size, sizeof(read_buf));
+        if (!swd_read_memory(read_addr, read_buf, verify_size))  
+        {
+            return ERROR_SWD_READ;
+        } 
+        for(i=0; i< verify_size; i++)
+        {
+            if( *buf++ != read_buf[i] ) 
+            {
+                *failed_addr = addr + ROUND_DOWN(i, 4)  ;
+                *failed_data |= (read_buf[*failed_addr] << 0) ; 
+                *failed_data |= (read_buf[*failed_addr+1] << 8) ; 
+                *failed_data |= (read_buf[*failed_addr+2] << 16) ; 
+                *failed_data |= (read_buf[*failed_addr+3] << 24) ; 
+				return ERROR_SWD_VERIFY;  
+            }  
+        } 
+        read_addr += verify_size;
+        read_size -= verify_size;
+    }
+    
+    read_addr  =  CHIP_INFO_OFFSET + 0x7C0;     //info1的偏移地址
+    read_size = 96;     //24个字
+    while (read_size > 0) 
+    {          
+        verify_size = MIN(read_size, sizeof(read_buf));
+        if (!swd_read_memory(read_addr, read_buf, verify_size))  
+        {
+            return ERROR_SWD_READ;
+        } 
+        for(i=0; i< verify_size; i++)
+        {
+            if( *buf++ != read_buf[i] ) 
+            {
+                *failed_addr = addr + ROUND_DOWN(i, 4)  ;
+                *failed_data |= (read_buf[*failed_addr] << 0) ; 
+                *failed_data |= (read_buf[*failed_addr+1] << 8) ; 
+                *failed_data |= (read_buf[*failed_addr+2] << 16) ; 
+                *failed_data |= (read_buf[*failed_addr+3] << 24) ; 
+				return ERROR_SWD_VERIFY;  
+            }  
+        } 
+        read_addr += verify_size;
+        read_size -= verify_size;
+    }
+    return ERROR_SUCCESS;  
 }
 
 
 static error_t es_swd_encrypt_chip(void)
 {
-    return ERROR_SUCCESS; 
-}
-//擦除
-static error_t es_swd_erase_chip (uint8_t para)
-{
-    error_t status = ERROR_SUCCESS;
-    const program_target_t *const flash = swd_target_device.flash_algo;
-    //擦除flash
-    if (0 == swd_flash_syscall_exec(&flash->sys_call_s, flash->erase_chip, 0, 0, 0, 0)) {
-        return ERROR_ERASE_ALL;
-    }
-    //擦除info1
-    if (0 == swd_flash_syscall_exec(&flash->sys_call_s, flash->erase_sector, CHIP_INFO1_ADDR, 0, 0, 0)) {
-        return ERROR_ERASE_SECTOR;
-    }
-    //擦除info2
-    if (0 == swd_flash_syscall_exec(&flash->sys_call_s, flash->erase_sector, CHIP_INFO2_ADDR, 0, 0, 0)) {
-        return ERROR_ERASE_SECTOR;
-    }
-    // Reset and re-initialize the target after the erase if required
-    if (swd_target_device.erase_reset) {
-        status = es_swd_init();
-    }      
+    error_t ret = ERROR_SUCCESS;
+    
+    ret = es_swd_chipid_check();
+    if(ERROR_SUCCESS != ret)
+        return ret; 
 
-    return status; 
+    ret = es_swd_program_config(target_dev->encrypt_addr, (uint8_t *)&target_dev->encrypt_value, 4, NULL);
+    if(ret != ERROR_SUCCESS)
+        return ERROR_SWD_ENCRYPT;  
+       
+    return ERROR_SUCCESS;   
 }
 
-///*******************************************************************************
-//*	函 数 名: es_swd_check_empty
-//*	功能说明: 查空
-//*	形    参: failed_addr：错误地址 failed_data：错误数据 
-//*	返 回 值: 错误类型
-//*******************************************************************************/
+
+/*******************************************************************************
+*	函 数 名: es_swd_check_empty
+*	功能说明: 查空
+*	形    参: failed_addr：错误地址 failed_data：错误数据 
+*	返 回 值: 错误类型
+*******************************************************************************/
 error_t es_swd_check_empty(uint32_t *failed_addr, uint32_t *failed_data)           
 {
     error_t status = ERROR_SUCCESS;
@@ -369,12 +442,15 @@ error_t es_swd_check_empty(uint32_t *failed_addr, uint32_t *failed_data)
         return status;   
         
     //flash查空
-	code_addr =  swd_target_device.flash_start ;
-	code_size =  swd_target_device.flash_end ; 
+	code_addr =  target_dev->code_start ;
+	code_size =  target_dev->code_size ; 
 	while(true)
 	{                 
-		copy_size = MIN(code_size, sizeof(read_buf));      
-	    swd_read_memory(code_addr, read_buf, copy_size);
+		copy_size = MIN(code_size, sizeof(read_buf));  
+        if (!swd_read_memory(code_addr, read_buf, copy_size))  
+        {
+            return ERROR_SWD_READ;
+        }        
 		for(i = 0; i<copy_size; i++)
 		{
 			if(read_buf[i] != 0xFF)
@@ -384,7 +460,7 @@ error_t es_swd_check_empty(uint32_t *failed_addr, uint32_t *failed_data)
                 *failed_data |= (read_buf[*failed_addr+1] << 8) ; 
                 *failed_data |= (read_buf[*failed_addr+2] << 16) ; 
                 *failed_data |= (read_buf[*failed_addr+3] << 24) ; 
-				return ERROR_ISP_FLASH_CHECK_EMPTY;
+				return ERROR_SWD_FLASH_CHECK_EMPTY;
 			} 				
 		} 
         // Update variables
@@ -397,91 +473,77 @@ error_t es_swd_check_empty(uint32_t *failed_addr, uint32_t *failed_data)
         } 
 	}  
 
-//    //配置字查空
-//	cfg_word_addr =  isp_target_dev->config_word_start + 0x400;
-//	cfg_word_size =  14;     //字长度
-//    while(true)
-//	{
-//		copy_size = MIN(cfg_word_size, sizeof(read_buf)/4 );
-//	    isp_read_config(cfg_word_addr, read_buf, copy_size);
-//		for(i = 0; i<copy_size; i++)
-//		{
-//			if(read_buf[i] != 0xFFFFFFFF)
-//			{              
-//			    *failed_addr = cfg_word_addr + i*4  ;
-//                *failed_data = read_buf[i] ; 
-//				return ERROR_ISP_CFG_WORD_CHECK_EMPTY;
-//			} 				
-//		} 
-//        // Update variables
-//        cfg_word_addr  += copy_size;
-//        cfg_word_size  -= copy_size;
-//        
-//        // Check for end
-//        if (code_size <= 0) {
-//            break;
-//        } 
-//	} 
-//    
-//	cfg_word_addr =  isp_target_dev->config_word_start + 0x7C0;
-//	cfg_word_size =  24;     //字长度
-//    while(true)
-//	{
-//		copy_size = MIN(cfg_word_size, sizeof(read_buf)/4 );
-//	    isp_read_config(cfg_word_addr, read_buf, copy_size);
-//		for(i = 0; i<copy_size; i++)
-//		{
-//			if(read_buf[i] != 0xFFFFFFFF)
-//			{              
-//			    *failed_addr = cfg_word_addr + i*4  ;
-//                *failed_data = read_buf[i] ; 
-//				return ERROR_ISP_CFG_WORD_CHECK_EMPTY;
-//			} 				
-//		} 
-//        // Update variables
-//        cfg_word_addr  += copy_size;
-//        cfg_word_size  -= copy_size;
-//        
-//        // Check for end
-//        if (code_size <= 0) {
-//            break;
-//        } 
-//	} 
-
-//    cfg_word_addr =  isp_target_dev->config_word_start + 0x1000;
-//	cfg_word_size =  10;     //字长度
-//    while(true)
-//	{
-//		copy_size = MIN(cfg_word_size, sizeof(read_buf)/4 );
-//	    isp_read_config(cfg_word_addr, read_buf, copy_size);
-//		for(i = 0; i<copy_size; i++)
-//		{
-//			if(read_buf[i] != 0xFFFFFFFF)
-//			{              
-//			    *failed_addr = cfg_word_addr + i*4  ;
-//                *failed_data = read_buf[i] ; 
-//				return ERROR_ISP_CFG_WORD_CHECK_EMPTY;
-//			} 				
-//		} 
-//        // Update variables
-//        cfg_word_addr  += copy_size;
-//        cfg_word_size  -= copy_size;
-//        
-//        // Check for end
-//        if (code_size <= 0) {
-//            break;
-//        } 
-//	} 
-//    
+    //配置字查空
+	cfg_word_addr =  CHIP_INFO_OFFSET + 0x400;
+	cfg_word_size =  56;     //字长度
+    while(true)
+	{
+		copy_size = MIN(cfg_word_size, sizeof(read_buf));
+        if (!swd_read_memory(cfg_word_addr, read_buf, copy_size))  
+        {
+            return ERROR_SWD_READ;
+        }   
+		for(i = 0; i<copy_size; i++)
+		{
+			if(read_buf[i] != 0xFF)
+			{              
+			    *failed_addr = code_addr + ROUND_DOWN(i, 4)  ;
+                *failed_data |= (read_buf[*failed_addr] << 0) ; 
+                *failed_data |= (read_buf[*failed_addr+1] << 8) ; 
+                *failed_data |= (read_buf[*failed_addr+2] << 16) ; 
+                *failed_data |= (read_buf[*failed_addr+3] << 24) ; 
+				return ERROR_SWD_CFG_WORD_CHECK_EMPTY;
+			} 					
+		} 
+        // Update variables
+        cfg_word_addr  += copy_size;
+        cfg_word_size  -= copy_size;
+        
+        // Check for end
+        if (code_size <= 0) {
+            break;
+        } 
+	} 
+    
+	cfg_word_addr =  CHIP_INFO_OFFSET + 0x7C0;
+	cfg_word_size =  96;     //字长度
+    while(true)
+	{
+		copy_size = MIN(cfg_word_size, sizeof(read_buf));
+	    if (!swd_read_memory(cfg_word_addr, read_buf, copy_size))  
+        {
+            return ERROR_SWD_READ;
+        }  
+		for(i = 0; i<copy_size; i++)
+		{
+			if(read_buf[i] != 0xFF)
+			{              
+			    *failed_addr = code_addr + ROUND_DOWN(i, 4)  ;
+                *failed_data |= (read_buf[*failed_addr] << 0) ; 
+                *failed_data |= (read_buf[*failed_addr+1] << 8) ; 
+                *failed_data |= (read_buf[*failed_addr+2] << 16) ; 
+                *failed_data |= (read_buf[*failed_addr+3] << 24) ; 
+				return ERROR_SWD_CFG_WORD_CHECK_EMPTY;
+			} 				
+		} 
+        // Update variables
+        cfg_word_addr  += copy_size;
+        cfg_word_size  -= copy_size;
+        
+        // Check for end
+        if (code_size <= 0) {
+            break;
+        } 
+	}     
     return ERROR_SUCCESS;     
 }  
 
-///*******************************************************************************
-//*	函 数 名: swd_target_program_config_all
-//*	功能说明: 芯片配置字编程。
-//*	形    参: failed_addr：错误地址  
-//*	返 回 值: 错误类型
-//*******************************************************************************/
+/*******************************************************************************
+*	函 数 名: swd_target_program_config_all
+*	功能说明: 芯片配置字编程。
+*	形    参: failed_addr：错误地址  
+*	返 回 值: 错误类型
+*******************************************************************************/
 static error_t swd_target_program_config_all(uint32_t *failed_addr)
 {
     error_t ret = ERROR_SUCCESS;
@@ -493,9 +555,9 @@ static error_t swd_target_program_config_all(uint32_t *failed_addr)
     uint32_t read_addr;
     uint8_t read_buf[SWD_PRG_SIZE] = {0x00};
     
-//    ret = isp_chipid_check();
-//    if(ERROR_SUCCESS != ret)
-//        return ret; 
+    ret = es_swd_chipid_check();
+    if(ERROR_SUCCESS != ret)
+        return ret; 
         
     cfg_word_addr =  target_dev->config_word_start;
 	cfg_word_size =  target_dev->config_word_size;
@@ -522,14 +584,14 @@ static error_t swd_target_program_config_all(uint32_t *failed_addr)
 
     return ERROR_SUCCESS;     
 } 
-//    
-///*******************************************************************************
-//*	函 数 名: swd_target_program_all
-//*	功能说明: 芯片编程。flash和配置字编程
-//*	形    参: sn_enable：是否已编程序列号 sn：序列号代码 
-//*             failed_addr：错误地址   failed_data ：错误数据
-//*	返 回 值: 编程错误地址
-//*******************************************************************************/
+    
+/*******************************************************************************
+*	函 数 名: swd_target_program_all
+*	功能说明: 芯片编程。flash和配置字编程
+*	形    参: sn_enable：是否已编程序列号 sn：序列号代码 
+*             failed_addr：错误地址   failed_data ：错误数据
+*	返 回 值: 编程错误地址
+*******************************************************************************/
 static error_t swd_target_program_all(uint8_t sn_enable, serial_number_t *sn , uint32_t *failed_addr) 
 {
     error_t ret = ERROR_SUCCESS;
@@ -548,8 +610,8 @@ static error_t swd_target_program_all(uint8_t sn_enable, serial_number_t *sn , u
     if(ERROR_SUCCESS != ret)
         return ret; 
         
-    code_addr =  swd_target_device.flash_start;
-	code_size =  swd_target_device.flash_end;
+    code_addr =  target_dev->code_start;
+	code_size =  target_dev->code_size;
     read_addr =  0; 
         
     while(true)
@@ -580,49 +642,46 @@ static error_t swd_target_program_all(uint8_t sn_enable, serial_number_t *sn , u
         if (code_size <= 0) 
             break;       
     }
-//    cfg_word_addr =  isp_target_dev->config_word_start;
-//	cfg_word_size =  isp_target_dev->config_word_size;
-//    read_addr =  0;
-//    while(true)
-//    {
-//        copy_size = MIN(cfg_word_size, sizeof(read_buf) );          
-//        ret = online_file_read(CFG_WORD, read_addr, read_buf , copy_size);
-//        if(ERROR_SUCCESS != ret)
-//            return ret;     		
-//        ret = isp_prog_program_config(cfg_word_addr, read_buf, copy_size, failed_addr); 
-//        if( ret !=  ERROR_SUCCESS)
-//            return ret;             
-//        // Update variables
-//        cfg_word_addr  += copy_size;
-//        cfg_word_size  -= copy_size;
-//        read_addr += copy_size;
-//        // Check for end
-//        if (cfg_word_size <= 0) 
-//            break;       
-//    }
+    cfg_word_addr =  target_dev->config_word_start;
+	cfg_word_size =  target_dev->config_word_size;
+    read_addr =  0;
+    while(true)
+    {
+        copy_size = MIN(cfg_word_size, sizeof(read_buf) );          
+        ret = online_file_read(CFG_WORD, read_addr, read_buf , copy_size);
+        if(ERROR_SUCCESS != ret)
+            return ret;     		
+        ret = es_swd_program_config(cfg_word_addr, read_buf, copy_size, failed_addr); 
+        if( ret !=  ERROR_SUCCESS)
+            return ret;             
+        // Update variables
+        cfg_word_addr  += copy_size;
+        cfg_word_size  -= copy_size;
+        read_addr += copy_size;
+        // Check for end
+        if (cfg_word_size <= 0) 
+            break;       
+    }
     return ret;  
 }
 
-///*******************************************************************************
-//*	函 数 名: isp_target_verify_all
-//*	功能说明: 芯片验证
-//*	形    参: sn_enable：是否已编程序列号 sn：序列号代码 
-//*             failed_addr：错误地址   
-//*	返 回 值: 编程错误地址
-//*******************************************************************************/
+/*******************************************************************************
+*	函 数 名: isp_target_verify_all
+*	功能说明: 芯片验证
+*	形    参: sn_enable：是否已编程序列号 sn：序列号代码 
+*             failed_addr：错误地址   
+*	返 回 值: 编程错误地址
+*******************************************************************************/
 static error_t  swd_target_verify_all(uint8_t sn_enable, serial_number_t *sn , uint32_t *failed_addr, uint32_t *failed_data)
 {       
     error_t ret = ERROR_SUCCESS;
 
     uint32_t checksum = 0;  
-    uint32_t sf_checksum = 0;   //spi保存的校验和   
-    
+    uint32_t sf_checksum = 0;   //spi保存的校验和         
     uint32_t code_addr;	
 	uint32_t code_size;	
     uint32_t cfg_word_addr;	
-	uint32_t cfg_word_size;	   
-    uint8_t read_buf[SWD_PRG_SIZE];
-    
+	uint32_t cfg_word_size;	     
     uint32_t verify_size; 
     uint32_t sf_addr;  
     uint8_t sf_buf[SWD_PRG_SIZE];     
@@ -631,8 +690,8 @@ static error_t  swd_target_verify_all(uint8_t sn_enable, serial_number_t *sn , u
     if(ERROR_SUCCESS != ret)
         return ret; 
         
-    code_addr =  swd_target_device.flash_start;
-	code_size =  swd_target_device.flash_end ;
+    code_addr =  target_dev->code_start;
+	code_size =  target_dev->code_size;
     sf_addr = 0;
     while(true)
     {
@@ -662,35 +721,35 @@ static error_t  swd_target_verify_all(uint8_t sn_enable, serial_number_t *sn , u
         return  ret;
     }         
     
-//    cfg_word_addr =  isp_target_dev->config_word_start;
-//	cfg_word_size =  isp_target_dev->config_word_size;
-//    sf_addr =  0;
-//    checksum = 0;
-//    while(true)
-//    {
-//        verify_size = MIN(cfg_word_size, sizeof(sf_buf) );          
-//        ret = online_file_read(CFG_WORD, sf_addr, sf_buf , verify_size);
-//        if( ret !=  ERROR_SUCCESS)
-//            return ret; 
-//        checksum += check_sum(verify_size, sf_buf);     //计算原始数据校验和
-//        
-//        ret = isp_prog_verify_config(cfg_word_addr, sf_buf, verify_size,failed_addr,failed_data); 
-//        if( ret !=  ERROR_SUCCESS)
-//            return ret; 
-//        // Update variables
-//        cfg_word_addr  += verify_size;
-//        cfg_word_size  -= verify_size;
-//        sf_addr += verify_size;
-//        // Check for end
-//        if (cfg_word_size <= 0) 
-//            break;       
-//    }
-//    online_file_read(CFG_WORD_CHECKSUM, 0,(uint8_t*)&sf_checksum, 4);        
-//    if(sf_checksum != (checksum&0x0000ffff))
-//    {
-//        ret = ERROR_CFG_WORD_CHECKSUM;
-//        return  ret; 
-//    }           
+    cfg_word_addr =  target_dev->config_word_start;
+	cfg_word_size =  target_dev->config_word_size;
+    sf_addr =  0;
+    checksum = 0;
+    while(true)
+    {
+        verify_size = MIN(cfg_word_size, sizeof(sf_buf) );          
+        ret = online_file_read(CFG_WORD, sf_addr, sf_buf , verify_size);
+        if( ret !=  ERROR_SUCCESS)
+            return ret; 
+        checksum += check_sum(verify_size, sf_buf);     //计算原始数据校验和
+        
+        ret = es_swd_verify_config(cfg_word_addr, sf_buf, verify_size,failed_addr,failed_data); 
+        if( ret !=  ERROR_SUCCESS)
+            return ret; 
+        // Update variables
+        cfg_word_addr  += verify_size;
+        cfg_word_size  -= verify_size;
+        sf_addr += verify_size;
+        // Check for end
+        if (cfg_word_size <= 0) 
+            break;       
+    }
+    online_file_read(CFG_WORD_CHECKSUM, 0,(uint8_t*)&sf_checksum, 4);        
+    if(sf_checksum != (checksum&0x0000ffff))
+    {
+        ret = ERROR_CFG_WORD_CHECKSUM;
+        return  ret; 
+    }           
     return  ret;   
 }
 

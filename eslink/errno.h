@@ -72,6 +72,9 @@ typedef enum {
     ERROR_SWD_PROG_CFG_WORD = 0x53,             //swd配置字编程失败
     ERROR_SWD_VERIFY        = 0x54,             //swd校验失败    
     ERROR_SWD_READ          = 0x55,             //swd读失败
+    ERROR_SWD_FLASH_CHECK_EMPTY   = 0x56,       //swd FLASH查空失败   ___NEW
+    ERROR_SWD_CFG_WORD_CHECK_EMPTY   = 0x57,    //swd 配置字查空失败  ___NEW
+    ERROR_SWD_ENCRYPT       = 0x58,             //swd 加密失败        ___NEW
     /* swd target flash errors */ 
     ERROR_RESET             = 0x67,            //"SWD FAILED to reset/halt the target MCU",  
     ERROR_ALGO_DL           = 0x68,             //"SWD FAILED to download the flash programming algorithms to the target MCU",

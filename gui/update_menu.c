@@ -203,7 +203,7 @@ void ofl_select_display(void)
         ofl_display();
 	}          
     
-    msg_read_data(&msg);
+    gui_msg_read_data(&msg);
 	if(msg != MSG_NULL)        //有按键按下 
     {
 		switch (msg)
@@ -306,7 +306,7 @@ void menu_init(void)
 	cur_menu  = &ofl_menu;
     disp_init = 1;
 	get_ofl_menu();
-	msg_init();
+	gui_msg_init();
 }
 /*******************************************************************************
 *	函 数 名: menu_display

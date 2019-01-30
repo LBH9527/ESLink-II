@@ -390,7 +390,6 @@ static error_t isp_prog_verify_flash(uint32_t addr,  uint8_t *data, uint32_t siz
  */
 static error_t isp_prog_program_config(uint32_t addr, uint8_t *data, uint32_t size, uint32_t *failed_addr )
 {   
-    error_t ret = ERROR_SUCCESS ;  
     uint32_t size_in_words;
     uint32_t offset;    
         

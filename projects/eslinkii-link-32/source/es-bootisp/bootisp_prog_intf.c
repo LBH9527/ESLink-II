@@ -138,7 +138,7 @@ static error_t bootisp_chipid_check(void)
 }
 static error_t bootisp_prog_program_config(uint32_t addr, uint8_t *buf, uint32_t size,uint32_t *failed_addr )
 {
-    error_t ret = ERROR_SUCCESS ;    
+    uint8_t ret = ERROR_SUCCESS ;    
     uint32_t prog_addr;
     uint32_t prog_size;       
 
@@ -148,7 +148,7 @@ static error_t bootisp_prog_program_config(uint32_t addr, uint8_t *buf, uint32_t
     prog_addr  =  CHIP_INFO_OFFSET + 0x400;     //info1的偏移地址
     prog_size = 56;     
     ret = bootisp_write_memory(prog_addr, buf, prog_size );
-    if(ret != ERROR_SUCCESS)
+    if(ret != TRUE)
     {
         if(failed_addr)
             *failed_addr = 0xFFFFFFFF ; 
@@ -203,7 +203,19 @@ static error_t bootisp_prog_verify_config(uint32_t addr,  uint8_t *data, uint32_
 }
 static error_t bootisp_prog_program_flash(uint32_t addr, uint8_t *data, uint32_t size, uint32_t *failed_addr)
 {
-     return ERROR_SUCCESS; 
+    uint8_t ret ; 
+    
+    if(size & 0x03)
+        return ERROR_OUT_OF_BOUNDS;
+    
+    ret = bootisp_write_memory( addr, data, size);
+    if(ret != TRUE)
+    {
+        if(failed_addr)
+            *failed_addr = 0xFFFFFFFF ; 
+        return ERROR_BOOTISP_WRITE;
+    }
+    return ERROR_SUCCESS; 
 }
 static error_t bootisp_prog_read_flash(uint32_t addr, uint8_t *data, uint32_t size)
 {
@@ -257,7 +269,75 @@ static error_t bootisp_target_program_config_all(uint32_t *failed_addr)
 }
 static error_t bootisp_target_program_all(  uint8_t sn_enable, serial_number_t *sn , uint32_t *failed_addr)
 {
-     return ERROR_SUCCESS; 
+    error_t ret = ERROR_SUCCESS;
+    uint32_t i;
+    
+    uint32_t code_addr;	
+	uint32_t code_size;	
+    uint32_t cfg_word_addr;	
+	uint32_t cfg_word_size;	   
+    
+    uint32_t copy_size;      
+    uint32_t read_addr;
+    uint8_t read_buf[BOOTISP_PRG_SIZE];
+       
+    ret = bootisp_chipid_check();
+    if(ERROR_SUCCESS != ret)
+        return ret; 
+        
+    code_addr =  target_dev->code_start;
+	code_size =  target_dev->code_size;
+    read_addr =  0; 
+        
+    while(true)
+    {
+        copy_size = MIN(code_size, sizeof(read_buf) ); 
+        ret = bootisp_prog_intf.cb(USER_HEX, read_addr, read_buf , copy_size);
+        
+        if(ERROR_SUCCESS != ret)
+            return ret;
+        if(sn_enable == ENABLE)     //序列号代码使能
+            serial_number_intercept_write(sn ,code_addr, read_buf, copy_size);	//填入序列号
+        for(i=0; i<copy_size; i++)
+        {
+            if(read_buf[i] != 0xFF)
+                break;
+        }
+        if(i < copy_size)      //数据段都为0xFF,不进行编程
+        {
+            ret = bootisp_prog_program_flash(code_addr, read_buf, copy_size, failed_addr); 
+            if( ret !=  ERROR_SUCCESS)   //编程失败，返回编程失败地址
+                return ret;
+        }           
+        // Update variables
+        code_addr  += copy_size;
+        code_size  -= copy_size;
+        read_addr += copy_size;
+        // Check for end
+        if (code_size <= 0) 
+            break;       
+    }
+//    cfg_word_addr =  target_dev->config_word_start;
+//	cfg_word_size =  target_dev->config_word_size;
+//    read_addr =  0;
+//    while(true)
+//    {
+//        copy_size = MIN(cfg_word_size, sizeof(read_buf) );          
+//        ret = bootisp_prog_intf.cb(CFG_WORD, read_addr, read_buf , copy_size);
+//        if(ERROR_SUCCESS != ret)
+//            return ret;     		
+//        ret = bootisp_prog_program_config(cfg_word_addr, read_buf, copy_size, failed_addr); 
+//        if( ret !=  ERROR_SUCCESS)
+//            return ret;             
+//        // Update variables
+//        cfg_word_addr  += copy_size;
+//        cfg_word_size  -= copy_size;
+//        read_addr += copy_size;
+//        // Check for end
+//        if (cfg_word_size <= 0) 
+//            break;       
+//    }
+    return ret;     
 }
 static error_t bootisp_target_verify_all( uint8_t sn_enable, serial_number_t *sn , uint32_t *failed_addr, uint32_t *failed_data)
 {

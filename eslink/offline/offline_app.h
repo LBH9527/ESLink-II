@@ -13,6 +13,7 @@ typedef enum  {
 typedef enum{
     OFL_SUCCESS,
     
+    OFL_ERR_ENTRY_MODE,         //进模式失败
     OFL_ERR_CHIPID_CHECK,       //ID检测失败
     OFL_ERR_ERASE,              //擦除失败
     OFL_ERR_CHECK_EMPTY,        //查空
@@ -34,7 +35,7 @@ uint8_t ofl_out_prog_mode(void);
 ofl_error_t ofl_prog(void);
 ofl_error_t ofl_mini_prog(void);
 ofl_error_t update_ofl_serial_number(void);
-
-
+void ofl_prog_handle(void);
+void mini_ofl_prog_handle(void);
 #endif
 

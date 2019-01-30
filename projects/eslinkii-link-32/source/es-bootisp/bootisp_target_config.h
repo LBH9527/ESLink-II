@@ -7,11 +7,13 @@
 #define BOOTSIP_DATA_SIZE               0x80 //packet_size
 
 #define BOOTISP_DEFAULT_BAUDRATE        115200              //默认波特率
+
 //115200波特率下的时间
+#define BOOTISP_DEFAULT_TIME            5                  //默认等待时间 5ms
 #define BOOTISP_ERASE_TIME              10                  //全擦时间10
 #define BOOTISP_CHECK_EMPTY_TIME        50                  //查空时间 
 #define BOOTISP_READ_PAGE_TIME          2                   //读一页时间(0x80个字)
-#define BOOTISP_WRITE_PAGE_TIME         20                  //写一页时间(0x80个字)
+#define BOOTISP_WRITE_PAGE_TIME         50                  //写一页时间(0x80个字)
 
 /******************************************************************************/
 //bootisp配置,根据bootisp中的939.map文件修改。

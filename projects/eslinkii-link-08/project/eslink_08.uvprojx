@@ -542,29 +542,19 @@
           <GroupName>es-isp</GroupName>
           <Files>
             <File>
-              <FileName>isp_prog_intf.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\source\es-isp\isp_prog_intf.c</FilePath>
-            </File>
-            <File>
               <FileName>isp_prog_intf.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\source\es-isp\isp_prog_intf.h</FilePath>
             </File>
             <File>
-              <FileName>hr7p169b_isp.c</FileName>
+              <FileName>M620_ISP.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\source\es-isp\hr7p169b_isp.c</FilePath>
+              <FilePath>..\source\es-isp\M620_ISP.c</FilePath>
             </File>
             <File>
-              <FileName>hr7p169b_isp.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\source\es-isp\hr7p169b_isp.h</FilePath>
-            </File>
-            <File>
-              <FileName>isp.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\source\es-isp\isp.h</FilePath>
+              <FileName>isp_prog_intf.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\es-isp\isp_prog_intf.c</FilePath>
             </File>
           </Files>
         </Group>

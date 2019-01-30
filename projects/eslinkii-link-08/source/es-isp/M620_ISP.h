@@ -1,5 +1,5 @@
-#ifndef _HR7P169B_ISP_H
-#define _HR7P169B_ISP_H
+#ifndef M620_ISP_H
+#define M620_ISP_H
 
 #define ID_CHECK_CMD                0xFA
 #define ID_CHECK_VAL                0x695A

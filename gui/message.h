@@ -28,12 +28,13 @@
 #define MSG_ERR_PROG                0x0E            //编程失败
 #define MSG_ERR_VERIFY              0x0F            //校验
 #define MSG_ERR_ENCRYPT             0x10            //加密
+#define MSG_ERR_ENTRY_MODE          0x11
 #define MSG_ERR_PROG_INTF           0x0A            //编程接口设置失败
 
-
-void msg_init(void);
-uint8_t msg_read_data(uint8_t *value);
-uint8_t msg_write_data(uint8_t *value);
+#define MSG_ERR                    0xFF            //编程失败，未知错误
+void gui_msg_init(void);
+uint8_t gui_msg_read_data(uint8_t *value);
+uint8_t gui_msg_write_data(uint8_t *value);
 
 
 #endif
