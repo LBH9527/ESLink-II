@@ -37,10 +37,8 @@ static struct ofl_file_tbl file_tbl;
 static  ofl_file_partition file_partition;
 
 static uint8_t file_mount(void)
-{
-    FATFS *fs;
-    FRESULT res;        /* API result code */
-    DWORD fre_clust, fre_sect, tot_sect;     
+{    
+    FRESULT res;        
 
     res = f_mount(&FatFs,"0:",1);        
     if(res != FR_OK)        //挂载不成功，格式化SPI FLASH
@@ -58,26 +56,8 @@ static uint8_t file_mount(void)
             //TODO: 挂载不成功处理
             while(1);
         }         
-    }
-     res = f_getfree("0:", &fre_clust, &fs);
-     /* Get total sectors and free sectors */
-    tot_sect = (fs->n_fatent - 2) * fs->csize;
-    fre_sect = fre_clust * fs->csize;
-    //TODO:容量不足需要提示
-//    if( fre_sect < )      //容量单位4K
-//    {
-//        
-//    }
-    
-//    uint8_t buf[128] = {0x01, 0x02, 0x03};
-//    uint8_t readbuf[128];
-//    uint32_t bw;
-//    res = f_open(&file_handle, "12345",   FA_CREATE_ALWAYS|FA_WRITE   );
-//   res = f_write(&file_handle, buf , 128, &bw);
-//   f_close(&file_handle);   
-//    f_open(&file_handle, "12345",   FA_READ   );
-//    res = f_read(&file_handle, readbuf, 128 , &bw);
-//    f_close(&file_handle); 
+    } 
+   
      return TRUE;
 }
 
@@ -546,6 +526,24 @@ error_t ofl_file_lseek_write(char *path, uint32_t addr, uint8_t *buf, uint32_t s
         return ERROR_FS_WRITE;              
     } 
     f_close(&fd);     
+    return ERROR_SUCCESS ;
+}
+
+//计算脱机工程空间 ，小于400K报错
+error_t ofl_file_get_free(void)
+{
+    FATFS *fs;
+    FRESULT res;        
+    DWORD fre_clust, fre_sect, tot_sect;  
+         res = f_getfree("0:", &fre_clust, &fs);
+     /* Get total sectors and free sectors */
+    tot_sect = (fs->n_fatent - 2) * fs->csize;
+    fre_sect = fre_clust * fs->csize;
+    //TODO:容量不足需要提示
+    if( fre_sect < 100)      //小于400K
+    {
+        return ERROR_OFL_SPACE_NOT_ENOUGH ;
+    }
     return ERROR_SUCCESS ;
 }
 

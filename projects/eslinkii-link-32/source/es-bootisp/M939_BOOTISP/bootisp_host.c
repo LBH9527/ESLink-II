@@ -5,7 +5,7 @@
  
 static void bootisp_delay(uint32_t n)
 {
-    es_delay_ms(n);
+    es_delay_ms(1);
 }
 
 //异或校验
@@ -27,39 +27,13 @@ static uint8_t check_xor(uint8_t *data, uint8_t size)
 	return Xor;
 }
 
-
-
-////读数据
-//static uint8_t read_data_and_check(uint8_t *rd_data, uint8_t rd_size, uint8_t delay_ms)
-//{
-//    uint32_t i = 0, timeout = 20;
-//    uint8_t len_data;
-//    uint8_t xor_temp;
-//    
-//    bootisp_delay(delay_ms);
-//    
-//    while(rd_size > 0)
-//    {
-//        len_data = uart_read_data(rd_data, rd_size);
-//        rd_size -= len_data;
-//        timeout--;
-//        bootisp_delay(1);
-//        if(timeout == 0)
-//            return FALSE;
-//    } 
-//    xor_temp = check_xor(rd_data, rd_size-1);
-//    if( xor_temp !=  *(rd_data+rd_size))
-//        return FALSE;
-//    return TRUE;      
-//}  
+ 
 //读数据
 static uint8_t read_data(uint8_t *rd_data, uint8_t rd_size, uint8_t delay_ms)
 {
-    uint32_t i = 0, timeout = 20;
+    uint32_t timeout = 100 + delay_ms;
     uint8_t len_data;
-    
-    bootisp_delay(delay_ms);
-    
+                         
     while(rd_size > 0)
     {
         len_data = uart_read_data(rd_data, rd_size);
@@ -75,11 +49,9 @@ static uint8_t read_data(uint8_t *rd_data, uint8_t rd_size, uint8_t delay_ms)
 //读数据并判断应答
 static uint8_t read_cmd_and_check(uint8_t ack,  uint8_t delay_ms)
 {
-    uint32_t i = 0, timeout = 20;
+    uint32_t i = 0, timeout = 100 + delay_ms;
     uint8_t rd_data; 
     
-    bootisp_delay(delay_ms);  
-
     for(i=0; i<timeout; i++)
     {
         if( (uart_read_data(&rd_data, 1)) && (rd_data == ack))
@@ -110,7 +82,6 @@ static uint8_t write_data(uint8_t *wr_data, uint8_t wr_size)
 //写数据和校验码    
 static uint8_t write_data_oxr(uint8_t *data, uint8_t size)
 {
-    uint32_t len_data;
     uint8_t xor_temp;
     uint32_t timeout = 0;
 
@@ -132,8 +103,6 @@ static uint8_t write_data_oxr(uint8_t *data, uint8_t size)
 //写cmd并判断校验码
 static uint8_t write_cmd_and_check(uint8_t *cmd, uint8_t size)
 {        
-    uint32_t len_data;
-    
     if(write_data(cmd, size) != TRUE)
         return FALSE;
     if(read_cmd_and_check(BOOTISP_ACK, BOOTISP_DEFAULT_TIME) != TRUE)  
@@ -185,7 +154,7 @@ uint8_t bootisp_extended_erase(uint8_t *data, uint8_t size)
             return FALSE;        
     }         
     //check ack
-    if(read_cmd_and_check(BOOTISP_ACK, BOOTISP_ERASE_TIME) != TRUE)  
+    if(read_cmd_and_check(BOOTISP_ACK, BOOTISP_DEFAULT_TIME) != TRUE)  
         return FALSE; 
         
     return TRUE;   
@@ -193,7 +162,6 @@ uint8_t bootisp_extended_erase(uint8_t *data, uint8_t size)
 uint8_t bootisp_check_empty(uint32_t addr, uint32_t size)
 {
     uint8_t cmd_buf[2] = {CMD_CHECK_EMPTY, 0xFF - CMD_CHECK_EMPTY}; 
-    uint8_t ack;
     uint8_t wr_buf[4];
     
     if(addr & 0x03)               //4字节对齐
@@ -225,14 +193,13 @@ uint8_t bootisp_check_empty(uint32_t addr, uint32_t size)
     if(read_cmd_and_check(BOOTISP_ACK, BOOTISP_DEFAULT_TIME) != TRUE)  
         return FALSE; 
     //empty check
-    if(read_cmd_and_check(BOOTISP_ACK, BOOTISP_CHECK_EMPTY_TIME) != TRUE)  
+    if(read_cmd_and_check(BOOTISP_ACK, BOOTISP_DEFAULT_TIME) != TRUE)  
         return FALSE; 
     return TRUE;    
 }
 
-static uint8_t bootisp_read_block(uint32_t addr, uint8_t *data, uint8_t size)
+static uint8_t bootisp_read_block(uint32_t addr, uint8_t *data, uint32_t size)
 {
-    uint8_t ack;
     uint8_t cmd_buf[2] = {CMD_RD_MEMORY, 0xFF - CMD_RD_MEMORY};
     uint8_t wr_buf[4];
     
@@ -260,10 +227,23 @@ static uint8_t bootisp_read_block(uint32_t addr, uint8_t *data, uint8_t size)
     if(read_cmd_and_check(BOOTISP_ACK, BOOTISP_DEFAULT_TIME) != TRUE)  
         return FALSE; 
     //rcv data
-    if( read_data(data,size, BOOTISP_READ_PAGE_TIME) != TRUE) 
+    if( read_data(data,size, 200) != TRUE) 
         return FALSE;
    
     return TRUE;
+}
+static uint8_t bootisp_read_block_retry(uint32_t addr, uint8_t *data, uint32_t size)
+{
+	uint8_t i;
+	
+	for (i = 0; i < 3; i++) 
+	{
+		if ( bootisp_read_block(addr, data, size) != FALSE) 
+			break;
+	}
+    if(i >= 3)
+		return FALSE;
+	return TRUE;
 }
 uint8_t bootisp_read_memory(uint32_t addr, uint8_t *data, uint32_t size)
 {
@@ -274,7 +254,7 @@ uint8_t bootisp_read_memory(uint32_t addr, uint8_t *data, uint32_t size)
     single = size % BOOTSIP_DATA_SIZE;
     while (page) 
     {
-        if (bootisp_read_block(addr, data, BOOTSIP_DATA_SIZE) != TRUE)
+        if (bootisp_read_block_retry(addr, data, BOOTSIP_DATA_SIZE) != TRUE)
             return FALSE;
         addr += BOOTSIP_DATA_SIZE;
         data += BOOTSIP_DATA_SIZE;
@@ -284,14 +264,14 @@ uint8_t bootisp_read_memory(uint32_t addr, uint8_t *data, uint32_t size)
     
     if (bootisp_read_block(addr, data, single) != TRUE)
         return FALSE;
-
+    return TRUE;
 }  
 
 //写指定地址数据  
-uint8_t bootisp_write_block(uint32_t addr,  uint8_t *data, uint8_t size)  
+static uint8_t bootisp_write_block(uint32_t addr,  uint8_t *data, uint32_t size)  
 {
     uint8_t cmd_buf[2] = {CMD_WR_MEMORY, 0xFF - CMD_WR_MEMORY};
-    uint8_t ack;
+    uint8_t wr_buf[BOOTSIP_DATA_SIZE+1];
     uint8_t addr_buf[4];
     
     if(size == 0)
@@ -315,16 +295,31 @@ uint8_t bootisp_write_block(uint32_t addr,  uint8_t *data, uint8_t size)
     if(read_cmd_and_check(BOOTISP_ACK, BOOTISP_DEFAULT_TIME) != TRUE)  
         return FALSE; 
         
-    //write data size and data     
-    if(write_data(&size, 1) != TRUE)
-        return FALSE;
-    if(write_data_oxr(data, size) != TRUE)
+    //write data size and data    
+    wr_buf[0] = size - 1;             //发送的数据为实际需要些的数据长度 -1
+    memcpy(&wr_buf[1], data, size); //拷贝需要发送的数据     
+    if(write_data_oxr(wr_buf, size+1) != TRUE)
         return FALSE;  
     //check ack
    if(read_cmd_and_check(BOOTISP_ACK, BOOTISP_WRITE_PAGE_TIME) != TRUE)  
         return FALSE;  
     return TRUE;    
 }  
+
+uint8_t bootisp_write_block_retry(uint32_t addr,  uint8_t *data, uint32_t size)  
+{
+	uint8_t i;
+	
+	for (i = 0; i < 3; i++) 
+	{
+		if ( bootisp_write_block(addr, data, size) != FALSE) 
+			break;
+	}
+    if(i >= 3)
+		return FALSE;
+	return TRUE;
+
+}
 uint8_t bootisp_write_memory(uint32_t addr,  uint8_t *data, uint32_t size)
 {
     uint32_t page;
@@ -334,7 +329,7 @@ uint8_t bootisp_write_memory(uint32_t addr,  uint8_t *data, uint32_t size)
     single = size % BOOTSIP_DATA_SIZE;
     while (page) 
     {
-        if (bootisp_write_block(addr, data, BOOTSIP_DATA_SIZE) != TRUE)
+        if (bootisp_write_block_retry(addr, data, BOOTSIP_DATA_SIZE) != TRUE)
             return FALSE;
         addr += BOOTSIP_DATA_SIZE;
         data += BOOTSIP_DATA_SIZE;
@@ -343,21 +338,55 @@ uint8_t bootisp_write_memory(uint32_t addr,  uint8_t *data, uint32_t size)
     
     if (bootisp_write_block(addr, data, single) != TRUE)
         return FALSE;
-
+    return TRUE;
 }
 
-uint8_t bootisp_set_target_reset(void)  
+
+ static uint8_t bootisp_get_crc32_cmd(uint32_t addr, uint32_t size, uint32_t *crc_value)
 {
+    uint8_t cmd_buf[2] = {CMD_GET_CRC, 0xFF - CMD_GET_CRC};
+    uint8_t wr_buf[4];
+    
+    if((addr & 0x03) != 0)               //4字节对齐
+        return FALSE;
+    if((size & 0x0f) != 0)               //flash长度位16的倍数
+        return FALSE;
+     //send cmd and chack ack
+     if( write_cmd_and_check(cmd_buf, 2) != TRUE)     
+        return FALSE;  
+    //write addr
+    wr_buf[0] = (addr & 0xff000000) >> 24;
+    wr_buf[1] = (addr & 0x00ff0000) >> 16;
+    wr_buf[2] = (addr & 0x0000ff00) >> 8;
+	wr_buf[3] = (addr & 0x000000ff);
+    if(write_data_oxr(wr_buf, 4) != TRUE)
+        return FALSE; 
+    //check ack
+    if(read_cmd_and_check(BOOTISP_ACK, BOOTISP_DEFAULT_TIME) != TRUE)  
+        return FALSE;
+    //write size 
+    size = size -1 ;
+    wr_buf[0] = (size & 0xff000000) >> 24;
+    wr_buf[1] = (size & 0x00ff0000) >> 16;
+    wr_buf[2] = (size & 0x0000ff00) >> 8;
+	wr_buf[3] = (size & 0x000000ff);
 
-
+    if(write_data_oxr(wr_buf, 4) != TRUE)
+        return FALSE; 
+    //check ack
+    if(read_cmd_and_check(BOOTISP_ACK, BOOTISP_DEFAULT_TIME) != TRUE)  
+        return FALSE;  
+    //rcv data
+    if( read_data((uint8_t*)crc_value ,4, BOOTISP_DEFAULT_TIME) != TRUE) 
+        return FALSE;
+    
+    return TRUE;    
 }
 
-/*
-uint8_t go_cmd(uint32_t addr)
+uint8_t bootisp_go_cmd(uint32_t addr)
 {
     uint8_t cmd_buf[2] = {CMD_GO, 0xFF - CMD_GO};
-    uint8_t wr_buf[4]; 
-    uint8_t ack;   
+    uint8_t wr_buf[4];  
     
     if(write_cmd_and_check(cmd_buf, 2) != TRUE)
         return FALSE;
@@ -370,68 +399,15 @@ uint8_t go_cmd(uint32_t addr)
     if(write_data_oxr(wr_buf, 4) != TRUE)
         return FALSE;  
      //check ack
-    if( read_data(&ack, 1, 1) != TRUE) 
-        return FALSE;
-    if(ack !=  BOOTISP_ACK)
+    if(read_cmd_and_check(BOOTISP_ACK, BOOTISP_DEFAULT_TIME) != TRUE)  
         return FALSE;
     //check addr
-    if( read_data(&ack, 1, 1) != TRUE) 
-        return FALSE;
-    if(ack !=  BOOTISP_ACK)
+    if(read_cmd_and_check(BOOTISP_ACK, BOOTISP_DEFAULT_TIME) != TRUE)  
         return FALSE;
     
     return TRUE;    
 }
-static uint8_t get_crc32_cmd(uint32_t addr, uint32_t size, uint32_t *crc_value)
-{
-    uint8_t cmd_buf[2] = {CMD_GET_CRC, 0xFF - CMD_GET_CRC};
-    uint8_t ack;
-    uint8_t wr_buf[4];
-    uint8_t rd_buf[5]; 
-    
-    if((addr%4) != 0)               //4字节对齐
-        return FALSE;
-    if((size%16) != 0)               //flash长度位16的倍数
-        return FALSE;
-     //send cmd and chack ack
-    if( write_data(cmd_buf, 2) != TRUE)     
-        return FALSE;   
-    //write addr
-    wr_buf[0] = (addr & 0xff000000) >> 24;
-    wr_buf[1] = (addr & 0x00ff0000) >> 16;
-    wr_buf[2] = (addr & 0x0000ff00) >> 8;
-	wr_buf[3] = (addr & 0x000000ff);
-    if(write_data_oxr(wr_buf, 4) != TRUE)
-        return FALSE; 
-    //check ack
-    if( read_data(&ack, 1, 1) != TRUE) 
-        return FALSE;
-    if(ack !=  BOOTISP_ACK)
-        return FALSE;
-    //write size 
-    size = size -1 ;
-    wr_buf[0] = (size & 0xff000000) >> 24;
-    wr_buf[1] = (size & 0x00ff0000) >> 16;
-    wr_buf[2] = (size & 0x0000ff00) >> 8;
-	wr_buf[3] = (size & 0x000000ff);
 
-    if(write_data_oxr(wr_buf, 4) != TRUE)
-        return FALSE; 
-    //check ack
-    if( read_data(&ack, 1, 1) != TRUE) 
-        return FALSE;
-    if(ack !=  BOOTISP_ACK)
-        return FALSE;    
-    //rcv data
-    if( read_data(rd_buf, 4, 1) != TRUE) 
-        return FALSE;  
-    *crc_value = (rd_buf[0] << 24) |
-                (rd_buf[1] << 16) |
-                (rd_buf[2] << 8)  |
-                (rd_buf[3] << 0);   
-    
-    return TRUE;    
-}
 
-*/
+
 

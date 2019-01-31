@@ -52,6 +52,8 @@ struct  es_prog_ops isp_prog_intf = {
     
 #if ESLINK_RTC_ENABLE  
     isp_target_program_rtc,
+#else 
+    0,
 #endif
 };  
 static const es_target_cfg *isp_target_dev;   
@@ -295,7 +297,7 @@ static error_t isp_prog_program_config(uint32_t addr, uint8_t *buf, uint32_t siz
 //读配置字  
 static error_t isp_prog_read_config(uint32_t addr,  uint8_t *buf, uint32_t size)
 {
-    uint8_t ret;
+    error_t ret;
     uint32_t size_in_words; 
     uint32_t read_addr;
     uint32_t read_size;
@@ -313,16 +315,14 @@ static error_t isp_prog_read_config(uint32_t addr,  uint8_t *buf, uint32_t size)
     //配置字在inf1区，保留未用的数据未下发。此信息需要根据XML文件修改。
     read_addr  =  addr + 0x400;     //info1的偏移地址
     read_size = 14;     //14个字
-    ret = isp_read_config(read_addr, (uint32_t*)buf, read_size) ;
-    if( ret != TRUE)
+    if( isp_read_config(read_addr, (uint32_t*)buf, read_size) != TRUE)
         return ERROR_ISP_READ_CFG_WORD;  
         
     buf += read_size*4;    
     read_addr  =  addr + 0x7C0;     //info1的偏移地址
     read_size = 24;     //24个字
     
-    ret = isp_read_config(read_addr, (uint32_t*)buf, read_size) ;
-    if( ret != TRUE)
+    if( isp_read_config(read_addr, (uint32_t*)buf, read_size) != TRUE)
         return ERROR_ISP_READ_CFG_WORD; 
 
 #if ESLINK_RTC_ENABLE  
@@ -330,8 +330,7 @@ static error_t isp_prog_read_config(uint32_t addr,  uint8_t *buf, uint32_t size)
     read_addr  =  addr + 0x1000;     //rtc info的偏移地址
     read_size = 16;     //16个字
     
-    ret = isp_read_config(read_addr, (uint32_t*)buf, read_size) ;
-    if( ret != TRUE)
+    if(isp_read_config(read_addr, (uint32_t*)buf, read_size) != TRUE)
         return ERROR_ISP_READ_CFG_WORD;
 #endif
     return ERROR_SUCCESS;        
@@ -828,7 +827,8 @@ static error_t  isp_target_verify_all( uint8_t sn_enable, serial_number_t *sn , 
 *	功能说明: 芯片编程。flash和配置字编程
 *	形    参: mode：0x00 联机模式  0x01 脱机模式
 *	返 回 值: 错误类型
-*******************************************************************************/  
+*******************************************************************************/ 
+#if ESLINK_RTC_ENABLE   
 static error_t isp_target_program_rtc(uint8_t mode) 
 {
     error_t ret = ERROR_SUCCESS; 
@@ -986,7 +986,7 @@ static error_t isp_target_program_rtc(uint8_t mode)
     }  
     return ret;  
 }
-
+#endif
 
 
 

@@ -702,6 +702,9 @@ static error_t download_ofl_prj_info(uint8_t len , uint8_t *data)
     error_t ret = ERROR_SUCCESS;
     uint8_t filename[OFL_FILE_NAME_MAX_LEN] ;      
 
+    ret = ofl_file_get_free();
+    if(ERROR_SUCCESS != ret)
+        return ret;
     memcpy(filename, data, sizeof(filename) ); 
     //创建脱机方案
     ret = ofl_file_open((char *)filename) ;

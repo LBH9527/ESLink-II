@@ -339,7 +339,7 @@
 </MiscControls>
               <Define>NDEBUG,CPU_MK22FN128VLH10,CDC_ENDPOINT,HID_ENDPOINT,ES_32BIT,</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\bsp;..\..\..\drivers;..\..\..\startup;..\..\..\utilities;..\..\..\CMSIS;..\..\..\common;..\..\..\gui;..\..\..\middleware\RL-USB\usb;..\..\..\middleware\RL-USB;..\..\..\middleware\RL-USB\usb\cls;..\..\..\middleware\RL_FlashFS\include;..\..\..\middleware\RL_FlashFS\Driver;..\..\..\iap;..\..\..\middleware\FatFS\src;..\source;..\source\cmsis-dap;..\source\es-bootisp;..\source\es-debug;..\source\es-isp;..\source\swd;..\source\target_chip;..\..\..\eslink;..\..\..\eslink\usb2uart;..\..\..\eslink\offline;..\source\offline;..\source\es-rtc;..\source\es-isp\M939_ISP</IncludePath>
+              <IncludePath>..\..\..\bsp;..\..\..\drivers;..\..\..\startup;..\..\..\utilities;..\..\..\CMSIS;..\..\..\common;..\..\..\gui;..\..\..\middleware\RL-USB\usb;..\..\..\middleware\RL-USB;..\..\..\middleware\RL-USB\usb\cls;..\..\..\middleware\RL_FlashFS\include;..\..\..\middleware\RL_FlashFS\Driver;..\..\..\iap;..\..\..\middleware\FatFS\src;..\source;..\source\cmsis-dap;..\source\es-bootisp;..\source\es-debug;..\source\es-isp;..\source\swd;..\..\..\eslink;..\..\..\eslink\usb2uart;..\..\..\eslink\offline;..\source\offline;..\source\es-rtc;..\source\es-isp\M939_ISP</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -508,20 +508,15 @@
               <FileType>5</FileType>
               <FilePath>..\source\main.h</FilePath>
             </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>es_target</GroupName>
-          <Files>
             <File>
               <FileName>target_program_config.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\source\target_chip\target_program_config.c</FilePath>
+              <FilePath>..\source\target_program_config.c</FilePath>
             </File>
             <File>
               <FileName>target_program_config.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\source\target_chip\target_program_config.h</FilePath>
+              <FilePath>..\source\target_program_config.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -592,6 +587,23 @@
         </Group>
         <Group>
           <GroupName>es-bootisp</GroupName>
+          <Files>
+            <File>
+              <FileName>bootisp_host.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\es-bootisp\M939_BOOTISP\bootisp_host.c</FilePath>
+            </File>
+            <File>
+              <FileName>bootisp_prog_intf.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\es-bootisp\M939_BOOTISP\bootisp_prog_intf.c</FilePath>
+            </File>
+            <File>
+              <FileName>bootisp_target_config.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\source\es-bootisp\M939_BOOTISP\bootisp_target_config.h</FilePath>
+            </File>
+          </Files>
         </Group>
         <Group>
           <GroupName>es-rtc</GroupName>

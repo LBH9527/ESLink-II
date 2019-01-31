@@ -28,10 +28,10 @@ static const uint32_t ES32F065x_flash_prog_blob[] = {
     0x00005ea1, 0x7153bfd9, 0x0642cea8, 0x00040400, 0x00000000
 };
 
-// Start address of flash
-static const uint32_t flash_start = 0x00000000;
-// Size of flash
-static const uint32_t flash_size = 0x00040000;
+//// Start address of flash
+//static const uint32_t flash_start = 0x00000000;
+//// Size of flash
+//static const uint32_t flash_size = 0x00040000;
 
 /**
 * List of start and size for each size of flash sector - even indexes are start, odd are size
@@ -40,9 +40,9 @@ static const uint32_t flash_size = 0x00040000;
 * The last pair in the list will have sectors starting at that address and ending
 * at address flash_start + flash_size.
 */
-static const uint32_t sectors_info[] = {
-    0x00000000, 0x00000400,
-};
+//static const uint32_t sectors_info[] = {
+//    0x00000000, 0x00000400,
+//};
 
 static const program_target_t flash = {
     0x20000021, // Init
@@ -70,12 +70,6 @@ static const program_target_t flash = {
 };
 
 // target information                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   vvvvvvvvvv                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
-target_cfg_t swd_target_device = {
-//    .sector_size    = 1024,
-//    .sector_cnt     = (0x00040000 / 1024),
-//    .flash_start    = 0,
-//    .flash_end      = 0x00040000,
-//    .ram_start      = 0x20000000,
-//    .ram_end        = 0x20008000,
+target_cfg_t swd_target_device = { 
     .flash_algo     = (program_target_t *) &flash,
 };

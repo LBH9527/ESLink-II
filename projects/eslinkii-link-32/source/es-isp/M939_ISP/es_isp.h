@@ -4,7 +4,8 @@
 #include "target_program_config.h"
 //根据芯片手动调整的数据信息
 #define CHIP_INFO_OFFSET        0x40000
-//#define CHIP_INFO1_ADDR         (CHIP_INFO_OFFSET + 0x400)
+#define CHIP_INFO1_ADDR         (CHIP_INFO_OFFSET + 0x400)
+#define CHIP_INFO1_SIZE         (0x400)
 //#define CHIP_INFO2_ADDR         (CHIP_INFO_OFFSET + 0x800)
 
 #define CHIP_CHIPID             0xC40            
