@@ -99,7 +99,7 @@ static error_t bootisp_prog_uninit(void) //退出模式
 #define FULL_ERASE_CMD_L    0xFF
 /*******************************************************************************
 *	函 数 名: bootisp_prog_erase_chip
-*	功能说明: 擦除
+*	功能说明: 擦除.芯片加密后
 *	形    参:  
 *	返 回 值: 错误类型
 *******************************************************************************/
@@ -165,11 +165,34 @@ static error_t bootisp_prog_read_chipid(uint8_t *buf)
         return ERROR_BOOTISP_READ;
     return ERROR_SUCCESS; 
 }
+/*******************************************************************************
+*	函 数 名: bootisp_chipid_check
+*	功能说明: id检测
+*	形    参:  
+*	返 回 值: 错误类型
+*******************************************************************************/
 static error_t bootisp_chipid_check(void)
 {
-      return ERROR_SUCCESS; 
+    uint32_t chipid = 0;
+   
+    if (bootisp_read_memory(CHIP_INFO_OFFSET + target_dev->chipid_addr, (uint8_t*)&chipid, 4) != TRUE)  
+    {
+        return ERROR_BOOTISP_READ;
+    }
+    if(chipid != target_dev->chipid_value)    
+    {
+          //测试模式，不判断ID
+//         return  ERROR_CHIP_ID_NOT_MATCH;
+    }
+        
+    return ERROR_SUCCESS; 
 }
-
+/*******************************************************************************
+*	函 数 名:  bootisp_prog_read_checksum
+*	功能说明:  读校验和
+*	形    参:  
+*	返 回 值:  错误类型
+*******************************************************************************/
 static error_t bootisp_prog_read_checksum(uint8_t *buf)
 {
 	error_t ret;
@@ -239,9 +262,8 @@ static error_t bootisp_prog_program_config(uint32_t addr, uint8_t *buf, uint32_t
             *failed_addr = 0xFFFFFFFF; 
         return ERROR_BOOTISP_PROG_CFG_WORD;
     } 
-//	prog_size =  0xedcb1234;
-//     bootisp_write_memory(0x000407D0, (uint8_t*)&prog_size, 4);
-     return ERROR_SUCCESS;      
+    
+    return ERROR_SUCCESS;      
 }
 
 static error_t bootisp_prog_read_config(uint32_t addr,  uint8_t *buf, uint32_t size)
@@ -507,6 +529,13 @@ static error_t bootisp_target_program_all(  uint8_t sn_enable, serial_number_t *
     }
     return ret;     
 }
+/*******************************************************************************
+*	函 数 名: bootisp_target_verify_all
+*	功能说明: 芯片数据校验
+*	形    参: sn_enable：序列号是否使能  sn：序列号  failed_addr：错误地址 
+*             failed_data：错误数据
+*	返 回 值: 错误类型
+*******************************************************************************/
 static error_t bootisp_target_verify_all( uint8_t sn_enable, serial_number_t *sn , uint32_t *failed_addr, uint32_t *failed_data)
 {
     error_t ret = ERROR_SUCCESS;
@@ -532,7 +561,7 @@ static error_t bootisp_target_verify_all( uint8_t sn_enable, serial_number_t *sn
     {
         verify_size = MIN(code_size, sizeof(sf_buf) );
        
-        ret = online_file_read(USER_HEX, sf_addr, sf_buf , verify_size);
+        ret = bootisp_prog_intf.cb(USER_HEX, sf_addr, sf_buf , verify_size);
         if( ret !=  ERROR_SUCCESS)
             return ret; 
         checksum += check_sum(verify_size, sf_buf);     //计算原始数据校验和
@@ -549,7 +578,7 @@ static error_t bootisp_target_verify_all( uint8_t sn_enable, serial_number_t *sn
         if (code_size <= 0) 
             break;       
     }  
-    online_file_read(HEX_CHECKSUM, 0,(uint8_t*)&sf_checksum, 4);        
+    bootisp_prog_intf.cb(HEX_CHECKSUM, 0,(uint8_t*)&sf_checksum, 4);        
     if((sf_checksum&0x0000ffff) != (checksum&0x0000ffff))
     {
         ret = ERROR_USER_HEX_CHECKSUM;
@@ -563,7 +592,7 @@ static error_t bootisp_target_verify_all( uint8_t sn_enable, serial_number_t *sn
     while(true)
     {
         verify_size = MIN(cfg_word_size, sizeof(sf_buf) );          
-        ret = online_file_read(CFG_WORD, sf_addr, sf_buf , verify_size);
+        ret = bootisp_prog_intf.cb(CFG_WORD, sf_addr, sf_buf , verify_size);
         if( ret !=  ERROR_SUCCESS)
             return ret; 
         checksum += check_sum(verify_size, sf_buf);     //计算原始数据校验和
@@ -579,7 +608,7 @@ static error_t bootisp_target_verify_all( uint8_t sn_enable, serial_number_t *sn
         if (cfg_word_size <= 0) 
             break;       
     }
-    online_file_read(CFG_WORD_CHECKSUM, 0,(uint8_t*)&sf_checksum, 4);        
+    bootisp_prog_intf.cb(CFG_WORD_CHECKSUM, 0,(uint8_t*)&sf_checksum, 4);        
     if(sf_checksum != (checksum&0x0000ffff))
     {
         ret = ERROR_CFG_WORD_CHECKSUM;

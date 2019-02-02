@@ -2,7 +2,7 @@
 #include "es_isp.h"
 #include "M620_ISP.h"
 
-#define PIN_DELAY(n)    es_delay_us(500*n)
+#define PIN_DELAY(n)    ES_DELAY_SLOW(2*n)
 
 static void isp_start_bit(void)
 {

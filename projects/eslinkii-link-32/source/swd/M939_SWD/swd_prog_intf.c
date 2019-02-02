@@ -181,26 +181,28 @@ static error_t es_swd_erase_chip (uint8_t para)
 
 //读芯片chipid
 static error_t es_swd_read_chipid(uint8_t *buf)
-{  
-    uint32_t chipid = 0;
-   
+{       
     if (!swd_read_memory(CHIP_INFO_OFFSET + target_dev->chipid_addr, buf, 4))  
     {
         return ERROR_SWD_READ;
     }
     return ERROR_SUCCESS;
+}
+//判断chipid是否正确
+static error_t es_swd_chipid_check(void)
+{
+    uint32_t chipid = 0;
+   
+    if (!swd_read_memory(CHIP_INFO_OFFSET + target_dev->chipid_addr, (uint8_t*)&chipid, 4) )  
+    {
+        return ERROR_SWD_READ;
+    }
     if(chipid != target_dev->chipid_value)    
     {
           //测试模式，不判断ID
 //         return  ERROR_CHIP_ID_NOT_MATCH;
     }
         
-    return ERROR_SUCCESS; 
-}
-//判断chipid是否正确
-static error_t es_swd_chipid_check(void)
-{
-
     return ERROR_SUCCESS; 
 }
 //读芯片校验和
@@ -618,7 +620,7 @@ static error_t swd_target_program_all(uint8_t sn_enable, serial_number_t *sn , u
     {
         copy_size = MIN(code_size, sizeof(read_buf) );    
         
-        ret = online_file_read(USER_HEX, read_addr, read_buf , copy_size);
+        ret = swd_prog_intf.cb(USER_HEX, read_addr, read_buf , copy_size);
         if(ERROR_SUCCESS != ret)
             return ret;
         if(sn_enable == ENABLE)     //序列号代码使能
@@ -648,7 +650,7 @@ static error_t swd_target_program_all(uint8_t sn_enable, serial_number_t *sn , u
     while(true)
     {
         copy_size = MIN(cfg_word_size, sizeof(read_buf) );          
-        ret = online_file_read(CFG_WORD, read_addr, read_buf , copy_size);
+        ret = swd_prog_intf.cb(CFG_WORD, read_addr, read_buf , copy_size);
         if(ERROR_SUCCESS != ret)
             return ret;     		
         ret = es_swd_program_config(cfg_word_addr, read_buf, copy_size, failed_addr); 
@@ -697,7 +699,7 @@ static error_t  swd_target_verify_all(uint8_t sn_enable, serial_number_t *sn , u
     {
         verify_size = MIN(code_size, sizeof(sf_buf) );
        
-        ret = online_file_read(USER_HEX, sf_addr, sf_buf , verify_size);
+        ret = swd_prog_intf.cb(USER_HEX, sf_addr, sf_buf , verify_size);
         if( ret !=  ERROR_SUCCESS)
             return ret; 
         checksum += check_sum(verify_size, sf_buf);     //计算原始数据校验和
@@ -714,7 +716,7 @@ static error_t  swd_target_verify_all(uint8_t sn_enable, serial_number_t *sn , u
         if (code_size <= 0) 
             break;       
     }  
-    online_file_read(HEX_CHECKSUM, 0,(uint8_t*)&sf_checksum, 4);        
+    swd_prog_intf.cb(HEX_CHECKSUM, 0,(uint8_t*)&sf_checksum, 4);        
     if((sf_checksum&0x0000ffff) != (checksum&0x0000ffff))
     {
         ret = ERROR_USER_HEX_CHECKSUM;
@@ -728,7 +730,7 @@ static error_t  swd_target_verify_all(uint8_t sn_enable, serial_number_t *sn , u
     while(true)
     {
         verify_size = MIN(cfg_word_size, sizeof(sf_buf) );          
-        ret = online_file_read(CFG_WORD, sf_addr, sf_buf , verify_size);
+        ret = swd_prog_intf.cb(CFG_WORD, sf_addr, sf_buf , verify_size);
         if( ret !=  ERROR_SUCCESS)
             return ret; 
         checksum += check_sum(verify_size, sf_buf);     //计算原始数据校验和
@@ -744,7 +746,7 @@ static error_t  swd_target_verify_all(uint8_t sn_enable, serial_number_t *sn , u
         if (cfg_word_size <= 0) 
             break;       
     }
-    online_file_read(CFG_WORD_CHECKSUM, 0,(uint8_t*)&sf_checksum, 4);        
+    swd_prog_intf.cb(CFG_WORD_CHECKSUM, 0,(uint8_t*)&sf_checksum, 4);        
     if(sf_checksum != (checksum&0x0000ffff))
     {
         ret = ERROR_CFG_WORD_CHECKSUM;

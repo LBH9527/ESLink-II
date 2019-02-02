@@ -2,6 +2,7 @@
 #include "errno.h"
 #include "isp_prog_intf.h"
 #include "sflash_port.h"
+#include "es_isp.h"
 
 #define ISP_WRITE_MAX_SIZE  1024   
 #define ISP_READ_MAX_SIZE   512  

@@ -534,12 +534,12 @@ error_t ofl_file_get_free(void)
 {
     FATFS *fs;
     FRESULT res;        
-    DWORD fre_clust, fre_sect, tot_sect;  
-         res = f_getfree("0:", &fre_clust, &fs);
+    DWORD fre_clust, fre_sect;
+
+    res = f_getfree("0:", &fre_clust, &fs);
      /* Get total sectors and free sectors */
-    tot_sect = (fs->n_fatent - 2) * fs->csize;
+//    tot_sect = (fs->n_fatent - 2) * fs->csize;
     fre_sect = fre_clust * fs->csize;
-    //TODO:容量不足需要提示
     if( fre_sect < 100)      //小于400K
     {
         return ERROR_OFL_SPACE_NOT_ENOUGH ;

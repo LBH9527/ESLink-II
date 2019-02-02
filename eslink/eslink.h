@@ -38,20 +38,20 @@ static __forceinline void ES_DELAY_SLOW (uint32_t delay) {
   while (--count);
 }
 /*
-60Mhz:
-ES_DELAY_SLOW_CYCLES = 2    ES_DELAY_SLOW(1)------>1.5ms
-ES_DELAY_SLOW_CYCLES = 3    ES_DELAY_SLOW(1)------>1ms
-ES_DELAY_SLOW_CYCLES = 4    ES_DELAY_SLOW(1)------>750ns
-ES_DELAY_SLOW_CYCLES = 5    ES_DELAY_SLOW(1)------>600ns
-ES_DELAY_SLOW_CYCLES = 6    ES_DELAY_SLOW(1)------>500ns
-ES_DELAY_SLOW_CYCLES = 7    ES_DELAY_SLOW(1)------>429ns
-ES_DELAY_SLOW_CYCLES = 8    ES_DELAY_SLOW(1)------>375ns
-ES_DELAY_SLOW_CYCLES = 9    ES_DELAY_SLOW(1)------>333ns
-ES_DELAY_SLOW_CYCLES = 10    ES_DELAY_SLOW(1)------>300ns
+60Mhz:    ES_DELAY_SLOW(1)--->500ns
+ES_DELAY_SLOW_CYCLES = 2    es_delay_ms(1)------>1.5ms    
+ES_DELAY_SLOW_CYCLES = 3    es_delay_ms(1)------>1ms     
+ES_DELAY_SLOW_CYCLES = 4    es_delay_ms(1)------>750us
+ES_DELAY_SLOW_CYCLES = 5    es_delay_ms(1)------>600us
+ES_DELAY_SLOW_CYCLES = 6    es_delay_ms(1)------>500us
+ES_DELAY_SLOW_CYCLES = 7    es_delay_ms(1)------>429us
+ES_DELAY_SLOW_CYCLES = 8    es_delay_ms(1)------>375us
+ES_DELAY_SLOW_CYCLES = 9    es_delay_ms(1)------>333us
+ES_DELAY_SLOW_CYCLES = 10   es_delay_ms(1)------>300us
 
-ES_DELAY_SLOW_CYCLES = 12    ES_DELAY_SLOW(1)------>250ns
+ES_DELAY_SLOW_CYCLES = 12   es_delay_ms(1)------>250us
 
-ES_DELAY_SLOW_CYCLES = 14    ES_DELAY_SLOW(1)------>215ns
+ES_DELAY_SLOW_CYCLES = 14   es_delay_ms(1)------>215us
 */
 
 // Fixed delay for fast clock generation

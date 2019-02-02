@@ -1361,16 +1361,48 @@ error_t es_burner_init(void)
 {    
     error_t ret;
 	get_target_info((uint8_t*)&es_target_device);       //获取目标芯片信息
-	ret = es_prog_set_intf(ESLINK_ONLINE_DEFAULT_INTF);                       //上电后默认是ISP编程
-//    es_prog_set_intf(PRG_INTF_SWD);
+	ret = es_prog_set_intf(ESLINK_ONLINE_DEFAULT_INTF); //上电后默认是ISP编程
 	ISP_SETUP();
-//	PORT_ISP_SETUP();   
     return ret;       
 }
 
 
  
                                  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

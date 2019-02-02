@@ -339,10 +339,9 @@ uint8_t bootisp_write_memory(uint32_t addr,  uint8_t *data, uint32_t size)
     if (bootisp_write_block(addr, data, single) != TRUE)
         return FALSE;
     return TRUE;
-}
+} 
 
-
- static uint8_t bootisp_get_crc32_cmd(uint32_t addr, uint32_t size, uint32_t *crc_value)
+static uint8_t bootisp_get_crc32_cmd(uint32_t addr, uint32_t size, uint32_t *crc_value)
 {
     uint8_t cmd_buf[2] = {CMD_GET_CRC, 0xFF - CMD_GET_CRC};
     uint8_t wr_buf[4];

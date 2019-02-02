@@ -310,7 +310,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>0</interw>
-            <Optim>1</Optim>
+            <Optim>2</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
@@ -576,12 +576,17 @@
             <File>
               <FileName>isp_prog_intf.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\source\es-isp\M939_ISP\isp_prog_intf.c</FilePath>
+              <FilePath>..\source\es-isp\M621_ISP\isp_prog_intf.c</FilePath>
             </File>
             <File>
-              <FileName>M939_ISP.c</FileName>
+              <FileName>M621_ISP.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\source\es-isp\M939_ISP\M939_ISP.c</FilePath>
+              <FilePath>..\source\es-isp\M621_ISP\M621_ISP.c</FilePath>
+            </File>
+            <File>
+              <FileName>es_isp.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\source\es-isp\M621_ISP\es_isp.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -589,14 +594,14 @@
           <GroupName>es-bootisp</GroupName>
           <Files>
             <File>
-              <FileName>bootisp_host.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\source\es-bootisp\M939_BOOTISP\bootisp_host.c</FilePath>
-            </File>
-            <File>
               <FileName>bootisp_prog_intf.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\source\es-bootisp\M939_BOOTISP\bootisp_prog_intf.c</FilePath>
+            </File>
+            <File>
+              <FileName>bootisp_host.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\es-bootisp\M939_BOOTISP\bootisp_host.c</FilePath>
             </File>
             <File>
               <FileName>bootisp_target_config.h</FileName>

@@ -2,6 +2,7 @@
 #include "errno.h"
 #include "isp_prog_intf.h" 
 #include "sflash_port.h"  
+#include "es_isp.h"
 
 static void isp_init(es_target_cfg *target);
 static error_t isp_prog_init(void); //进模式

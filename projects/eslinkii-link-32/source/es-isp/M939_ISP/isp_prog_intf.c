@@ -92,16 +92,16 @@ static error_t isp_out_mode(void)
 //    isp_reset(); 
     return ERROR_SUCCESS; 
 }
-//判断是否检测到芯片 
-error_t isp_chip_check(void)
-{
-    //复位
-    isp_reset();
-    //读取ID
-    if(isp_id_check() != TRUE)
-        return ERROR_IN_ISP_MODE;
-    return ERROR_SUCCESS; 
-}
+////判断是否检测到芯片 
+//error_t isp_chip_check(void)
+//{
+//    //复位
+//    isp_reset();
+//    //读取ID
+//    if(isp_id_check() != TRUE)
+//        return ERROR_IN_ISP_MODE;
+//    return ERROR_SUCCESS; 
+//}
 //编程初始化，进模式
 static error_t isp_prog_init(void)
 {
