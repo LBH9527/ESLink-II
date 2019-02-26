@@ -13,7 +13,7 @@
 #include "swd_prog_intf.h"
 #endif
 #if ESLINK_BOOTISP_ENABLE
-#include "bootisp_prog_intf.h"
+#include "uartboot_prog_intf.h"
 #endif
 
 #if ESLINK_RTC_ENABLE
@@ -71,7 +71,7 @@ error_t es_prog_set_intf(prog_intf_type_t type)
 #if ESLINK_BOOTISP_ENABLE
     else if ( PRG_INTF_BOOTISP == type)
     {
-         online_prog_intf =  &bootisp_prog_intf; 
+         online_prog_intf =  &uartboot_prog_intf; 
          online_prog_intf->init(&es_target_device);
     } 
 #endif
@@ -252,6 +252,35 @@ static error_t es_download_config_word_end(uint8_t *data)
     //实现CRC校验
     return ret;   
 }
+volatile static uint32_t hex_type = USER_HEX ;
+volatile static uint32_t checksum_type = HEX_CHECKSUM ;
+/*
+ * 用户程序下载开始
+ * 下载开始时，擦除目标芯片code size长度的spi flash。
+ */
+static error_t es_download_hex_start( uint8_t *data)
+{
+    error_t ret = ERROR_SUCCESS;
+    uint32_t type;
+
+    type = (*(data+0) <<  0) |
+            (*(data+1) <<  8) |
+            (*(data+2) << 16) |
+            (*(data+3) << 24);
+    if(type != 0)       //RTC时序
+    {
+         hex_type = RTC_HEX;
+         checksum_type = RTC_HEX_CHECKSUM;  
+    }
+    else
+    {
+        hex_type = USER_HEX;
+        checksum_type = HEX_CHECKSUM;    
+    }  
+    ret = online_file_erase(hex_type, es_target_device.code_size );
+
+    return ret;  
+}
 
 /*
  * 用户程序下载
@@ -270,13 +299,7 @@ static error_t es_download_hex(uint8_t *data)
             (*(data+5) <<  8) |
             (*(data+6) << 16) |
             (*(data+7) << 24);  
-    //下载开始时，擦除目标芯片配置字长度的spi flash。
-    if( !addr)
-    {
-        ret = online_file_erase(USER_HEX, es_target_device.code_size );
-        if(ERROR_SUCCESS != ret)
-            return ret;  
-    } 
+            
     i = 0;
     while(i<size)
     {
@@ -287,7 +310,7 @@ static error_t es_download_hex(uint8_t *data)
     if(i >= size)   //全为0xff 不需要写入
         ret =  ERROR_SUCCESS;
     else
-        ret = online_file_write(USER_HEX, addr, (data+8), size) ;         
+        ret = online_file_write(hex_type, addr, (data+8), size) ;         
         
     if(ERROR_SUCCESS != ret)
             return ret;      
@@ -312,7 +335,7 @@ static error_t es_download_hex_end(uint8_t *data)
 
     while(code_size > 0){      
         read_size = MIN(code_size, sizeof(read_buf));
-        ret = online_file_read(USER_HEX, read_addr,  read_buf, read_size) ;
+        ret = online_file_read(hex_type, read_addr,  read_buf, read_size) ;
         if(ERROR_SUCCESS != ret)
             return ret;
         checksum += check_sum(read_size, read_buf);
@@ -326,8 +349,8 @@ static error_t es_download_hex_end(uint8_t *data)
         (data[3] == ((checksum>>24)&0xFF)) )
     {
         ret = ERROR_SUCCESS;
-        ret = online_file_erase(HEX_CHECKSUM, 4 );
-        ret = online_file_write(HEX_CHECKSUM, 0, data, 4);      //验证正确后在保存数据             
+        ret = online_file_erase(checksum_type, 4 );
+        ret = online_file_write(checksum_type, 0, data, 4);      //验证正确后在保存数据             
     }
     else
     {
@@ -1164,6 +1187,10 @@ uint32_t prog_process_command(uint8_t *request, uint8_t *response)
             result = es_download_config_word_end(&prog_data.wrbuf[PROG_DATA_OFFSET]);
             prog_data.data_length = 0;
             break;
+        case ID_DL_USERHEX_START:
+            result = es_download_hex_start(&prog_data.wrbuf[PROG_DATA_OFFSET]);
+            prog_data.data_length = 0;
+            break;            
         case ID_DL_USERHEX:                             //0x18 下载用户HEX(1024)
             result = es_download_hex(&prog_data.wrbuf[PROG_DATA_OFFSET]);
             prog_data.data_length = 0;
@@ -1308,13 +1335,13 @@ uint32_t prog_process_command(uint8_t *request, uint8_t *response)
             result =  read_rtc_cali(&prog_data.rdbuf[PROG_DATA_OFFSET]);
             prog_data.data_length = 4;         
             break;
-        case ID_RTC_CALI :                            //RTC调校
-            result = rtc_calibration_handler(0x00);
+        case ID_RTC_CALI :                              //RTC调校
+            result = rtc_calibration_handler();
             prog_data.data_length = 0; 
             break;
-        case ID_RTC_CALI_VERIFY:                       //RTC验证
-            result = rtc_calibration_verify();    
-            prog_data.data_length = 0;
+        case ID_RTC_CALI_VERIFY:                        //RTC验证
+            result = rtc_calibration_verify(&prog_data.rdbuf[PROG_DATA_OFFSET]);    
+            prog_data.data_length = 4;
             break;
 #endif
         default:

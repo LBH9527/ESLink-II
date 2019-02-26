@@ -31,10 +31,10 @@
 #define SF_USER_HEX_CHECKSUM_ADDR       0x1FD000          
 
 //0x1F E000 ---- 1F EFFF     4K         保存配置字校验和
-#define SF_CONFIG_WORD_CHECKSUM_ADDR       0x1FE000   
+#define SF_CONFIG_WORD_CHECKSUM_ADDR    0x1FE000   
      
 //0x1F F000 ---- 1F FFFF     4K         脱机信息
-#define SF_OFFLINE_INFO_ADDR                 0x1FF000 
+#define SF_OFFLINE_INFO_ADDR             0x1FF000 
 
 //1F FFFF ----- 7F FFFF = 6M 采用文件系统 保存脱机方案数据      
 

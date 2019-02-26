@@ -82,10 +82,15 @@ typedef struct {
     uint32_t xpsr;
 } DEBUG_STATE;
 
+static SWD_CONNECT_TYPE reset_connect = CONNECT_NORMAL;
+
 static DAP_STATE dap_state;
 
-static uint8_t swd_read_core_register(uint32_t n, uint32_t *val);
-static uint8_t swd_write_core_register(uint32_t n, uint32_t val);
+void swd_set_reset_connect(SWD_CONNECT_TYPE type)
+{
+    reset_connect = type;
+}
+
 
 static void int2array(uint8_t *res, uint32_t data, uint8_t len)
 {
@@ -898,7 +903,13 @@ uint8_t swd_set_target_state_hw(TARGET_RESET_STATE state)
             if (!swd_init_debug()) {
                 return 0;
             }
-
+                        
+            if (reset_connect == CONNECT_UNDER_RESET) {
+                // Assert reset
+                swd_set_target_reset(1); 
+//                os_dly_wait(2);
+                es_delay_ms(20);
+            }
             // Enable debug
             while(swd_write_word(DBG_HCSR, DBGKEY | C_DEBUGEN) == 0) {
                 if( --ap_retries <=0 )
@@ -915,16 +926,19 @@ uint8_t swd_set_target_state_hw(TARGET_RESET_STATE state)
             // Enable halt on reset
             if (!swd_write_word(DBG_EMCR, VC_CORERESET)) {
                 return 0;
+            }            
+            
+            if (reset_connect == CONNECT_NORMAL) {
+                // Assert reset
+                swd_set_target_reset(1); 
+//                os_dly_wait(2);
+                es_delay_ms(20);
             }
-
-            // Reset again
-            swd_set_target_reset(1);
-//            os_dly_wait(2);
-            es_delay_ms(20);
+            
+            // Deassert reset
             swd_set_target_reset(0);
 //            os_dly_wait(2);
             es_delay_ms(20);
-
             do {
                 if (!swd_read_word(DBG_HCSR, &val)) {
                     return 0;
@@ -942,7 +956,7 @@ uint8_t swd_set_target_state_hw(TARGET_RESET_STATE state)
             if (!swd_write_word(DBG_HCSR, DBGKEY)) {
                 return 0;
             }
-
+                                                      
             break;
 
         case DEBUG:

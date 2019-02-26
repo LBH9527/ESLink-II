@@ -78,8 +78,8 @@ static uint8_t file_read(uint32_t addr, uint8_t *buf, uint32_t size)
         f_close(&file_handle); 
         return FALSE;
     }    
-	result = f_read(&file_handle, buf, size , &bw);
-	if(size != bw)
+    result = f_read(&file_handle, buf, size , &bw);
+    if(size != bw)
     {
         f_close(&file_handle); 
         return FALSE;              

@@ -1,7 +1,7 @@
 #include "eslink.h"
 #include "M610_ISP.h"
 
-#define PIN_DELAY(n)    ES_DELAY_SLOW(n)
+#define PIN_DELAY(n)    ES_DELAY_SLOW(2*n)
 
 static void isp_start_bit(void)
 {
@@ -423,8 +423,8 @@ uint8_t isp_erase_chip(void)
 
 uint8_t isp_erase_info1(void)
 {
-	uint8_t result;  
-	
+    uint8_t result;  
+
     result = erase_and_check(ERASE_M1,FLASH_INTO1_AREA,20);  
     if(result != TRUE)
         return FALSE;

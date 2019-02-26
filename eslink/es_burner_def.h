@@ -29,7 +29,7 @@ typedef struct {
 //通信协议常量定义
 #define ESLINKII_DEVICE_TYPE                    0x52   
 #define PROG_FRAME_HEAD                         0xBADCCDAB  
-#define PROG_FRAME_MAX_SIZE                         0x400               //帧长度 1024 
+#define PROG_FRAME_MAX_SIZE                     0x400               //帧长度 1024 
 #define PROG_DATA_OFFSET					    0x08                //数据区在buffer中的偏移
 #define FRAME_HEADER_LEN                        8                   //协议头长度 
 
@@ -87,4 +87,5 @@ typedef struct {
 #define ID_RTC_READ_CALIBRATE               0x3F      //读RTC自校正值  
 #define ID_RTC_CALI                         0x40     //RTC调校
 #define ID_RTC_CALI_VERIFY                  0x41     //RTC验证
+#define ID_DL_USERHEX_START                 0x42     //下载用户程序开始
 #endif

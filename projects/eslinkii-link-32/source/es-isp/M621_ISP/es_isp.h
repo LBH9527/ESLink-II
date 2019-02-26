@@ -7,7 +7,7 @@
 #define CHIP_CHECKSUM_ADDR      0x00001C40
 #define CHIP_USERID_ADDR        0x00001C44
 
-//配置字地址信息，保留未用的数据未下发。此信息需要根据XML文件修改。
+//配置字地址信息，此信息需要根据XML文件修改。
 
 #define CHIP_INFO_PART1_ADDR         CHIP_INFO_ADDR
 #define CHIP_INFO_PART1_SIZE         48              //字节

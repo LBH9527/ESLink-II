@@ -38,7 +38,7 @@ static __forceinline void ES_DELAY_SLOW (uint32_t delay) {
   while (--count);
 }
 /*
-60Mhz:    ES_DELAY_SLOW(1)--->500ns
+60Mhz:    ES_DELAY_SLOW(1)--->0.05us  (50ns)
 ES_DELAY_SLOW_CYCLES = 2    es_delay_ms(1)------>1.5ms    
 ES_DELAY_SLOW_CYCLES = 3    es_delay_ms(1)------>1ms     
 ES_DELAY_SLOW_CYCLES = 4    es_delay_ms(1)------>750us

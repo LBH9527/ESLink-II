@@ -14,7 +14,7 @@
 #include "swd_prog_intf.h"
 #endif
 #if ESLINK_BOOTISP_ENABLE
-#include "bootisp_prog_intf.h"
+#include "uartboot_prog_intf.h"
 #endif
 
 #if ESLINK_RTC_ENABLE
@@ -74,7 +74,7 @@ ofl_error_t ofl_prog_init(uint8_t mode)
 #endif
 #if ESLINK_BOOTISP_ENABLE
     else if ( PRG_INTF_BOOTISP == type)
-       ofl_prog_intf = &bootisp_prog_intf;  
+       ofl_prog_intf = &uartboot_prog_intf;  
 #endif
     else
     {
@@ -171,8 +171,10 @@ ofl_error_t ofl_prog(void)
     error_t ret;
     uint32_t i = 0;
     
-    if( (sn_info.state !=  OFL_SERIALNUM_DISABLE) && (sn_info.success_count >  sn_info.total_size))
-        return OFL_ERR_COUNT_FULL;           
+//    if( (sn_info.state !=  OFL_SERIALNUM_DISABLE) && (sn_info.success_count >  sn_info.total_size))
+//        return OFL_ERR_COUNT_FULL;    
+    if( sn_info.success_count >=  sn_info.total_size)
+        return OFL_ERR_COUNT_FULL;          
     if( ofl_prog_intf->prog_init() != ERROR_SUCCESS )
         return OFL_ERR_ENTRY_MODE;  
     for(i = 0; i<ofl_prj_info.step; i++)
@@ -222,10 +224,10 @@ ofl_error_t ofl_prog(void)
                 break;
 #if ESLINK_RTC_ENABLE   
             case OFL_STEP_RTC_CALI :
-                ret = rtc_calibration_handler(0x01);
+                ret = rtc_calibration_handler();
                 break;
             case OFL_STEP_RTC_VERIFY :
-                ret = rtc_calibration_verify();
+                ret = rtc_calibration_verify(NULL);
                 break; 
 #endif
             default:
@@ -250,7 +252,6 @@ ofl_error_t ofl_prog(void)
             update_serial_number_8bit(data, sn_info.sn.data, sn_info.sn.size);
         }     
     }  
-//    fm24cxx_write(EE_SERIAL_NUMBER_ADDR, );
     //更新序列号
     set_offline_serial_number((uint8_t*) &sn_info, sizeof(ofl_serial_number_t));
     return OFL_SUCCESS;
@@ -382,7 +383,7 @@ void mini_ofl_prog_handle(void)
 }
 /*******************************************************************************
 *	函 数 名: ofl_mini_prog
-*	功能说明: 根据脱机步骤进行脱机编程
+*	功能说明: mini脱机编程，默认为：擦除、编程、校验、加密
 *	形    参:
 *	返 回 值: 错误类型
 *******************************************************************************/
@@ -395,15 +396,8 @@ ofl_error_t ofl_mini_prog(void)
         ret = ofl_prog_intf->erase_chip(0);    //全擦                 
         if(ret != ERROR_SUCCESS)  
             return  OFL_ERR_ERASE;
-        step = OFL_STEP_CHECK_EMPTY;    
-    }
-    if(OFL_STEP_CHECK_EMPTY == step)
-    {
-        ret = ofl_prog_intf->check_empty(NULL, NULL);
-        if(ret != ERROR_SUCCESS)               
-            return  OFL_ERR_CHECK_EMPTY; 
         step = OFL_STEP_PROG;    
-    }    
+    }  
     if(OFL_STEP_PROG == step)
     {
         ret = ofl_prog_intf->program_all(DISABLE, NULL, NULL);
@@ -416,6 +410,13 @@ ofl_error_t ofl_mini_prog(void)
         ret = ofl_prog_intf->verify_all(DISABLE, NULL, NULL, NULL);
         if(ret != ERROR_SUCCESS)                 
             return  OFL_ERR_VERIFY;
+        step = OFL_STEP_ENCRYPT;      
+    }
+    if(OFL_STEP_ENCRYPT == step)
+    {
+        ret = ofl_prog_intf->encrypt_chip();
+        if(ret != ERROR_SUCCESS)                 
+            return  OFL_ERR_ENCRYPT;
         step = OFL_STEP_ERASE;      
     }
     return  OFL_SUCCESS;
@@ -510,17 +511,14 @@ ofl_error_t update_ofl_serial_number(void)
     char path[16+1] = {'\0'};
     partition_t part; 
     
-    if(sn_info.state ==  OFL_SERIALNUM_DISABLE)
-        return  OFL_SUCCESS;
+//    if(sn_info.state ==  OFL_SERIALNUM_DISABLE)
+//        return  OFL_SUCCESS;
     
     //读文件名
-    get_offline_project_name((uint8_t*)path, 16);  
-//    fm24cxx_read(EE_OFL_PRJ_NAME, (uint8_t*)path, 16 );   
+    get_offline_project_name((uint8_t*)path, 16);   
     //读脱机序列号分区信息 
-    get_offline_partition((uint8_t*)&part, sizeof(partition_t));    
-//    fm24cxx_read(EE_OFL_SERIAL_NUMBER_PARTITION, (uint8_t*)&part, sizeof(partition_t) );      
+    get_offline_partition((uint8_t*)&part, sizeof(partition_t));        
     //读脱机序列号    
-//    fm24cxx_read(EE_SERIAL_NUMBER_ADDR,(uint8_t*) &sn_info, sizeof(ofl_serial_number_t) );
     get_offline_serial_number((uint8_t*) &sn_info, sizeof(ofl_serial_number_t) );
     ofl_file_lseek_write( path, part.start, (uint8_t*) &sn_info, part.size );
     

@@ -84,7 +84,7 @@ static void serial_number_8bit_display(uint16_t y,uint8_t *buf, uint8_t size)
 
     for(i=0; i< size/2; i++)
     {
-         usprintf(disp_temp,"%02X",buf[i*2]);    
+         sprintf(disp_temp,"%02X",buf[i*2]);    
          oled_display_str( i*16, y, disp_temp, &Font16);  
     } 
 }
@@ -102,14 +102,14 @@ static void serial_number_32bit_display(uint16_t y,uint8_t *buf, uint8_t size)
 
     for(i=0; i< 4; i++)
     {
-        usprintf(disp_temp,"%02X",buf[3-i]);    
+        sprintf(disp_temp,"%02X",buf[3-i]);    
         oled_display_str( i*16, y, disp_temp, &Font16);  
     }          
     if(size == 0x08)
     {
         for(i=4; i< size; i++)
         {
-            usprintf(disp_temp,"%02X",buf[7 + 4 -i]);    
+            sprintf(disp_temp,"%02X",buf[7 + 4 -i]);    
             oled_display_str( i*16, y, disp_temp, &Font16);  
         }   
     }
@@ -144,7 +144,7 @@ static void ofl_sn_display(uint8_t state)
     {
         //烧录成功个数
         oled_display_str(0,48,"OK:             ", &Font16);        
-        usprintf(display_temp,"%08d", sn_info.success_count);         
+        sprintf(display_temp,"%08d", sn_info.success_count);         
         oled_display_str(24,48, display_temp  , &Font16);      
     }       
 } 
@@ -173,16 +173,16 @@ void ofl_program_display(void)
         //获取方案信息
         online_file_read(OFL_PROG_INFO, 0,(uint8_t*) &ofl_prj_info, sizeof(ofl_prj_info_t));
         oled_clr_scr(0x00);	
-        usprintf(display_temp,"%s", (char*)ofl_prj_info.chip_name);
+        sprintf(display_temp,"%s", (char*)ofl_prj_info.chip_name);
         oled_display_str(0,0,display_temp  , &Font16);             //芯片名称  
         
         oled_display_str(0,16,"S:      C:    ", &Font16);        //配置字和flash数据累加和 与 CRC校验和
         Font16.FrontColor = 0;		/* 字体颜色 0 或 1 */
         Font16.BackColor = 1;		/* 文字背景颜色 0 或 1 */
-        usprintf(display_temp,"%04X", ofl_prj_info.checksum);
+        sprintf(display_temp,"%04X", ofl_prj_info.checksum);
         oled_display_str(20,16,display_temp  , &Font16);             //芯片累加和
         ofl_prj_info.crc &= 0x0000ffff;                             //显示低字节
-        usprintf(display_temp,"%04X", ofl_prj_info.crc);
+        sprintf(display_temp,"%04X", ofl_prj_info.crc);
         oled_display_str(84,16,display_temp  , &Font16);             //芯片CRC校验和           
         Font16.FrontColor = 1;		/* 字体颜色 0 或 1 */
         Font16.BackColor = 0;		/* 文字背景颜色 0 或 1 */          
@@ -199,15 +199,15 @@ void ofl_program_display(void)
            //获取方案信息
 //            online_file_read(OFL_PROG_INFO, 0,(uint8_t*) &ofl_prj_info, sizeof(ofl_prj_info_t));
             oled_clr_scr(0x00);	
-            usprintf(display_temp,"%s", (char*)ofl_prj_info.chip_name);
+            sprintf(display_temp,"%s", (char*)ofl_prj_info.chip_name);
             oled_display_str(0,0,display_temp  , &Font16);             //芯片名称             
             oled_display_str(0,16,"S:      C:      ", &Font16);        //配置字和flash数据累加和 与 CRC校验和
             Font16.FrontColor = 0;		/* 字体颜色 0 或 1 */
             Font16.BackColor = 1;		/* 文字背景颜色 0 或 1 */
-            usprintf(display_temp,"%04X", ofl_prj_info.checksum);
+            sprintf(display_temp,"%04X", ofl_prj_info.checksum);
             oled_display_str(20,16,display_temp  , &Font16);             //芯片累加和
             ofl_prj_info.crc &= 0x0000ffff;                             //显示低字节
-            usprintf(display_temp,"%04X", ofl_prj_info.crc);
+            sprintf(display_temp,"%04X", ofl_prj_info.crc);
             oled_display_str(84,16,display_temp  , &Font16);             //芯片CRC校验和           
             Font16.FrontColor = 1;		/* 字体颜色 0 或 1 */
             Font16.BackColor = 0;		/* 文字背景颜色 0 或 1 */
@@ -315,7 +315,7 @@ void logo_display(void)
         oled_display_str(0,28,"   ESLink-II    ", &Font16);	
         Font16.FrontColor = 1;		/* 字体颜色 0 或 1 */
         Font16.BackColor = 0;		/* 文字背景颜色 0 或 1 */
-        usprintf(display_temp,"%08x", version);
+        sprintf(display_temp,"%08x", version);
 //        display_temp[0] =  version >> 
         display_temp[2] = '.';
         display_temp[4] = '.';

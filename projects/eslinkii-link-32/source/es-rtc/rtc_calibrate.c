@@ -22,7 +22,8 @@
 #include "isp_prog_intf.h"
 #include "eeprom_port.h"
 #include "rtc_target.h"
-#include "target_program_config.h"  
+#include "target_program_config.h" 
+#include "es_isp.h" 
 
 #if ESLINK_RTC_ENABLE 
 //ES_RTC_IN  目标芯片RTC 输入，采用PWM输入捕获，测量时间
@@ -153,7 +154,7 @@ static uint32_t abs(uint32_t x1, uint32_t x2)
 //rtc调校开始
 //1、烧录RTC调校程序。
 //2、启动定时器，测量目标芯片的RTC精度。
-static error_t rtc_calibration_start(uint8_t mode)
+static error_t rtc_calibration_start(void)
 {
     error_t ret = ERROR_SUCCESS;
     uint32_t failaddr;
@@ -173,7 +174,7 @@ static error_t rtc_calibration_start(uint8_t mode)
     ret = isp_prog_intf.check_empty(&failaddr, &faildata);
     if(ERROR_SUCCESS != ret)
         return ret;
-    ret = isp_prog_intf.program_private(mode);
+    ret = isp_prog_intf.program_private(NULL);
     if(ERROR_SUCCESS != ret)
         return ret;
     result = isp_read_config(INFO_TEMPT_ADDR, reg_temp, 6);
@@ -200,10 +201,10 @@ static error_t rtc_calibration_start(uint8_t mode)
         return ERROR_RTC_CALI_START;
     
     es_set_trget_power(TRGET_POWER_DISABLE);
-    es_delay_ms(10);
+    es_delay_ms(40);
     es_set_trget_power(TRGET_POWER_ENABLE); 
     
-    eslink_set_target_reset_run(20);  
+    eslink_set_target_reset_run(10);  
     
     return ret;
 }
@@ -333,8 +334,8 @@ static error_t rtc_calibration_end(void)
 
 
 //RTC调校处理
-//mode 联机模式还是脱机模式 ，联机模式和脱机模式的RTC HEX地址不一样
-error_t rtc_calibration_handler(uint8_t mode)
+
+error_t rtc_calibration_handler(void)
 {
     error_t ret = ERROR_SUCCESS;
     
@@ -344,7 +345,7 @@ error_t rtc_calibration_handler(uint8_t mode)
     state = STATE_CALI_START;
     if(STATE_CALI_START ==  state)
     {
-        ret = rtc_calibration_start(mode);
+        ret = rtc_calibration_start();
         if(ret != ERROR_SUCCESS)
             return ret;
         FTM_SetTimerPeriod(FTM_BASEADDR, 0xffff);  
@@ -353,8 +354,6 @@ error_t rtc_calibration_handler(uint8_t mode)
         FTM_EnableInterrupts(FTM_BASEADDR, FTM_CHANNEL_INTERRUPT_ENABLE); 
         //定时器溢出中断
         FTM_EnableInterrupts(FTM_BASEADDR, kFTM_TimeOverflowInterruptEnable); 
-        NVIC_SetPriority(FTM_IRQ_NUM, 0);       //设置抢占优先级高于USB中断
-        NVIC_SetPriority(USB0_IRQn, 1);
         EnableIRQ(FTM_IRQ_NUM); 
         FTM_StartTimer(FTM_BASEADDR, kFTM_ExternalClock); 
         
@@ -380,8 +379,6 @@ error_t rtc_calibration_handler(uint8_t mode)
     FTM_DisableInterrupts(FTM_BASEADDR, FTM_CHANNEL_INTERRUPT_ENABLE); 
     //定时器溢出中断
     FTM_DisableInterrupts(FTM_BASEADDR, kFTM_TimeOverflowInterruptEnable);     
-    NVIC_SetPriority(FTM_IRQ_NUM, 0);       //恢复USB中断优先级
-    NVIC_SetPriority(USB0_IRQn, 0);
     DisableIRQ(FTM_IRQ_NUM); 
     FTM_StopTimer(FTM_BASEADDR); 
     return ret; 
@@ -389,7 +386,7 @@ error_t rtc_calibration_handler(uint8_t mode)
 
 //调校验证
 #define RTC_TARGET_FREQ_PPM_VALUE   1   //调校后的ppm 范围
-error_t rtc_calibration_verify(void)
+error_t rtc_calibration_verify(uint8_t *data)
 {
     error_t ret = ERROR_SUCCESS;
     uint8_t result;  
@@ -401,15 +398,13 @@ error_t rtc_calibration_verify(void)
     if( (rtc_self_cali_freq >= 10000200) || (rtc_self_cali_freq <= 9999800) )
         return ERROR_RTC_SELF_CAIL;
         
-    eslink_set_target_power_reset(10);
-    es_delay_ms(3000);
+    eslink_set_target_power_reset(40);
+    es_delay_ms(5000);
     FTM_SetTimerPeriod(FTM_BASEADDR, 0xffff); 
     //捕获中断
     FTM_EnableInterrupts(FTM_BASEADDR, FTM_CHANNEL_INTERRUPT_ENABLE); 
     //定时器溢出中断
     FTM_EnableInterrupts(FTM_BASEADDR, kFTM_TimeOverflowInterruptEnable); 
-    NVIC_SetPriority(FTM_IRQ_NUM, 0);       //设置抢占优先级高于USB中断
-    NVIC_SetPriority(USB0_IRQn, 1);
     EnableIRQ(FTM_IRQ_NUM); 
     FTM_StartTimer(FTM_BASEADDR, kFTM_ExternalClock); 
     trig_count = 0;
@@ -424,8 +419,6 @@ error_t rtc_calibration_verify(void)
     FTM_DisableInterrupts(FTM_BASEADDR, FTM_CHANNEL_INTERRUPT_ENABLE); 
     //定时器溢出中断
     FTM_DisableInterrupts(FTM_BASEADDR, kFTM_TimeOverflowInterruptEnable);     
-    NVIC_SetPriority(FTM_IRQ_NUM, 0);       //恢复USB中断优先级
-    NVIC_SetPriority(USB0_IRQn, 0);
     DisableIRQ(FTM_IRQ_NUM); 
     FTM_StopTimer(FTM_BASEADDR); 
     
@@ -447,11 +440,28 @@ error_t rtc_calibration_verify(void)
         return ERROR_RTC_CALI_PROG ;     
      //频率偏差是否在范围内都要写调校后温度
     if( (target_freq_ppm > 0)  && (target_freq_ppm > RTC_TARGET_FREQ_PPM_VALUE) )
-         return ERROR_RTC_CALI_VERIFY;
-         
-     if( (target_freq_ppm < 0) && ((0-target_freq_ppm) > RTC_TARGET_FREQ_PPM_VALUE))
-         return ERROR_RTC_CALI_VERIFY;     
-    eslink_set_target_power_reset(10);
+    {
+        if(data)
+        {
+            *data     =((uint8_t *)&target_freq_ppm)[0];
+            *(data+1) =((uint8_t *)&target_freq_ppm)[1];
+            *(data+2) =((uint8_t *)&target_freq_ppm)[2];
+            *(data+3) =((uint8_t *)&target_freq_ppm)[3];            
+        }    
+        return ERROR_RTC_CALI_VERIFY;
+    }
+    else if( (target_freq_ppm < 0) && ((0-target_freq_ppm) > RTC_TARGET_FREQ_PPM_VALUE))
+    {
+        if(data)
+        {
+            *data     =((uint8_t *)&target_freq_ppm)[0];
+            *(data+1) =((uint8_t *)&target_freq_ppm)[1];
+            *(data+2) =((uint8_t *)&target_freq_ppm)[2];
+            *(data+3) =((uint8_t *)&target_freq_ppm)[3];            
+        }     
+        return ERROR_RTC_CALI_VERIFY; 
+    }              
+    eslink_set_target_power_reset(40);
     return ERROR_SUCCESS;
 }
 

@@ -87,15 +87,15 @@ typedef enum {
     ERROR_WRITE             = 0x6F,             //"Flash algorithm write command FAILURE", 
     
     //bootisp
-    ERROR_BOOTISP_START     = 0x70,             //启动失败
-    ERROR_BOOTISP_WRITE     = 0x71,             //bootisp写失败
-    ERROR_BOOTISP_ERASE     = 0x72,             //BOOTISP擦除失败
-    ERROR_BOOTISP_CHECK_EMPTY = 0x73,           //bootisp查空失败     
-    ERROR_BOOTISP_PROG      = 0x74,             //bootisp编程失败
-    ERROR_BOOTISP_PROG_CFG_WORD = 0x75,         //bootisp编程失败
-    ERROR_BOOTISP_READ     	= 0x76,            	//bootisp写失败____NEW
-	ERROR_BOOTISP_ENCRYPT 	= 0x77,				//bootisp加密失败____NEW
-	ERROR_BOOTISP_VERIFY	= 0x78,		        //bootisp校验失败____NEW
+    ERROR_UARTBOOT_START     = 0x70,             //启动失败
+    ERROR_UARTBOOT_WRITE     = 0x71,             //bootisp写失败
+    ERROR_UARTBOOT_ERASE     = 0x72,             //BOOTISP擦除失败
+    ERROR_UARTBOOT_CHECK_EMPTY = 0x73,           //bootisp查空失败     
+    ERROR_UARTBOOT_PROG      = 0x74,             //bootisp编程失败
+    ERROR_UARTBOOT_PROG_CFG_WORD = 0x75,         //bootisp编程失败
+    ERROR_UARTBOOT_READ     	= 0x76,            	//bootisp写失败____NEW
+	ERROR_UARTBOOT_ENCRYPT 	= 0x77,				//bootisp加密失败____NEW
+	ERROR_UARTBOOT_VERIFY	= 0x78,		        //bootisp校验失败____NEW
     
     //脱机
     ERROR_PROG_INTF = 0x80,                     //烧录接口设置错误  

@@ -71,7 +71,12 @@ void swd_prog_init(es_target_cfg *target)
 //    swd_target_device.ram_end        = 0x20008000,
 }
 
-//flash / info编程
+/*******************************************************************************
+*	函 数 名: swd_program_flash
+*	功能说明: swd编程
+*	形    参: area:编程区域flash / info addr：地址 buf：数据 size：长度 
+*	返 回 值: 错误类型
+*******************************************************************************/
 static error_t swd_program_flash(uint8_t area, uint32_t addr, uint8_t *buf, uint32_t size)
 {
     const program_target_t *const flash = swd_target_device.flash_algo;
@@ -114,8 +119,12 @@ static error_t swd_program_flash(uint8_t area, uint32_t addr, uint8_t *buf, uint
     return ERROR_SUCCESS;
 }
 
-//编程初始化，进模式
-//算法文件写入目标芯片的RAM中
+/*******************************************************************************
+*	函 数 名: es_swd_init
+*	功能说明: 编程初始化，进模式  算法文件写入目标芯片的RAM中
+*	形    参:  
+*	返 回 值: 错误类型
+*******************************************************************************/
 static error_t es_swd_init(void)
 {
     const program_target_t *const flash = swd_target_device.flash_algo;
@@ -134,10 +143,7 @@ static error_t es_swd_init(void)
     }
 
     return ERROR_SUCCESS;
-}
-
-
-
+}  
 
 //isp退出编程模式
 static error_t es_swd_uninit(void)
@@ -182,7 +188,7 @@ static error_t es_swd_erase_chip (uint8_t para)
 //读芯片chipid
 static error_t es_swd_read_chipid(uint8_t *buf)
 {       
-    if (!swd_read_memory(CHIP_INFO_OFFSET + target_dev->chipid_addr, buf, 4))  
+    if (!swd_read_memory(CHIP_INFO_FLASH_OFFSET + target_dev->chipid_addr, buf, 4))  
     {
         return ERROR_SWD_READ;
     }
@@ -193,7 +199,7 @@ static error_t es_swd_chipid_check(void)
 {
     uint32_t chipid = 0;
    
-    if (!swd_read_memory(CHIP_INFO_OFFSET + target_dev->chipid_addr, (uint8_t*)&chipid, 4) )  
+    if (!swd_read_memory(CHIP_INFO_FLASH_OFFSET + target_dev->chipid_addr, (uint8_t*)&chipid, 4) )  
     {
         return ERROR_SWD_READ;
     }
@@ -212,7 +218,7 @@ static error_t es_swd_read_checksum(uint8_t *buf)
     ret = es_swd_chipid_check();
     if(ERROR_SUCCESS != ret)
         return ret;  
-    if (!swd_read_memory(CHIP_INFO_OFFSET + CHIP_CHECKSUM_ADDR, buf, 4))  
+    if (!swd_read_memory(CHIP_INFO_FLASH_OFFSET + CHIP_CHECKSUM_ADDR, buf, 4))  
     {
         return ERROR_SWD_READ;
     }
@@ -286,8 +292,8 @@ static error_t es_swd_program_config(uint32_t addr, uint8_t *buf, uint32_t size,
     if(size & 0x03)
         return ERROR_OUT_OF_BOUNDS;
             
-    prog_addr  =  CHIP_INFO_OFFSET + 0x400;     //info1的偏移地址
-    prog_size = 56;     
+    prog_addr  =  CHIP_INFO_FLASH_OFFSET;     //info1的偏移地址
+    prog_size = CHIP_INFO_PART1_SIZE * 4;     //字节长度
     ret = swd_program_flash(INFO_AREA, prog_addr, buf, prog_size );
     if(ret != ERROR_SUCCESS)
     {
@@ -297,8 +303,8 @@ static error_t es_swd_program_config(uint32_t addr, uint8_t *buf, uint32_t size,
     } 
 
     buf += prog_size; 
-    prog_addr  =  CHIP_INFO_OFFSET + 0x7C0;     //info1的偏移地址
-    prog_size = 96;     
+    prog_addr  =  CHIP_INFO_FLASH_OFFSET + CHIP_INFO_PART2_ADDR;     //info1的偏移地址
+    prog_size = CHIP_INFO_PART2_SIZE * 4;     //字节长度
     
     ret = swd_program_flash(INFO_AREA, prog_addr, buf, prog_size );
     if(ret != ERROR_SUCCESS)
@@ -324,14 +330,14 @@ static error_t es_swd_read_config(uint32_t addr,  uint8_t *buf, uint32_t size)
         return ERROR_OUT_OF_BOUNDS;
 
     //配置字在inf1区，保留未用的数据未下发。此信息需要根据XML文件修改。
-    read_addr  =  CHIP_INFO_OFFSET + 0x400;     //info1的偏移地址
-    read_size = 56;     //14个字
+    read_addr  =  CHIP_INFO_FLASH_OFFSET + CHIP_INFO_PART1_ADDR;     //info1的偏移地址
+    read_size = CHIP_INFO_PART1_SIZE * 4;   //字节长度 
     if (!swd_read_memory(read_addr, buf, read_size)) 
         return ERROR_SWD_READ; 
         
     buf += read_size;    
-    read_addr  =  CHIP_INFO_OFFSET + 0x7C0;     //info1的偏移地址
-    read_size = 96;     //24个字
+    read_addr  =  CHIP_INFO_FLASH_OFFSET + CHIP_INFO_PART2_ADDR;     //info1的偏移地址
+    read_size = CHIP_INFO_PART2_SIZE * 4;     //字节长度
     
     if (!swd_read_memory(read_addr, buf, read_size)) 
         return ERROR_SWD_READ;     
@@ -352,8 +358,8 @@ static error_t es_swd_verify_config(uint32_t addr,  uint8_t *buf, uint32_t size,
         return ERROR_OUT_OF_BOUNDS;
     
     //配置字在inf1区，保留未用的数据未下发。此信息需要根据XML文件修改。
-    read_addr  =  CHIP_INFO_OFFSET + 0x400;     //info1的偏移地址
-    read_size = 56;     //14个字    
+    read_addr  =  CHIP_INFO_FLASH_OFFSET + CHIP_INFO_PART1_ADDR;     //info1的偏移地址
+    read_size = CHIP_INFO_PART1_SIZE * 4;       //字节长度
     while (read_size > 0) 
     {          
         verify_size = MIN(read_size, sizeof(read_buf));
@@ -377,8 +383,8 @@ static error_t es_swd_verify_config(uint32_t addr,  uint8_t *buf, uint32_t size,
         read_size -= verify_size;
     }
     
-    read_addr  =  CHIP_INFO_OFFSET + 0x7C0;     //info1的偏移地址
-    read_size = 96;     //24个字
+    read_addr  =  CHIP_INFO_FLASH_OFFSET + CHIP_INFO_PART2_ADDR;     //info1的偏移地址
+    read_size = CHIP_INFO_PART2_SIZE * 4;     //字节长度
     while (read_size > 0) 
     {          
         verify_size = MIN(read_size, sizeof(read_buf));
@@ -476,8 +482,8 @@ error_t es_swd_check_empty(uint32_t *failed_addr, uint32_t *failed_data)
 	}  
 
     //配置字查空
-	cfg_word_addr =  CHIP_INFO_OFFSET + 0x400;
-	cfg_word_size =  56;     //字长度
+	cfg_word_addr =  CHIP_INFO_FLASH_OFFSET + CHIP_INFO_PART1_ADDR;
+	cfg_word_size =  CHIP_INFO_PART1_SIZE * 4;     //字节长度
     while(true)
 	{
 		copy_size = MIN(cfg_word_size, sizeof(read_buf));
@@ -507,8 +513,8 @@ error_t es_swd_check_empty(uint32_t *failed_addr, uint32_t *failed_data)
         } 
 	} 
     
-	cfg_word_addr =  CHIP_INFO_OFFSET + 0x7C0;
-	cfg_word_size =  96;     //字长度
+	cfg_word_addr =  CHIP_INFO_FLASH_OFFSET + CHIP_INFO_PART2_ADDR;
+	cfg_word_size =  CHIP_INFO_PART2_SIZE * 4;     //字节长度
     while(true)
 	{
 		copy_size = MIN(cfg_word_size, sizeof(read_buf));

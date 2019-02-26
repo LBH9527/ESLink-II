@@ -83,11 +83,6 @@ void main_reset(void )
     return;
 }
 
-//void main_reset_target(uint8_t send_unique_id)
-//{
-//    flag_send(task_flags, FLAGS_MAIN_RESET_TARGET);
-//    return;
-//}
 void gui_refresh(void)
 {
     flag_send(task_flags, FLAGS_GUI_REFRESH);
@@ -119,11 +114,6 @@ int main (void)
     spi_flash_init();     
     
     LED_GREEN_ON();
-//    while(1)
-//    {
-//         CTL_TOGGLE();
-//         es_delay_us(100000);    
-//    }
     
     if(eslink_is_mini() != TRUE)
     {
@@ -166,14 +156,6 @@ void oline_app(void)
     es_burner_init();  
     while (1) 
     {    
-//        // 检测usb是否联机
-//        if(!usbd_configured () )
-//        {
-//            //未联机
-//            USBD_Handler();
-//            bsp_delay_ms(10); 
-//        }
-//        else
         {
             //usb已经联机
             if( flag_recv(task_flags, FLAGS_USB_HANDLER) )
@@ -195,11 +177,6 @@ void oline_app(void)
                 bsp_delay_ms(10);       //延时，USB回复数据。
                 SystemSoftReset();           
             }
-//            if( flag_recv(task_flags, FLAGS_MAIN_RESET_TARGET) )
-//            {
-//                flag_clr(task_flags, FLAGS_MAIN_RESET_TARGET);
-//            //            target_set_state(RESET_RUN);
-//            }
             if( flag_recv(task_flags, FLAGS_MAIN_CDC_EVENT)  ) 
             {
                 flag_clr(task_flags, FLAGS_MAIN_CDC_EVENT);
@@ -289,13 +266,6 @@ void oline_mini_app(void)
     es_burner_init();        
     while (1) 
     {    
-//        // 检测usb是否联机
-//        if(!usbd_configured () )
-//        {
-//            //未联机
-//            bsp_delay_ms(10); 
-//        }
-//        else
         {
             //usb已经联机
             if( flag_recv(task_flags, FLAGS_MAIN_RESET) )
@@ -313,11 +283,6 @@ void oline_mini_app(void)
                 usbd_connect(1);
             }
             
-//            if( flag_recv(task_flags, FLAGS_MAIN_RESET_TARGET) )
-//            {
-//                flag_clr(task_flags, FLAGS_MAIN_RESET_TARGET);
-//            //            target_set_state(RESET_RUN);
-//            }
             if( flag_recv(task_flags, FLAGS_MAIN_CDC_EVENT)  ) 
             {
                 flag_clr(task_flags, FLAGS_MAIN_CDC_EVENT);

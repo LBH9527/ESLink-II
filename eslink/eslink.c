@@ -84,7 +84,7 @@ void eslink_set_target_hold_reset(void)
 {
     PIN_RST_OUT(0) ;
     es_set_trget_power(TRGET_POWER_DISABLE);
-    es_delay_ms(10);
+    es_delay_ms(20);
     es_set_trget_power(TRGET_POWER_ENABLE);
 
 }  
@@ -99,7 +99,7 @@ void eslink_set_target_power_reset(uint8_t delay_ms)
 {
     PIN_RST_OUT(1) ;  
     es_set_trget_power(TRGET_POWER_DISABLE);
-    es_delay_ms(10);
+    es_delay_ms(delay_ms);
     es_set_trget_power(TRGET_POWER_ENABLE);
 
 }

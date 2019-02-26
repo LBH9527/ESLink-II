@@ -17,7 +17,7 @@ static error_t isp_prog_check_empty(uint32_t *failed_addr, uint32_t *failedData)
 static error_t isp_prog_read_chipid(uint8_t *buf);
 static error_t isp_prog_read_checksum(uint8_t *buf);
 static error_t isp_prog_encrypt_chip(void);
-static error_t isp_chipid_check(void);
+
 static error_t isp_prog_program_config(uint32_t addr, uint8_t *data, uint32_t size,uint32_t *failed_addr );
 static error_t isp_prog_read_config(uint32_t addr,  uint8_t *buf, uint32_t size);
 static error_t isp_prog_verify_config(uint32_t addr,  uint8_t *data, uint32_t size, uint32_t *failed_addr, uint32_t *failed_data);
@@ -68,8 +68,8 @@ void isp_init(es_target_cfg *target)
 //进入isp模式
 static error_t isp_entry_mode(void)
 {
-    //复位
-    isp_reset();
+//    //复位
+//    isp_reset();
     //读取ID
     if(isp_id_check() != TRUE)
         return ERROR_IN_ISP_MODE;
@@ -124,15 +124,26 @@ static error_t isp_prog_uninit(void)
     return  ERROR_SUCCESS; 
 }   
 
-//读目标芯片ID
+//
+/*******************************************************************************
+*	函 数 名: isp_prog_read_chipid
+*	功能说明: 读目标芯片ID
+*	形    参: ID值 
+*	返 回 值: 错误类型
+*******************************************************************************/
 static error_t isp_prog_read_chipid(uint8_t *buf)
 {  
     if(isp_read_config(isp_target_dev->chipid_addr, (uint32_t*)buf, 1) != TRUE)
         return ERROR_ISP_READ_CFG_WORD;
     return ERROR_SUCCESS; 
 }
- 
-//判断芯片chipid是否正确  
+  
+/*******************************************************************************
+ *	函 数 名: isp_chipid_check
+ *	功能说明: 判断芯片chipid是否正确
+ *	形    参:  
+ *	返 回 值: 错误类型
+ *******************************************************************************/ 
 static error_t isp_chipid_check(void)
 {
     uint32_t chipid = 0;
@@ -141,13 +152,18 @@ static error_t isp_chipid_check(void)
         return ERROR_ISP_READ_CFG_WORD;
     if(chipid != isp_target_dev->chipid_value)    
     {
-         return  ERROR_CHIP_ID_NOT_MATCH;
+//         return  ERROR_CHIP_ID_NOT_MATCH;
     }
         
     return ERROR_SUCCESS; 
 
 }
-//读芯片校验和
+/*******************************************************************************
+*	函 数 名:  isp_prog_read_checksum
+*	功能说明:  读芯片校验和
+*	形    参:  
+*	返 回 值:  错误类型
+*******************************************************************************/
 static error_t isp_prog_read_checksum(uint8_t *buf)
 {
     error_t ret = ERROR_SUCCESS;
@@ -160,7 +176,12 @@ static error_t isp_prog_read_checksum(uint8_t *buf)
         return ERROR_ISP_READ_CFG_WORD;
     return ERROR_SUCCESS;     
 }
-//flash编程
+/*******************************************************************************
+*	函 数 名:  isp_prog_program_flash
+*	功能说明:  flash编程
+*	形    参:  
+*	返 回 值:  错误类型
+*******************************************************************************/
 static error_t isp_prog_program_flash(uint32_t addr, uint8_t *data, uint32_t size, uint32_t *failed_addr)
 {
     uint8_t ret ; 
@@ -180,7 +201,13 @@ static error_t isp_prog_program_flash(uint32_t addr, uint8_t *data, uint32_t siz
     }
     return ERROR_SUCCESS;     
 }
-//读flash
+
+/*******************************************************************************
+*	函 数 名:  isp_prog_read_flash
+*	功能说明:  读flash
+*	形    参:  addr：地址 data：数据  size：长度
+*	返 回 值:  错误类型
+*******************************************************************************/
 static error_t isp_prog_read_flash(uint32_t addr, uint8_t *data, uint32_t size)
 {
     error_t ret = ERROR_SUCCESS;
@@ -198,7 +225,12 @@ static error_t isp_prog_read_flash(uint32_t addr, uint8_t *data, uint32_t size)
     return ERROR_SUCCESS;  
 
 }
-//flash校验
+/*******************************************************************************
+*	函 数 名: isp_prog_verify_flash
+*	功能说明: flash校验
+*	形    参: addr：地址 data：数据  size：长度 failed_addr：错误地址 failed_data：错误数据
+*	返 回 值: 错误类型
+*******************************************************************************/
 static error_t isp_prog_verify_flash(uint32_t addr,  uint8_t *data, uint32_t size, uint32_t *failed_addr, uint32_t *failed_data)
 {
     uint8_t ret ; 
@@ -237,10 +269,12 @@ static error_t isp_prog_verify_flash(uint32_t addr,  uint8_t *data, uint32_t siz
     
     return ERROR_SUCCESS;      
 }
-/*
- * 配置字编程
- * 注意：配置字默认从地址0开始编程，且能一次编程结束
- */
+/*******************************************************************************
+*	函 数 名: isp_prog_program_config
+*	功能说明: 配置字编程
+*	形    参: addr：地址 data：数据  size：长度 failed_addr：错误地址 
+*	返 回 值: 错误类型
+*******************************************************************************/
 static error_t isp_prog_program_config(uint32_t addr, uint8_t *buf, uint32_t size, uint32_t *failed_addr )
 {   
     uint8_t ret ;    
@@ -253,11 +287,11 @@ static error_t isp_prog_program_config(uint32_t addr, uint8_t *buf, uint32_t siz
         return ERROR_OUT_OF_BOUNDS;
     size_in_words = size/4;
     
-	if( size_in_words != M939_CONFIG_WORD_SIZE)
+	if( size_in_words != CHIP_CONFIG_WORD_SIZE)
         return ERROR_ISP_PROG_CFG_WORD;
         
-    prog_addr  =  addr + 0x400;     //info1的偏移地址
-    prog_size = 14;     //14个字
+    prog_addr =  CHIP_INFO_PART1_ADDR;     //info1的偏移地址
+    prog_size =  CHIP_INFO_PART1_SIZE;     //14个字
     ret = isp_program_config(prog_addr, (uint32_t*)buf, prog_size, &offset);
     if(ret != TRUE)
     {
@@ -267,8 +301,8 @@ static error_t isp_prog_program_config(uint32_t addr, uint8_t *buf, uint32_t siz
     } 
     
     buf += prog_size*4; 
-    prog_addr  =  addr + 0x7C0;     //info1的偏移地址
-    prog_size = 24;     //24个字
+    prog_addr  = CHIP_INFO_PART2_ADDR;     //info1的偏移地址
+    prog_size  = CHIP_INFO_PART2_SIZE;     //24个字
     
     ret = isp_program_config(prog_addr, (uint32_t*)buf, prog_size, &offset);
     if(ret != TRUE)
@@ -280,8 +314,8 @@ static error_t isp_prog_program_config(uint32_t addr, uint8_t *buf, uint32_t siz
 
 #if RTC_DEBUG  
     buf += prog_size*4; 
-    prog_addr  =  addr + 0x1000;     //info1的偏移地址
-    prog_size = 16;     //16个字
+    prog_addr = CHIP_RTC_INFO_ADDR;     //info1的偏移地址
+    prog_size = CHIP_RTC_INFO_SIZE;     //16个字
     
     ret = isp_program_config(prog_addr, (uint32_t*)buf, prog_size, &offset);
     if(ret != TRUE)
@@ -294,7 +328,12 @@ static error_t isp_prog_program_config(uint32_t addr, uint8_t *buf, uint32_t siz
     return ERROR_SUCCESS;        
 }
 
-//读配置字  
+/*******************************************************************************
+*	函 数 名: isp_prog_read_config
+*	功能说明: 读配置字
+*	形    参: addr：地址 data：数据  size：长度 
+*	返 回 值: 错误类型
+*******************************************************************************/
 static error_t isp_prog_read_config(uint32_t addr,  uint8_t *buf, uint32_t size)
 {
     error_t ret;
@@ -309,33 +348,39 @@ static error_t isp_prog_read_config(uint32_t addr,  uint8_t *buf, uint32_t size)
     if(size & 0x03)
         return ERROR_OUT_OF_BOUNDS;
     size_in_words = size/4; 
-    if( size_in_words != M939_CONFIG_WORD_SIZE)
+    if( size_in_words != CHIP_CONFIG_WORD_SIZE)
         return ERROR_ISP_PROG_CFG_WORD;
 
     //配置字在inf1区，保留未用的数据未下发。此信息需要根据XML文件修改。
-    read_addr  =  addr + 0x400;     //info1的偏移地址
-    read_size = 14;     //14个字
+    read_addr  =  CHIP_INFO_PART1_ADDR;     //info1的偏移地址
+    read_size = CHIP_INFO_PART1_SIZE;     //14个字
     if( isp_read_config(read_addr, (uint32_t*)buf, read_size) != TRUE)
         return ERROR_ISP_READ_CFG_WORD;  
         
     buf += read_size*4;    
-    read_addr  =  addr + 0x7C0;     //info1的偏移地址
-    read_size = 24;     //24个字
+    read_addr = CHIP_INFO_PART2_ADDR;     //info1的偏移地址
+    read_size = CHIP_INFO_PART2_SIZE;     //24个字
     
     if( isp_read_config(read_addr, (uint32_t*)buf, read_size) != TRUE)
         return ERROR_ISP_READ_CFG_WORD; 
 
 #if ESLINK_RTC_ENABLE  
     buf += read_size*4;    
-    read_addr  =  addr + 0x1000;     //rtc info的偏移地址
-    read_size = 16;     //16个字
+    read_addr = CHIP_RTC_INFO_ADDR;     //rtc info的偏移地址
+    read_size = CHIP_RTC_INFO_SIZE;     //16个字
     
     if(isp_read_config(read_addr, (uint32_t*)buf, read_size) != TRUE)
         return ERROR_ISP_READ_CFG_WORD;
 #endif
     return ERROR_SUCCESS;        
 }
-//配置字校验  
+
+/*******************************************************************************
+*	函 数 名: isp_prog_verify_config
+*	功能说明: 配置字校验
+*	形    参: addr：地址 data：数据  size：长度 failed_addr：错误地址 failed_data：错误数据 
+*	返 回 值: 错误类型
+*******************************************************************************/
 static error_t isp_prog_verify_config(uint32_t addr,  uint8_t *buf, uint32_t size,uint32_t *failed_addr, uint32_t *failed_data)
 {
     uint8_t ret ; 
@@ -350,12 +395,12 @@ static error_t isp_prog_verify_config(uint32_t addr,  uint8_t *buf, uint32_t siz
     if(size & 0x03)
         return ERROR_OUT_OF_BOUNDS;
     size_in_words = size/4;
-    if( size_in_words != M939_CONFIG_WORD_SIZE)
+    if( size_in_words != CHIP_CONFIG_WORD_SIZE)
         return ERROR_ISP_PROG_CFG_WORD;
     
     //配置字在inf1区，保留未用的数据未下发。此信息需要根据XML文件修改。
-    read_addr  =  addr + 0x400;     //info1的偏移地址
-    read_size = 14;     //14个字    
+    read_addr = CHIP_INFO_PART1_ADDR;     //info1的偏移地址
+    read_size = CHIP_INFO_PART1_SIZE;     //14个字    
     while (read_size > 0) 
     {          
         verify_size = MIN(read_size, sizeof(rd_buf));
@@ -380,8 +425,8 @@ static error_t isp_prog_verify_config(uint32_t addr,  uint8_t *buf, uint32_t siz
         read_size -= verify_size;
     }
     
-    read_addr  =  addr + 0x7C0;     //info1的偏移地址
-    read_size = 24;     //24个字
+    read_addr = CHIP_INFO_PART2_ADDR;     //info1的偏移地址
+    read_size = CHIP_INFO_PART2_SIZE;     //24个字
     while (read_size > 0) 
     {          
         verify_size = MIN(read_size, sizeof(rd_buf));
@@ -407,8 +452,8 @@ static error_t isp_prog_verify_config(uint32_t addr,  uint8_t *buf, uint32_t siz
     }
 
 #if RTC_DEBUG  
-    read_addr  =  addr + 0x1000;     //rtc info的偏移地址
-    read_size = 16;     //16个字
+    read_addr = CHIP_RTC_INFO_ADDR;     //rtc info的偏移地址
+    read_size = CHIP_RTC_INFO_SIZE;     //16个字
     while (read_size > 0) 
     {          
         verify_size = MIN(read_size, sizeof(rd_buf));
@@ -435,8 +480,13 @@ static error_t isp_prog_verify_config(uint32_t addr,  uint8_t *buf, uint32_t siz
 #endif
     return ERROR_SUCCESS;       
 }
-
-// 芯片加密 
+ 
+/*******************************************************************************
+*	函 数 名: isp_prog_encrypt_chip
+*	功能说明: 芯片加密
+*	形    参:  
+*	返 回 值: 错误类型
+*******************************************************************************/
 static error_t isp_prog_encrypt_chip(void)
 { 
     error_t ret = ERROR_SUCCESS;
@@ -454,7 +504,12 @@ static error_t isp_prog_encrypt_chip(void)
     return ERROR_SUCCESS;    
 }
 
-//擦除
+/*******************************************************************************
+*	函 数 名: isp_prog_erase_chip
+*	功能说明: 擦除
+*	形    参: 擦除方式 
+*	返 回 值: 错误类型
+*******************************************************************************/
 static error_t isp_prog_erase_chip (uint8_t  para) 
 {
     error_t ret = ERROR_SUCCESS;
@@ -468,9 +523,7 @@ static error_t isp_prog_erase_chip (uint8_t  para)
 		 return ERROR_ISP_ERASE;
          
     return ERROR_SUCCESS;
-}
-
-
+} 
 /*******************************************************************************
 *	函 数 名: isp_prog_check_empty
 *	功能说明: 查空
@@ -520,8 +573,8 @@ error_t isp_prog_check_empty(uint32_t *failed_addr, uint32_t *failed_data)
         } 
 	}  
     //配置字查空
-	cfg_word_addr =  isp_target_dev->config_word_start + 0x400;
-	cfg_word_size =  14;     //字长度
+	cfg_word_addr =  CHIP_INFO_PART1_ADDR;
+	cfg_word_size =  CHIP_INFO_PART1_SIZE;     //字长度
     while(true)
 	{
 		copy_size = MIN(cfg_word_size, sizeof(read_buf)/4 );
@@ -547,8 +600,8 @@ error_t isp_prog_check_empty(uint32_t *failed_addr, uint32_t *failed_data)
         } 
 	} 
     
-	cfg_word_addr =  isp_target_dev->config_word_start + 0x7C0;
-	cfg_word_size =  24;     //字长度
+	cfg_word_addr =  CHIP_INFO_PART2_ADDR;
+	cfg_word_size =  CHIP_INFO_PART2_SIZE;     //字长度
     while(true)
 	{
 		copy_size = MIN(cfg_word_size, sizeof(read_buf)/4 );
@@ -574,8 +627,8 @@ error_t isp_prog_check_empty(uint32_t *failed_addr, uint32_t *failed_data)
         } 
 	} 
 #if RTC_DEBUG  
-    cfg_word_addr =  isp_target_dev->config_word_start + 0x1000;
-	cfg_word_size =  16;     //字长度
+    cfg_word_addr =  CHIP_RTC_INFO_ADDR;
+	cfg_word_size =  CHIP_RTC_INFO_SIZE;     //字长度
     while(true)
 	{
 		copy_size = MIN(cfg_word_size, sizeof(read_buf)/4 );
@@ -829,7 +882,7 @@ static error_t  isp_target_verify_all( uint8_t sn_enable, serial_number_t *sn , 
 *	返 回 值: 错误类型
 *******************************************************************************/ 
 #if ESLINK_RTC_ENABLE   
-static error_t isp_target_program_rtc(uint8_t mode) 
+static error_t isp_target_program_rtc(uint8_t para) 
 {
     error_t ret = ERROR_SUCCESS; 
     uint8_t result;
@@ -839,29 +892,15 @@ static error_t isp_target_program_rtc(uint8_t mode)
     uint32_t size;      
     uint32_t read_addr;
     uint8_t buf[ISP_PRG_MINI_SIZE];
-    uint32_t rd_buf[M939_RTC_INFO_SIZE];  
+    uint32_t rd_buf[CHIP_RTC_INFO_SIZE];  
     uint32_t checksum = 0;  
     uint32_t sf_checksum = 0;   //spi保存的校验和   
-    uint32_t i;
-    uint32_t hex_addr, checksum_addr;
-//    uint32_t failed_addr;
-//    uint32_t failed_data;
-//    uint32_t offset;  
+    uint32_t i;  
 
     ret = isp_chipid_check();
     if(ERROR_SUCCESS != ret)
         return ret; 
     
-    if(mode != 0)
-    {
-        hex_addr =  RTC_HEX;
-        checksum_addr = RTC_HEX_CHECKSUM;          
-    }           
-    else
-    {    
-        hex_addr =  USER_HEX;
-        checksum_addr =  HEX_CHECKSUM;         
-    }
     //flash编程
     code_addr =  isp_target_dev->code_start;
 	code_size =  isp_target_dev->code_size;
@@ -870,7 +909,7 @@ static error_t isp_target_program_rtc(uint8_t mode)
     while(true)
     {
         size = MIN(code_size, sizeof(buf) );          
-        ret = isp_prog_intf.cb(hex_addr, read_addr, buf , size);                
+        ret = isp_prog_intf.cb(RTC_HEX, read_addr, buf , size);                
         if(ERROR_SUCCESS != ret)
             return ret;
         for(i=0; i<size; i++)
@@ -900,7 +939,7 @@ static error_t isp_target_program_rtc(uint8_t mode)
     {
         size = MIN(code_size, sizeof(buf) ); 
            
-        ret = isp_prog_intf.cb(hex_addr, read_addr, buf , size);
+        ret = isp_prog_intf.cb(RTC_HEX, read_addr, buf , size);
 
         if( ret !=  ERROR_SUCCESS)
             return ret; 
@@ -916,7 +955,7 @@ static error_t isp_target_program_rtc(uint8_t mode)
         if (code_size <= 0) 
             break;       
     }  
-    isp_prog_intf.cb(checksum_addr, 0,(uint8_t*)&sf_checksum, 4);        
+    isp_prog_intf.cb(RTC_HEX_CHECKSUM, 0,(uint8_t*)&sf_checksum, 4);        
     if((sf_checksum&0x0000ffff) != (checksum&0x0000ffff))
     {
         ret = ERROR_USER_HEX_CHECKSUM;
@@ -924,7 +963,7 @@ static error_t isp_target_program_rtc(uint8_t mode)
     }  
     
     //默认配置字编程
-    cfg_word_addr =  isp_target_dev->config_word_start + 0x400;  //info1的偏移地址
+    cfg_word_addr =   CHIP_INFO_PART1_ADDR;  //info1的偏移地址
     
     buf[0] =  (M939_RTC_CONFIG_DEFAULT_L >> 0) & 0xff;
     buf[1] =  (M939_RTC_CONFIG_DEFAULT_L >> 8) & 0xff;
@@ -936,8 +975,7 @@ static error_t isp_target_program_rtc(uint8_t mode)
     buf[7] =  (M939_RTC_CONFIG_DEFAULT_H >> 24) & 0xff;
     
     if(isp_program_config(cfg_word_addr,(uint32_t*)buf, 0x08, NULL) != TRUE)
-        return ERROR_ISP_PROG_CFG_WORD;   
-    
+        return ERROR_ISP_PROG_CFG_WORD;     
     
     //配置字校验    
     if(isp_read_config(cfg_word_addr,(uint32_t*)buf, 0x08) != TRUE)
@@ -956,7 +994,7 @@ static error_t isp_target_program_rtc(uint8_t mode)
      } 
      
     //rtc info编程
-    read_addr = M939_RTC_INFO_OFFSET * 4; 
+    read_addr = CHIP_RTC_INFO_OFFSET * 4; 
     size =  isp_target_dev->config_word_size;
     ret = isp_prog_intf.cb(CFG_WORD , read_addr, buf , size);      
     if(ERROR_SUCCESS != ret)
@@ -964,17 +1002,17 @@ static error_t isp_target_program_rtc(uint8_t mode)
     
     rtc_info_erase();
     
-    result = isp_program_config(M939_RTC_INFO_ADDR, (uint32_t*)buf, M939_RTC_INFO_SIZE, NULL);
+    result = isp_program_config(CHIP_RTC_INFO_ADDR, (uint32_t*)buf, CHIP_RTC_INFO_SIZE, NULL);
     if(result != TRUE)
     {
          return ERROR_ISP_PROG_CFG_WORD;
     } 
          
     //info校验
-    result = isp_read_config(M939_RTC_INFO_ADDR, rd_buf, M939_RTC_INFO_SIZE); 
+    result = isp_read_config(CHIP_RTC_INFO_ADDR, rd_buf, CHIP_RTC_INFO_SIZE); 
     if( result != TRUE)
         return ERROR_ISP_READ_CFG_WORD;        
-    for(i=0; i< M939_RTC_INFO_SIZE; i++)
+    for(i=0; i< CHIP_RTC_INFO_SIZE; i++)
     {
         if( (buf[i*4] != ((rd_buf[i]>>0)&0xFF))  ||                        
             (buf[i*4+1] != ((rd_buf[i]>>8)&0xFF))  ||

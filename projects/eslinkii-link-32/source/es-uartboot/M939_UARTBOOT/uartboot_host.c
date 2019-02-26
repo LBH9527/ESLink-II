@@ -1,9 +1,9 @@
 #include "eslink.h"
-#include "bootisp_host.h"
-#include "bootisp_target_config.h"
+#include "uartboot_host.h"
+#include "uartboot_target_config.h"
 
  
-static void bootisp_delay(uint32_t n)
+static void uartboot_delay(uint32_t n)
 {
     es_delay_ms(1);
 }
@@ -40,7 +40,7 @@ static uint8_t read_data(uint8_t *rd_data, uint8_t rd_size, uint8_t delay_ms)
         rd_size -= len_data;
         rd_data += len_data;
         timeout--;
-        bootisp_delay(1);
+        uartboot_delay(1);
         if(timeout == 0)
             return FALSE;
     } 
@@ -56,7 +56,7 @@ static uint8_t read_cmd_and_check(uint8_t ack,  uint8_t delay_ms)
     {
         if( (uart_read_data(&rd_data, 1)) && (rd_data == ack))
            break;      
-        bootisp_delay(1);    
+        uartboot_delay(1);    
     }
     if(i >= timeout)
         return  FALSE;
@@ -111,7 +111,7 @@ static uint8_t write_cmd_and_check(uint8_t *cmd, uint8_t size)
     return TRUE;
 }
 
-uint8_t bootisp_start(void)
+uint8_t uartboot_start(void)
 {
     uint8_t start =  CMD_START;                  
     UART_Configuration UART_Config;
@@ -132,7 +132,7 @@ uint8_t bootisp_start(void)
 //data 为擦除的页数。0xffff为全擦
 // page_size 擦除的页数（page_size)
 // flash_index；flash页面代码
-uint8_t bootisp_extended_erase(uint8_t *data, uint8_t size)
+uint8_t uartboot_extended_erase(uint8_t *data, uint8_t size)
 {   
     uint16_t page_size;   
     uint8_t cmd_buf[2] = {CMD_ERASE, 0xFF - CMD_ERASE};
@@ -159,7 +159,7 @@ uint8_t bootisp_extended_erase(uint8_t *data, uint8_t size)
         
     return TRUE;   
 }
-uint8_t bootisp_check_empty(uint32_t addr, uint32_t size)
+uint8_t uartboot_check_empty(uint32_t addr, uint32_t size)
 {
     uint8_t cmd_buf[2] = {CMD_CHECK_EMPTY, 0xFF - CMD_CHECK_EMPTY}; 
     uint8_t wr_buf[4];
@@ -198,7 +198,7 @@ uint8_t bootisp_check_empty(uint32_t addr, uint32_t size)
     return TRUE;    
 }
 
-static uint8_t bootisp_read_block(uint32_t addr, uint8_t *data, uint32_t size)
+static uint8_t uartboot_read_block(uint32_t addr, uint8_t *data, uint32_t size)
 {
     uint8_t cmd_buf[2] = {CMD_RD_MEMORY, 0xFF - CMD_RD_MEMORY};
     uint8_t wr_buf[4];
@@ -232,20 +232,20 @@ static uint8_t bootisp_read_block(uint32_t addr, uint8_t *data, uint32_t size)
    
     return TRUE;
 }
-static uint8_t bootisp_read_block_retry(uint32_t addr, uint8_t *data, uint32_t size)
+static uint8_t uartboot_read_block_retry(uint32_t addr, uint8_t *data, uint32_t size)
 {
 	uint8_t i;
 	
 	for (i = 0; i < 3; i++) 
 	{
-		if ( bootisp_read_block(addr, data, size) != FALSE) 
+		if ( uartboot_read_block(addr, data, size) != FALSE) 
 			break;
 	}
     if(i >= 3)
 		return FALSE;
 	return TRUE;
 }
-uint8_t bootisp_read_memory(uint32_t addr, uint8_t *data, uint32_t size)
+uint8_t uartboot_read_memory(uint32_t addr, uint8_t *data, uint32_t size)
 {
     uint32_t page;
     uint32_t single;
@@ -254,7 +254,7 @@ uint8_t bootisp_read_memory(uint32_t addr, uint8_t *data, uint32_t size)
     single = size % BOOTSIP_DATA_SIZE;
     while (page) 
     {
-        if (bootisp_read_block_retry(addr, data, BOOTSIP_DATA_SIZE) != TRUE)
+        if (uartboot_read_block_retry(addr, data, BOOTSIP_DATA_SIZE) != TRUE)
             return FALSE;
         addr += BOOTSIP_DATA_SIZE;
         data += BOOTSIP_DATA_SIZE;
@@ -262,13 +262,13 @@ uint8_t bootisp_read_memory(uint32_t addr, uint8_t *data, uint32_t size)
         page --;
     }
     
-    if (bootisp_read_block(addr, data, single) != TRUE)
+    if (uartboot_read_block(addr, data, single) != TRUE)
         return FALSE;
     return TRUE;
 }  
 
 //写指定地址数据  
-static uint8_t bootisp_write_block(uint32_t addr,  uint8_t *data, uint32_t size)  
+static uint8_t uartboot_write_block(uint32_t addr,  uint8_t *data, uint32_t size)  
 {
     uint8_t cmd_buf[2] = {CMD_WR_MEMORY, 0xFF - CMD_WR_MEMORY};
     uint8_t wr_buf[BOOTSIP_DATA_SIZE+1];
@@ -306,13 +306,13 @@ static uint8_t bootisp_write_block(uint32_t addr,  uint8_t *data, uint32_t size)
     return TRUE;    
 }  
 
-uint8_t bootisp_write_block_retry(uint32_t addr,  uint8_t *data, uint32_t size)  
+uint8_t uartboot_write_block_retry(uint32_t addr,  uint8_t *data, uint32_t size)  
 {
 	uint8_t i;
 	
 	for (i = 0; i < 3; i++) 
 	{
-		if ( bootisp_write_block(addr, data, size) != FALSE) 
+		if ( uartboot_write_block(addr, data, size) != FALSE) 
 			break;
 	}
     if(i >= 3)
@@ -320,7 +320,7 @@ uint8_t bootisp_write_block_retry(uint32_t addr,  uint8_t *data, uint32_t size)
 	return TRUE;
 
 }
-uint8_t bootisp_write_memory(uint32_t addr,  uint8_t *data, uint32_t size)
+uint8_t uartboot_write_memory(uint32_t addr,  uint8_t *data, uint32_t size)
 {
     uint32_t page;
     uint32_t single;
@@ -329,19 +329,19 @@ uint8_t bootisp_write_memory(uint32_t addr,  uint8_t *data, uint32_t size)
     single = size % BOOTSIP_DATA_SIZE;
     while (page) 
     {
-        if (bootisp_write_block_retry(addr, data, BOOTSIP_DATA_SIZE) != TRUE)
+        if (uartboot_write_block_retry(addr, data, BOOTSIP_DATA_SIZE) != TRUE)
             return FALSE;
         addr += BOOTSIP_DATA_SIZE;
         data += BOOTSIP_DATA_SIZE;
         page --;
     }
     
-    if (bootisp_write_block(addr, data, single) != TRUE)
+    if (uartboot_write_block(addr, data, single) != TRUE)
         return FALSE;
     return TRUE;
 } 
 
-static uint8_t bootisp_get_crc32_cmd(uint32_t addr, uint32_t size, uint32_t *crc_value)
+static uint8_t uartboot_get_crc32_cmd(uint32_t addr, uint32_t size, uint32_t *crc_value)
 {
     uint8_t cmd_buf[2] = {CMD_GET_CRC, 0xFF - CMD_GET_CRC};
     uint8_t wr_buf[4];
@@ -382,7 +382,7 @@ static uint8_t bootisp_get_crc32_cmd(uint32_t addr, uint32_t size, uint32_t *crc
     return TRUE;    
 }
 
-uint8_t bootisp_go_cmd(uint32_t addr)
+uint8_t uartboot_go_cmd(uint32_t addr)
 {
     uint8_t cmd_buf[2] = {CMD_GO, 0xFF - CMD_GO};
     uint8_t wr_buf[4];  

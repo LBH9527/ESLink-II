@@ -96,13 +96,13 @@ typedef union ofl_file_partition ofl_file_partition;
 #define OFL_SERIALNUM_READ_USE_IAP      0x00001111          
 typedef struct __attribute__((packed)) 
 {      
-    uint32_t state;              //脱机序列号编程使能  OFL_SERIALNUM_IN_FLASH / OFL_SERIALNUM_IN_EEPROM/OFL_SERIALNUM_DISABLE 
+    uint32_t state;                 //脱机序列号编程使能  OFL_SERIALNUM_IN_FLASH / OFL_SERIALNUM_IN_EEPROM/OFL_SERIALNUM_DISABLE 
 //    uint32_t sn_addr;               //序列号起始地址
 //    uint32_t sn_size;               //数据长度       
 //    uint8_t sn_data[16];            //序列号代码
     serial_number_t sn;
     uint32_t sn_data_checksum;      //序列码校验和  
-    uint32_t sn_step;                  //步长    
+    uint32_t sn_step;               //步长    
     uint32_t total_size;            //烧写芯片个数       
     uint32_t success_count;         //已成功编程芯片个数  
     uint32_t start_mode;            //启动烧写方式:OFL_SERIALNUM_PROG_START_MODE
