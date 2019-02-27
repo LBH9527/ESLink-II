@@ -69,7 +69,7 @@ DRESULT disk_read (
 
 		case FS_SPI_FLASH :
              /* 扇区偏移2MB，外部Flash文件系统空间放在SPI Flash后面6MB空间 */ 
-            sector += 512;
+            sector += SF_FATFS_OFFSET;
 			spi_flash_read(sector<<12, buff, count <<12);
 			return RES_OK;
 

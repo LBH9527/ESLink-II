@@ -268,13 +268,10 @@ void oline_mini_app(void)
     {    
         {
             //usb已经联机
-            if( flag_recv(task_flags, FLAGS_MAIN_RESET) )
+            if( flag_recv(task_flags, FLAGS_USB_HANDLER) )
             {
-                flag_clr(task_flags, FLAGS_MAIN_RESET);
-                clear_timing_info();    
-                set_app_update(UPDATE_BOOT_APP);
-                bsp_delay_ms(10);       //延时，USB回复数据。
-                SystemSoftReset();           
+                flag_clr(task_flags, FLAGS_USB_HANDLER);
+                USBD_Handler();
             }
             if(!usbd_configured () )  // 检测usb是否联机
             {
@@ -282,6 +279,14 @@ void oline_mini_app(void)
                 bsp_delay_ms(10); 
                 usbd_connect(1);
             }
+            if( flag_recv(task_flags, FLAGS_MAIN_RESET) )
+            {
+                flag_clr(task_flags, FLAGS_MAIN_RESET);
+                clear_timing_info();    
+                set_app_update(UPDATE_BOOT_APP);
+                bsp_delay_ms(10);       //延时，USB回复数据。
+                SystemSoftReset();           
+            }   
             
             if( flag_recv(task_flags, FLAGS_MAIN_CDC_EVENT)  ) 
             {

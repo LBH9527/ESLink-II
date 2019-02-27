@@ -26,6 +26,7 @@ typedef struct  {
     
 } es_target_cfg;  
 //8位机芯片信息
+#pragma pack(1)
 typedef struct{
     uint16_t    version;        //版本号
     uint16_t    checksum;       //校验和
@@ -38,7 +39,7 @@ typedef struct{
     uint16_t    code_start;     //主程序区起始地址
     uint16_t    code_size;      //主程序区容量
 }hr_target_cfg;   
-
+#pragma pack()
 /*
  *  序列号代码
  */

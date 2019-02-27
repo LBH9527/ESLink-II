@@ -132,7 +132,8 @@ typedef union __attribute__((packed))
         uint32_t dflash_size;                   //data flash 长度
         uint32_t intf;                          //脱机烧录接口   
         uint32_t step;                          //脱机步骤数
-        uint32_t item[20];                      //脱机步骤项目              
+        uint32_t item[10];                      //脱机步骤项目  
+        uint32_t reserved[6];                   //保留未用
     };
 }ofl_prj_info_t ;
 

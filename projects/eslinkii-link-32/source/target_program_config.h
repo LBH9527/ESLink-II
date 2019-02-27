@@ -19,7 +19,7 @@
 /* BOOTISP */
 #define  ESLINK_BOOTISP_ENABLE      0                  //BOOTISP功能使能
 /* RTC */
-#define  ESLINK_RTC_ENABLE          1                  //RTC功能使能
+#define  ESLINK_RTC_ENABLE          0                  //RTC功能使能
 
 #define ESLINK_ONLINE_DEFAULT_INTF      (PRG_INTF_ISP)  //联机默认烧录接口
 //#define ESLINK_ONLINE_DEFAULT_INTF      (PRG_INTF_SWD)  //联机默认烧录接口
