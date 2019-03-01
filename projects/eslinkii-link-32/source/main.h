@@ -4,7 +4,7 @@
 
 #include "stdint.h"
 #include "stdbool.h"
-#include "target_program_config.h"
+#include "target_config.h"
 
 void USBD_SignalHandler(void);
 void main_cdc_send_event(void);

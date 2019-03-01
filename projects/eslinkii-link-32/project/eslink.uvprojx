@@ -342,7 +342,7 @@
 </MiscControls>
               <Define>NDEBUG,CPU_MK22FN128VLH10,CDC_ENDPOINT,HID_ENDPOINT,ES_32BIT,</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\bsp;..\..\..\drivers;..\..\..\startup;..\..\..\utilities;..\..\..\CMSIS;..\..\..\common;..\..\..\gui;..\..\..\middleware\RL-USB\usb;..\..\..\middleware\RL-USB;..\..\..\middleware\RL-USB\usb\cls;..\..\..\middleware\RL_FlashFS\include;..\..\..\middleware\RL_FlashFS\Driver;..\..\..\iap;..\..\..\middleware\FatFS\src;..\source;..\source\cmsis-dap;..\source\es-uartboot;..\source\es-debug;..\source\es-isp;..\source\swd;..\..\..\eslink;..\..\..\eslink\usb2uart;..\..\..\eslink\offline;..\source\offline;..\source\es-rtc;..\source\es-isp\M939_ISP</IncludePath>
+              <IncludePath>..\..\..\bsp;..\..\..\drivers;..\..\..\startup;..\..\..\utilities;..\..\..\CMSIS;..\..\..\common;..\..\..\gui;..\..\..\iap;..\..\..\middleware\RL-USB\usb;..\..\..\middleware\RL-USB;..\..\..\middleware\RL-USB\usb\cls;..\..\..\middleware\FatFS\src;..\source;..\source\cmsis-dap;..\source\es-uartboot;..\source\es-debug;..\source\es-isp;..\source\swd;..\..\..\eslink;..\..\..\eslink\usb2uart;..\..\..\eslink\offline;..\source\offline;..\source\es-rtc;..\source\es-isp</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -512,14 +512,9 @@
               <FilePath>..\source\main.h</FilePath>
             </File>
             <File>
-              <FileName>target_program_config.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\source\target_program_config.c</FilePath>
-            </File>
-            <File>
-              <FileName>target_program_config.h</FileName>
+              <FileName>target_config.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\source\target_program_config.h</FilePath>
+              <FilePath>..\source\target_config.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -577,71 +572,30 @@
           <GroupName>es-isp</GroupName>
           <Files>
             <File>
-              <FileName>M610_ISP.c</FileName>
+              <FileName>isp_port.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\source\es-isp\M610_ISP\M610_ISP.c</FilePath>
+              <FilePath>..\source\es-isp\isp_port.c</FilePath>
             </File>
             <File>
               <FileName>isp_prog_intf.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\source\es-isp\M610_ISP\isp_prog_intf.c</FilePath>
+              <FilePath>..\source\es-isp\M938_ISP\isp_prog_intf.c</FilePath>
             </File>
             <File>
-              <FileName>es_isp.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\source\es-isp\M610_ISP\es_isp.h</FilePath>
+              <FileName>M938_ISP.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\es-isp\M938_ISP\M938_ISP.c</FilePath>
             </File>
           </Files>
         </Group>
         <Group>
           <GroupName>es-uartboot</GroupName>
-          <Files>
-            <File>
-              <FileName>uartboot_prog_intf.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\source\es-uartboot\M939_UARTBOOT\uartboot_prog_intf.c</FilePath>
-            </File>
-            <File>
-              <FileName>uartboot_host.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\source\es-uartboot\M939_UARTBOOT\uartboot_host.c</FilePath>
-            </File>
-          </Files>
         </Group>
         <Group>
           <GroupName>es-rtc</GroupName>
-          <Files>
-            <File>
-              <FileName>rtc_calibrate.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\source\es-rtc\rtc_calibrate.c</FilePath>
-            </File>
-          </Files>
         </Group>
         <Group>
           <GroupName>es-swd</GroupName>
-          <Files>
-            <File>
-              <FileName>swd_prog_intf.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\source\swd\M939_SWD\swd_prog_intf.c</FilePath>
-            </File>
-            <File>
-              <FileName>swd_target_reset.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\source\swd\M939_SWD\swd_target_reset.c</FilePath>
-            </File>
-            <File>
-              <FileName>swd_target_info.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\source\swd\M939_SWD\swd_target_info.c</FilePath>
-            </File>
-            <File>
-              <FileName>swd_host.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\source\swd\swd_host.c</FilePath>
-            </File>
-          </Files>
         </Group>
         <Group>
           <GroupName>gui</GroupName>

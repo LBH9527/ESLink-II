@@ -37,7 +37,7 @@
 #include "offline_app.h"
 #include "offline_file.h" 
 #include "systick.h" 
-#include "target_program_config.h"
+#include "target_config.h"
 #include "rtc_calibrate.h"
 
 /*******************************************************************************

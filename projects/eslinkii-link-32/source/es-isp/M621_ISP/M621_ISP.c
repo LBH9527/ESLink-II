@@ -1,5 +1,5 @@
 #include "eslink.h"
-#include "es_isp.h"
+#include "./target_info.h"
 #define ISP_CLOCK_CYCLE()                \
   PIN_ISPCLK_CLR();                      \
   PIN_DELAY(1);                          \

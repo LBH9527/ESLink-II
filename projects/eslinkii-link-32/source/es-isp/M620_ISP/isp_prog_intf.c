@@ -2,7 +2,9 @@
 #include "errno.h"
 #include "isp_prog_intf.h" 
 #include "sflash_port.h"  
-#include "es_isp.h"
+#include "isp_port.h" 
+#include "./ES_ISP.h"
+#include "./target_info.h"
 
 static void isp_init(es_target_cfg *target);
 static error_t isp_prog_init(void); //进模式
@@ -97,7 +99,7 @@ static error_t isp_prog_init(void)
     if(isp_mode_check() != TRUE)    //判断是否在isp模式
     {
         PORT_ISP_SETUP();
-        eslink_set_target_hold_reset();        
+        eslink_set_target_hold_reset(20);        
         status = isp_entry_mode();
         if(ERROR_SUCCESS != status)
             return status; 

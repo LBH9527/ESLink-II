@@ -1,12 +1,11 @@
 //M939 info偏移地址为0x40000
 #include "eslink.h"
 #include "errno.h"
-#include "sflash_port.h"
-#include "es_isp.h"
-
+#include "sflash_port.h"  
 #include "uartboot_prog_intf.h"
 #include "uartboot_host.h"
 #include "uartboot_target_config.h"
+#include "target_config.h"
 
 //一次编程支持的长度，根据RAM大小可以修改.长度需要为2^n
 #define BOOTISP_PRG_SIZE  1024  

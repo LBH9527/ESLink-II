@@ -15,15 +15,13 @@
 #include "eslink.h"
 #include "errno.h"
 #include "es_common.h" 
-#include "eslink_gpio.h"
-
-#include "fsl_ftm.h"
-#include "rtc_calibrate.h"
+#include "eslink_gpio.h"   
+#include "fsl_ftm.h"    
 #include "isp_prog_intf.h"
 #include "eeprom_port.h"
-#include "rtc_target.h"
-#include "target_program_config.h" 
-#include "es_isp.h" 
+#include "rtc_target.h" 
+#include "rtc_calibrate.h"
+#include "target_config.h" 
 
 #if ESLINK_RTC_ENABLE 
 //ES_RTC_IN  目标芯片RTC 输入，采用PWM输入捕获，测量时间

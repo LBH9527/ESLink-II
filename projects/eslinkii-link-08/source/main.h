@@ -11,5 +11,4 @@ void main_reset(void );
 void main_reset_target(uint8_t send_unique_id);
 void main_icd_debug_handle(void) ;
 void USBD_SignalHandler(void);
-void main_icd_debug_handle(void) ;
 #endif

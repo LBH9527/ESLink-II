@@ -1,10 +1,7 @@
 #ifndef _OFFLINE_DEF_H_
 #define _OFFLINE_DEF_H_
 
-#include "eslink.h"
-
-
-
+#include "eslink.h"    
 
 /*          flie 数据分区信息  
  * |----------------------------|

@@ -1,10 +1,10 @@
-//M939配置字地址不连续。需要在上位机下发的地址进行重新组装。
 #include "eslink.h"
 #include "errno.h"
 #include "isp_prog_intf.h"
-//#include "es_target_set.h"  
 #include "sflash_port.h"
-
+#include "isp_port.h"
+#include "./ES_ISP.h"
+#include "./target_info.h"
 //一次编程支持的长度，根据RAM大小可以修改
 #define ISP_PRG_MINI_SIZE  1024   
 
@@ -89,19 +89,10 @@ static error_t isp_entry_mode(void)
 //退出isp模式
 static error_t isp_out_mode(void)
 {      
-//    isp_reset(); 
+
     return ERROR_SUCCESS; 
 }
-////判断是否检测到芯片 
-//error_t isp_chip_check(void)
-//{
-//    //复位
-//    isp_reset();
-//    //读取ID
-//    if(isp_id_check() != TRUE)
-//        return ERROR_IN_ISP_MODE;
-//    return ERROR_SUCCESS; 
-//}
+
 //编程初始化，进模式
 static error_t isp_prog_init(void)
 {

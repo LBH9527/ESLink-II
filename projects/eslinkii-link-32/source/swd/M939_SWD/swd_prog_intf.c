@@ -5,7 +5,7 @@
 #include "swd_target_config.h"  
 #include "swd_prog_intf.h"  
 #include "swd_target_reset.h" 
-#include "es_isp.h"    
+#include "target_config.h"    
 
 #define FLASH_AREA      1
 #define INFO_AREA       0
