@@ -76,21 +76,21 @@ static error_t isp_entry_mode(void)
 } 
 
 //退出isp模式
-static error_t isp_out_mode(void)
-{      
-    isp_reset(); 
-    return ERROR_SUCCESS; 
-}
+//static error_t isp_out_mode(void)
+//{      
+//    isp_reset(); 
+//    return ERROR_SUCCESS; 
+//}
 //判断是否检测到芯片 
-error_t isp_chip_check(void)
-{
-    //复位
-    isp_reset();
-    //读取ID
-//    if(isp_id_check() != TRUE)
-//        return ERROR_IN_ISP_MODE;
-    return ERROR_SUCCESS; 
-}
+//error_t isp_chip_check(void)
+//{
+//    //复位
+//    isp_reset();
+//    //读取ID
+////    if(isp_id_check() != TRUE)
+////        return ERROR_IN_ISP_MODE;
+//    return ERROR_SUCCESS; 
+//}
 
 static error_t isp_prog_init(void)
 {
@@ -99,7 +99,8 @@ static error_t isp_prog_init(void)
     if(isp_mode_check() != TRUE)    
     {
         PORT_ISP_SETUP();
-        eslink_set_target_hold_reset(20);        
+        eslink_set_target_hold_reset(20);
+        es_delay_ms(100);    
         status = isp_entry_mode();
         if(ERROR_SUCCESS != status)
             return status; 
@@ -107,15 +108,7 @@ static error_t isp_prog_init(void)
     return  ERROR_SUCCESS;
 }
 static error_t isp_prog_uninit(void)
-{
-//    isp_out_mode();
-//    if(isp_mode_check() != TRUE)
-//        return  ERROR_SUCCESS;
-////        isp_set_target_reset(0);
-////        PORT_ISP_OFF();
-
-//    return ERROR_OUT_ISP_MODE;
-    
+{    
     //M938V3无此功能
     return  ERROR_SUCCESS;
 }   
@@ -433,13 +426,42 @@ static error_t isp_prog_verify_config(uint32_t addr,  uint8_t *data, uint32_t si
  */
 static error_t isp_prog_encrypt_chip(void)
 { 
+    uint32_t rd_buf[ISP_PRG_MINI_SIZE/4];
+    
     error_t ret = ERROR_SUCCESS;
     
     ret = isp_chipid_check();
     if(ERROR_SUCCESS != ret)
         return ret; 
+       
+    //加密前确认芯片option中调试位是否使能？若使能提示不能加密
+    
+    if(isp_read_config(CHIP_UESR_OPTION0_ADDR, rd_buf, 1) != TRUE)
+        return ERROR_ISP_READ_CFG_WORD;
+
+    rd_buf[0] &= 0x00000100;            //bit8 DBG0EB = 1禁止
+    if(rd_buf[0]==0x00000100)
+    {
+        if(isp_read_config(CHIP_UESR_OPTION1_ADDR, rd_buf, 1) != TRUE)
+            return ERROR_ISP_READ_CFG_WORD;
+        
+        rd_buf[0] &= 0x00000001;        //bit0 DBG1EB = 1禁止
+        if(rd_buf[0]!=0x00000001)
+        {
+            return ERROR_ISP_READ_CFG_WORD;
+        }
+    }
+    else return ERROR_ISP_READ_CFG_WORD;  
+    
+    //写加密字
     if(isp_program_config(isp_target_dev->encrypt_addr, (uint32_t *)&isp_target_dev->encrypt_value, 1, NULL) != TRUE)
-        return ERROR_ISP_ENCRYPT;    
+        return ERROR_ISP_ENCRYPT;  
+    
+    if(isp_read_config(isp_target_dev->encrypt_addr, rd_buf, 1) != TRUE)
+        return ERROR_ISP_READ_CFG_WORD;
+    if(rd_buf[0]!=isp_target_dev->encrypt_value)
+        return ERROR_ISP_READ_CFG_WORD;
+    
     return ERROR_SUCCESS;    
 }
 /*
