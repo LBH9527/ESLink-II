@@ -13,9 +13,10 @@ static error_t isp_prog_uninit(void); //退出模式
 static error_t isp_prog_erase_chip (uint8_t para);
 static error_t isp_prog_check_empty(uint32_t *failed_addr, uint32_t *failedData) ;
 static error_t isp_prog_read_chipid(uint8_t *buf);
+static error_t isp_chipid_check(void);
 static error_t isp_prog_read_chip_chksum(uint8_t *buf);
 static error_t isp_prog_encrypt_chip(void);
-static error_t isp_chipid_check(void);
+
 static error_t isp_prog_program_config(uint32_t addr, uint8_t *data, uint32_t size,uint32_t *failed_addr );
 static error_t isp_prog_read_config(uint32_t addr,  uint8_t *buf, uint32_t size);
 static error_t isp_prog_verify_config(uint32_t addr,  uint8_t *data, uint32_t size, uint32_t *failed_addr, uint32_t *failed_data);
@@ -34,6 +35,7 @@ struct  es_prog_ops isp_prog_intf = {
     isp_prog_erase_chip,
     isp_prog_check_empty,
     isp_prog_read_chipid,
+    isp_chipid_check,
     isp_prog_read_chip_chksum,
     isp_prog_encrypt_chip,
 
@@ -81,16 +83,7 @@ static error_t isp_out_mode(void)
     isp_reset(); 
     return ERROR_SUCCESS; 
 }
-//判断是否检测到芯片 
-error_t isp_chip_check(void)
-{
-    //复位
-    isp_reset();
-    //读取ID
-    if(isp_id_check() != TRUE)
-        return ERROR_IN_ISP_MODE;
-    return ERROR_SUCCESS; 
-}
+
 
 static error_t isp_prog_init(void)
 {
@@ -431,10 +424,16 @@ static error_t isp_prog_verify_config(uint32_t addr,  uint8_t *data, uint32_t si
 static error_t isp_prog_encrypt_chip(void)
 { 
     error_t ret = ERROR_SUCCESS;
-    
+    uint32_t cfg_word0;
     ret = isp_chipid_check();
     if(ERROR_SUCCESS != ret)
         return ret; 
+    //加密前确认芯片option中调试位是否使能？若使能提示不能加密       
+    if(isp_read_config(CHIP_CFG_WORD0_ADDR, &cfg_word0, 1) != TRUE)
+        return ERROR_ISP_READ_CFG_WORD;
+    if( cfg_word0 & CHIP_CFG_DEBUG_Msk)
+        return ERROR_ISP_ENCRYPT;
+        
     if(isp_program_config(isp_target_dev->encrypt_addr, (uint32_t *)&isp_target_dev->encrypt_value, 1, NULL) != TRUE)
         return ERROR_ISP_ENCRYPT;    
     return ERROR_SUCCESS;    

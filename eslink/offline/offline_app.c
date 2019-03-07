@@ -1,7 +1,6 @@
 #include "eslink.h"
 #include "es_common.h" 
 #include "offline_file.h" 
-#include "isp_prog_intf.h"  
 #include "settings_rom.h"
 #include "sflash_port.h"
 #include "offline_app.h"
@@ -9,7 +8,7 @@
 #include "menu.h"
 #include "main.h"
 #include "beep.h" 
-
+#include "isp_prog_intf.h"  
 #if ESLINK_SWD_ENABLE
 #include "swd_prog_intf.h"
 #endif
@@ -20,7 +19,7 @@
 #if ESLINK_RTC_ENABLE
 #include "rtc_calibrate.h"  
 #endif
-
+#include "target_config.h"
 enum{
     DETECT_TARGET_CHIP, //检测到芯片
     DETECT_NO_CHIP,     //未检测到芯片
@@ -103,7 +102,7 @@ ofl_error_t ofl_prog_init(uint8_t mode)
     return ret;
 }
 
-//脱机启动/退出信号 ----外部机台触发
+//脱机启动信号 ----外部机台触发
 uint8_t ofl_machine_start(void)
 {    
     if( gpio_start_in_low())
@@ -118,22 +117,23 @@ uint8_t ofl_machine_start(void)
     return DETECT_NO_CHIP; 
 
 }
-//脱机启动/退出信号 ----自动检测
+//脱机启动信号 ----自动检测
 uint8_t ofl_auto_check_start(void)
 {         
-    static uint8_t check_time = 0;      
+    uint8_t i, check_time = 0; 
 
-    if(ofl_prog_intf->prog_init() != ERROR_SUCCESS)    
+    for(i=0; i<PROG_MODE_CHECK_TIME; i++)
     {
-        check_time = 0;  
+        if(ofl_prog_intf->prog_init() != ERROR_SUCCESS)     //未检测到芯片
+        {
+            check_time ++;  
+        }
+        es_delay_ms(20);          
     }
-    else
-    {
-        es_delay_ms(20);
-        if(check_time ++ >= PROG_MODE_CHECK_TIME )
-            return DETECT_TARGET_CHIP; 
-    }  
-    return DETECT_NO_CHIP;    
+         
+    if( check_time == 0)
+        return DETECT_TARGET_CHIP;   
+    return DETECT_NO_CHIP; 
 }  
 
 /*******************************************************************************
@@ -144,20 +144,20 @@ uint8_t ofl_auto_check_start(void)
 *******************************************************************************/
 uint8_t ofl_out_prog_mode(void)
 {
-    static uint8_t check_time = 0;
-       
-    if(ofl_prog_intf->prog_init() == ERROR_SUCCESS)        
+    uint8_t i, check_time = 0; 
+
+    for(i=0; i<PROG_MODE_CHECK_TIME; i++)
     {
-        check_time = 0;          
+        if(ofl_prog_intf->prog_init() == ERROR_SUCCESS)     //检测到芯片
+        {
+            check_time ++;  
+        }
+        es_delay_ms(20);          
     }
-    else
-    {
-        es_delay_ms(20);
-        if(check_time ++ >= PROG_MODE_CHECK_TIME )
-            return DETECT_NO_CHIP;        
-    }   
-    
-    return DETECT_TARGET_CHIP;   
+         
+    if( check_time == 0)
+        return DETECT_NO_CHIP;   
+    return DETECT_TARGET_CHIP; 
 }
 
 /*******************************************************************************
@@ -217,7 +217,7 @@ ofl_error_t ofl_prog(void)
                 break;
             case OFL_STEP_ENCRYPT :
                 ret = ofl_prog_intf->encrypt_chip(); 
-                 if(ret != ERROR_SUCCESS)
+                if(ret != ERROR_SUCCESS)
                 {                  
                     return  OFL_ERR_ENCRYPT;
                 }  
@@ -225,15 +225,29 @@ ofl_error_t ofl_prog(void)
 #if ESLINK_RTC_ENABLE   
             case OFL_STEP_RTC_CALI :
                 ret = rtc_calibration_handler();
+                if(ret != ERROR_SUCCESS)
+                {                  
+                    return  OFL_ERR_ENCRYPT;
+                }  
                 break;
             case OFL_STEP_RTC_VERIFY :
                 ret = rtc_calibration_verify(NULL);
+                if(ret != ERROR_SUCCESS)
+                {                  
+                    return  OFL_ERR_ENCRYPT;
+                }  
                 break; 
 #endif
             default:
                 break;                
         }  
     }
+    ret = ofl_prog_intf->chipid_check(); 
+    if(ret != ERROR_SUCCESS)
+    {                  
+        return  OFL_ERR_CHIPID_CHECK;
+    }     
+    
     //编程成功
     sn_info.success_count ++;       //烧录成功+1
     if(sn_info.state !=  OFL_SERIALNUM_DISABLE)
@@ -265,14 +279,19 @@ void ofl_prog_handle(void)
     
     switch(state)
     {
-        case IN_MODE_CHECK :
-            LED_RED_ERROR_OFF();  
+        case IN_MODE_CHECK :  
             LED_GREEN_PASS_OFF(); 
-            LED_YELLOW_BUSY_OFF();  
+            LED_YELLOW_BUSY_OFF();      
             if(ofl_prog_start() == DETECT_TARGET_CHIP)
-            {                       
-                 state = OFL_PROG_ING;
-                 menu_msg = MSG_PROG_ING;   
+            {   
+                LED_RED_ERROR_OFF();  
+
+                state = OFL_PROG_ING;
+                menu_msg = MSG_PROG_ING;   
+            }
+            else
+            {
+                 LED_RED_ERROR_TOGGLE();             
             }
             break;
         case OFL_PROG_ING:   
@@ -321,6 +340,14 @@ void ofl_prog_handle(void)
                 case OFL_ERR_ENTRY_MODE:
                     menu_msg = MSG_ERR_ENTRY_MODE;
                     break;
+#if ESLINK_RTC_ENABLE                       
+                case OFL_ERR_RTC_CALI:
+                    menu_msg = MSG_ERR_RTC_CALI;
+                    break;
+                case OFL_ERR_RTC_VERIFY:
+                    menu_msg = MSG_ERR_RTC_VERIFY;
+                    break;
+#endif                    
                 default:
                     menu_msg = MSG_ERR;
                     break;                    
@@ -349,12 +376,17 @@ void mini_ofl_prog_handle(void)
     switch(state)
     {
         case IN_MODE_CHECK :
-            LED_RED_ERROR_OFF();  
+            
             LED_GREEN_PASS_OFF(); 
             LED_YELLOW_BUSY_OFF();  
             if(ofl_prog_start() == DETECT_TARGET_CHIP)
-            {                       
-                 state = OFL_PROG_ING;
+            {      
+                LED_RED_ERROR_OFF();  
+                state = OFL_PROG_ING;
+            }
+            else
+            {
+                 LED_RED_ERROR_TOGGLE();                 
             }
             break;
         case OFL_PROG_ING:   

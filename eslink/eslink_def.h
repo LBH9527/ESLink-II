@@ -26,7 +26,7 @@ typedef struct  {
     
 } es_target_cfg;  
 //8位机芯片信息
-#pragma pack(1)
+
 typedef struct{
     uint16_t    version;        //版本号
     uint16_t    checksum;       //校验和
@@ -39,7 +39,7 @@ typedef struct{
     uint16_t    code_start;     //主程序区起始地址
     uint16_t    code_size;      //主程序区容量
 }hr_target_cfg;   
-#pragma pack()
+
 /*
  *  序列号代码
  */
@@ -89,7 +89,7 @@ struct es_prog_ops {
     error_t (*erase_chip) ( uint8_t para);
     error_t (*check_empty) (uint32_t *addr, uint32_t *data);  
     error_t (*read_chipid) (uint8_t *data);  
-//    error_t (*chipid_check) (void);
+    error_t (*chipid_check) (void);
     error_t (*read_chip_chksum) (uint8_t *data);
     error_t (*encrypt_chip) (void);    
     error_t (*program_info) (uint32_t adr, uint8_t *buf, uint32_t size,uint32_t *failed_addr);

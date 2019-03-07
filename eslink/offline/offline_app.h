@@ -1,7 +1,7 @@
 #ifndef _OFFLINE_APP_H_
 #define _OFFLINE_APP_H_
 
-#define PROG_MODE_CHECK_TIME        5
+
 //脱机编程状态
 typedef enum  {
     IN_MODE_CHECK = 0,
@@ -22,6 +22,8 @@ typedef enum{
     OFL_ERR_ENCRYPT,            //加密
     OFL_ERR_COUNT_FULL,         //烧录计数溢出
     OFL_ERR_PROG_INTF,          //编程接口设置失败
+    OFL_ERR_RTC_CALI,           //RTC调校
+    OFL_ERR_RTC_VERIFY,         //RTC校验
     
 } ofl_error_t ;
 

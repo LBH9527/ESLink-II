@@ -11,9 +11,9 @@
 #ifndef _TARGET_CONFIG_H
 #define _TARGET_CONFIG_H
 
-//目标芯片编程接口
-/* ISP */
-
+/****************************联机编程设置**************************************/
+/*ISP */
+//默认使能
 /* SWD */   
 #define  ESLINK_SWD_ENABLE          0                  //SWD功能使能
 /* BOOTISP */
@@ -25,38 +25,31 @@
 #define ESLINK_ONLINE_DEFAULT_INTF      (PRG_INTF_ISP)  //联机默认烧录接口
 //#define ESLINK_ONLINE_DEFAULT_INTF      (PRG_INTF_SWD)  //联机默认烧录接口
 //#define ESLINK_ONLINE_DEFAULT_INTF      (PRG_INTF_BOOTISP)  //联机默认烧录接口
+/****************************脱机编程配置******************************/
+//脱机检测次数
+#define PROG_MODE_CHECK_TIME        5                   //脱机检测次数
+
+#define M610    
+//#define M620    
+//#define M621    
+////#define M939    
+//#define M938    
 
 
-#define M610    0
-#define M620    0
-#define M621    0
-#define M939    0
-#define M938    1
-
-
-#if M610
-#include "./es-isp/M610_ISP/ES_ISP.h"
+#ifdef M610
+    #include "./es-isp/M610_ISP/ES_ISP.h"
+#elif defined M620
+    #include "./es-isp/M620_ISP/ES_ISP.h"
+#elif defined M621
+    #include "./es-isp/M621_ISP/ES_ISP.h"
+#elif defined M939
+    #include "./es-isp/M939_ISP/ES_ISP.h"
+    #include "./es-isp/M939_ISP/target_info.h"
+#elif defined M938
+    #include "./es-isp/M938_ISP/ES_ISP.h"
 #endif
 
-#if M620
-#include "./es-isp/M620_ISP/ES_ISP.h"
-#endif
 
-#if  M621
-#include "./es-isp/M621_ISP/ES_ISP.h"
-#endif
- 
-#if M939
-#include "./es-isp/M939_ISP/ES_ISP.h"
-#include "./es-isp/M939_ISP/target_info.h"
-//#include "./es-rtc/M939_RTC"
-//#include "./es-uartboot" 
-#endif   
-
-#if  M938
-#include "./es-isp/M938_ISP/ES_ISP.h"
-#endif
- 
 
 #endif
 

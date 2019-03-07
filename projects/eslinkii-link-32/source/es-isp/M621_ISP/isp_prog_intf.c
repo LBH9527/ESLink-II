@@ -36,7 +36,7 @@ struct  es_prog_ops isp_prog_intf = {
     isp_prog_erase_chip,
     isp_prog_check_empty,
     isp_prog_read_chipid,
-//    isp_chipid_check,
+    isp_chipid_check,
     isp_prog_read_checksum,
     isp_prog_encrypt_chip,
 
@@ -71,20 +71,8 @@ static error_t isp_entry_mode(void)
     return ERROR_SUCCESS; 
 }
 
-//退出isp模式
-static error_t isp_out_mode(void)
-{      
 
-    return ERROR_SUCCESS; 
-}
 
-////判断是否检测到芯片 
-//error_t isp_chip_check(void)
-//{
-
-//        return ERROR_IN_ISP_MODE;
-//    return ERROR_SUCCESS; 
-//}
 //编程初始化，进模式
 static error_t isp_prog_init(void)
 {
@@ -101,15 +89,20 @@ static error_t isp_prog_init(void)
     }
     return  ERROR_SUCCESS;
 }
+//退出isp模式
+static error_t isp_out_mode(void)
+{      
+
+    return ERROR_SUCCESS; 
+}
 //isp退出编程模式
 static error_t isp_prog_uninit(void)
 {
-    isp_out_mode();
-    if(isp_mode_check() != TRUE)
-        return  ERROR_SUCCESS;
-//        isp_set_target_reset(0);
-//        PORT_ISP_OFF();  
-    return ERROR_OUT_ISP_MODE;
+//    isp_out_mode();
+//    if(isp_mode_check() != TRUE)
+//        return  ERROR_SUCCESS;
+//    return ERROR_OUT_ISP_MODE;
+    return  ERROR_SUCCESS;
 }   
 
 //读目标芯片ID
@@ -130,7 +123,7 @@ static error_t isp_chipid_check(void)
     if(chipid != isp_target_dev->chipid_value)    
     {
           //测试模式，不判断ID
-//         return  ERROR_CHIP_ID_NOT_MATCH;
+         return  ERROR_CHIP_ID_NOT_MATCH;
     }
         
     return ERROR_SUCCESS; 

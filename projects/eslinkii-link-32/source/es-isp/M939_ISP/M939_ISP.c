@@ -60,6 +60,7 @@
 /************************************命令码************************************/
 
 #define PIN_DELAY(n)    ES_DELAY_SLOW(2*n)
+
 static void isp_start_bit(void)
 {
     PIN_ISPSDA_SET();       
@@ -727,7 +728,8 @@ uint8_t isp_unlock_check(void)
         mode_set(ISP_MODE_CMD);
         check_val = get_chip_status();
         if(ISP_MODE_CHECK_VAL ==  check_val)  
-            break;    
+            break; 
+        es_delay_ms(1);
     }
     if(ISP_MODE_CHECK_VAL !=  check_val) 
         return FALSE;

@@ -1,5 +1,9 @@
 #include "eslink.h"
 #include "./target_info.h"
+
+#define PIN_DELAY(n)    ES_DELAY_SLOW(4*n)
+//#define PIN_DELAY(n)    ES_DELAY_FAST(n)
+
 #define ISP_CLOCK_CYCLE()                \
   PIN_ISPCLK_CLR();                      \
   PIN_DELAY(1);                          \
@@ -18,11 +22,7 @@
   PIN_DELAY(1);                          \
   bit = PIN_ISPSDA_IN();                 \
   PIN_ISPCLK_SET();                      \
-  PIN_DELAY(1)
-  
-#define PIN_DELAY(n)    ES_DELAY_SLOW(n)
-//#define PIN_DELAY(n)    ES_DELAY_FAST(n)
-
+  PIN_DELAY(1)          
 
 #define FC_READ_CMD             0x00    //读取fc_cmd数据
 #define FC_READ_PA              0x01
@@ -44,18 +44,18 @@
 #define ISP_PASS                0x7F        //切换成swd模式，
 #define UNLOCK_CHECK_VAL        0x45535450
 // ISP Transfer Response
-#define ISP_TRANSFER_OK                 (1U<<0)
-#define ISP_TRANSFER_WAIT               (1U<<1)
-#define ISP_TRANSFER_FAULT              (1U<<2)
-#define ISP_TRANSFER_ERROR              (1U<<3)
+#define ISP_TRANSFER_OK         (1U<<0)
+#define ISP_TRANSFER_WAIT       (1U<<1)
+#define ISP_TRANSFER_FAULT      (1U<<2)
+#define ISP_TRANSFER_ERROR      (1U<<3)
 
 #define MAX_ISP_RETRY 100//10
 
-#define CODE_AREA       (1U<<0)
-#define INFO_AREA       (1U<<1)
+#define CODE_AREA               (1U<<0)
+#define INFO_AREA               (1U<<1)
 
-#define ISP_WRITE   (1U<<0)
-#define ISP_READ    (1U<<1)
+#define ISP_WRITE               (1U<<0)
+#define ISP_READ                (1U<<1)
 
 static uint8_t isp_read_write(uint8_t op_code, uint32_t *data, uint8_t mode)
 {

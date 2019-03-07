@@ -274,6 +274,18 @@ void ofl_program_display(void)
             oled_display_str(0,16,"   PROG FAILE   ", &Font16); 
             oled_display_str(0,32,"08 Entry Mode   ", &Font16);   
             break;
+#if ESLINK_RTC_ENABLE             
+        case MSG_ERR_RTC_CALI:
+            oled_clr_scr(0x00);	
+            oled_display_str(0,16,"   PROG FAILE   ", &Font16); 
+            oled_display_str(0,32,"09 RTC Calibrate", &Font16);   
+            break;
+        case MSG_ERR_RTC_VERIFY:
+            oled_clr_scr(0x00);	
+            oled_display_str(0,16,"   PROG FAILE   ", &Font16); 
+            oled_display_str(0,32,"10 RTC Verify   ", &Font16);   
+            break;
+#endif       
         case MSG_KEY_ENTER:                         //长按回到联机模式      
             if(set_link_mode(LINK_ONLINE_MODE) != TRUE )
             {

@@ -34,6 +34,7 @@ struct  es_prog_ops isp_prog_intf = {
     isp_prog_erase_chip,
     isp_prog_check_empty,
     isp_prog_read_chipid,
+    isp_chipid_check,
     isp_prog_read_chip_chksum,
     isp_prog_encrypt_chip,
 
@@ -448,10 +449,10 @@ static error_t isp_prog_encrypt_chip(void)
         rd_buf[0] &= 0x00000001;        //bit0 DBG1EB = 1禁止
         if(rd_buf[0]!=0x00000001)
         {
-            return ERROR_ISP_READ_CFG_WORD;
+            return ERROR_ISP_ENCRYPT;
         }
     }
-    else return ERROR_ISP_READ_CFG_WORD;  
+    else return ERROR_ISP_ENCRYPT;  
     
     //写加密字
     if(isp_program_config(isp_target_dev->encrypt_addr, (uint32_t *)&isp_target_dev->encrypt_value, 1, NULL) != TRUE)

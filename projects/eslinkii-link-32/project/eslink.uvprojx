@@ -577,14 +577,14 @@
               <FilePath>..\source\es-isp\isp_port.c</FilePath>
             </File>
             <File>
-              <FileName>isp_prog_intf.c</FileName>
+              <FileName>M610_ISP.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\source\es-isp\M938_ISP\isp_prog_intf.c</FilePath>
+              <FilePath>..\source\es-isp\M610_ISP\M610_ISP.c</FilePath>
             </File>
             <File>
-              <FileName>M938_ISP.c</FileName>
+              <FileName>isp_prog_intf.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\source\es-isp\M938_ISP\M938_ISP.c</FilePath>
+              <FilePath>..\source\es-isp\M610_ISP\isp_prog_intf.c</FilePath>
             </File>
           </Files>
         </Group>

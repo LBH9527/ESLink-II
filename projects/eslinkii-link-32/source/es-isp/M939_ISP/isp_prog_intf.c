@@ -17,7 +17,7 @@ static error_t isp_prog_check_empty(uint32_t *failed_addr, uint32_t *failedData)
 static error_t isp_prog_read_chipid(uint8_t *buf);
 static error_t isp_prog_read_checksum(uint8_t *buf);
 static error_t isp_prog_encrypt_chip(void);
-
+static error_t isp_chipid_check(void);
 static error_t isp_prog_program_config(uint32_t addr, uint8_t *data, uint32_t size,uint32_t *failed_addr );
 static error_t isp_prog_read_config(uint32_t addr,  uint8_t *buf, uint32_t size);
 static error_t isp_prog_verify_config(uint32_t addr,  uint8_t *data, uint32_t size, uint32_t *failed_addr, uint32_t *failed_data);
@@ -27,8 +27,9 @@ static error_t isp_prog_verify_flash(uint32_t addr,  uint8_t *data, uint32_t siz
 static error_t isp_target_program_config_all(uint32_t *failed_addr);
 static error_t isp_target_program_all(  uint8_t sn_enable, serial_number_t *sn , uint32_t *failed_addr);
 static error_t isp_target_verify_all( uint8_t sn_enable, serial_number_t *sn , uint32_t *failed_addr, uint32_t *failed_data);
+#if ESLINK_RTC_ENABLE  
 static error_t isp_target_program_rtc(uint8_t mode) ;
-
+#endif
 struct  es_prog_ops isp_prog_intf = {
     isp_init,
     isp_prog_init,
@@ -36,7 +37,7 @@ struct  es_prog_ops isp_prog_intf = {
     isp_prog_erase_chip,
     isp_prog_check_empty,
     isp_prog_read_chipid,
-//    isp_chipid_check,
+    isp_chipid_check,
     isp_prog_read_checksum,
     isp_prog_encrypt_chip,
 
@@ -101,7 +102,7 @@ static error_t isp_prog_init(void)
     if(isp_mode_check() != TRUE)    //判断是否在isp模式
     {
         PORT_ISP_SETUP();
-        eslink_set_target_hold_reset();        
+        eslink_set_target_hold_reset(40);        
         status = isp_entry_mode();
         if(ERROR_SUCCESS != status)
             return status; 
@@ -161,8 +162,6 @@ static error_t isp_prog_read_checksum(uint8_t *buf)
     ret = isp_chipid_check();
     if(ERROR_SUCCESS != ret)
         return ret;   
-//    uint32_t temp = 0xFFFE0001;
-//    if(isp_program_config(0x038, &temp, 1, NULL) != TRUE)
     if(isp_read_config(CHIP_CHECKSUM_ADDR, (uint32_t*)buf, 1) != TRUE)
         return ERROR_ISP_READ_CFG_WORD;
     return ERROR_SUCCESS;     

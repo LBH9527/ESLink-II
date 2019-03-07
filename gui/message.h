@@ -29,6 +29,8 @@
 #define MSG_ERR_VERIFY              0x0F            //校验
 #define MSG_ERR_ENCRYPT             0x10            //加密
 #define MSG_ERR_ENTRY_MODE          0x11
+#define MSG_ERR_RTC_CALI            0x12            //RTC调校
+#define MSG_ERR_RTC_VERIFY          0x13            //RTC测试
 #define MSG_ERR_PROG_INTF           0x0A            //编程接口设置失败
 
 #define MSG_ERR                    0xFF            //编程失败，未知错误
