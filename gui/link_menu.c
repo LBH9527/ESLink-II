@@ -287,7 +287,7 @@ void ofl_program_display(void)
             break;
 #endif       
         case MSG_KEY_ENTER:                         //长按回到联机模式      
-            if(set_link_mode(LINK_ONLINE_MODE) != TRUE )
+            if(set_link_mode(ESLINK_ONLINE_MODE) != TRUE )
             {
                  //TODO：设置失败
             }

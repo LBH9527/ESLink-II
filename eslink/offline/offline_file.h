@@ -5,7 +5,7 @@
 #include "errno.h"
 
 
-error_t ofl_file_init(void);
+error_t ofl_file_init(uint8_t mode);
 
 error_t ofl_file_open( char *path);
 error_t ofl_file_write_start(void);

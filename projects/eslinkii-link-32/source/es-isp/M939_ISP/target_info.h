@@ -2,11 +2,17 @@
 #define __TARGET_INFO_H
 #include "target_config.h"
 
+struct info_part_map
+{
+    uint32_t addr;
+    uint32_t size;
+};  
+
 //1.芯片信息根据芯片手动调整的数据信息     //根据IDE Space 修改
 #define CHIP_CHIPID                 0xC40            
 #define CHIP_CHECKSUM_ADDR          0x7C0   
 
-//2.rtc info的信息需要根据芯片的xml文件来确认 
+//2.CHIP INFO的信息需要根据芯片的xml文件来确认 
 #define CHIP_INFO_PART1_ADDR        0x400
 #define CHIP_INFO_PART1_SIZE        14              //字
 
@@ -18,13 +24,16 @@
 #define CHIP_RTC_INFO_SIZE          16              //16个字长
 #define CHIP_RTC_INFO_OFFSET        38              //rtcinfo 在配置字中的偏移量
 
-#if ESLINK_RTC_ENABLE    
-    #define CHIP_CONFIG_WORD_SIZE      \
-                (CHIP_INFO_PART1_SIZE + CHIP_INFO_PART2_SIZE + CHIP_RTC_INFO_SIZE)      //54个字长
-#else
-    #define CHIP_CONFIG_WORD_SIZE      \
-                                    (CHIP_INFO_PART1_SIZE + CHIP_INFO_PART2_SIZE)      //38个字长
-#endif   
+
+static const struct info_part_map info_part_map[] =
+{
+    {CHIP_INFO_PART1_ADDR, CHIP_INFO_PART1_SIZE},
+    {CHIP_INFO_PART2_ADDR, CHIP_INFO_PART2_SIZE},
+#if ESLINK_RTC_ENABLE   
+    {CHIP_RTC_INFO_ADDR, CHIP_RTC_INFO_SIZE},
+#endif
+};  
+ 
 
 //3.rtc编程相关数据
 #define RTC_DEBUG   0                   //是否在配置字编程时 编程RTC_INFO,内部使用

@@ -2,6 +2,7 @@
 #include "eslink.h"
 #include "errno.h"
 #include "sflash_port.h"  
+#include "program_port.h"
 #include "uartboot_prog_intf.h"
 #include "uartboot_host.h"
 #include "uartboot_target_config.h"
@@ -37,7 +38,7 @@ struct  es_prog_ops uartboot_prog_intf = {
     uartboot_prog_erase_chip,
     uartboot_prog_check_empty,
     uartboot_prog_read_chipid,
-//    uartboot_chipid_check,
+    uartboot_chipid_check,
     uartboot_prog_read_checksum,
     uartboot_prog_encrypt_chip,
 

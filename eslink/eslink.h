@@ -15,14 +15,13 @@
 extern "C" {
 #endif
 
-#define ES_DEBUG   0
+//ESLink
+#define ESLINK_PLUS_TYPE        0x00        //ESLINK 全功能
+#define ESLINK_MINI_TYPE        0x01        //ESLINK MINI
 
-#ifdef ES_DEBUG
-//#include "daplink_debug.h"
-#define printf    debug_msg
-#else
-#define printf      (...)
-#endif
+//联机工程模式
+#define ESLINK_ONLINE_MODE    0x6F6E6d64         //onlink mode  'o' 'n' 'm' 'd'
+#define ESLINK_OFFLINE_MODE   0x6f666d64         //offline mode 'o' 'f' 'm' 'd'
 
 //******************************************************************************  
 //es_link 调用函数    
@@ -70,12 +69,20 @@ static __forceinline void ES_DELAY_FAST (void) {
 #endif
 }   
 
+// LED state
+typedef enum led_state {
+    LED_OK = 0,
+    LED_FAIL,
+    LED_BUSY
+} led_state_t;
+
+
 void es_delay_us(uint32_t delay);
 void es_delay_ms(uint32_t delay);  
 uint8_t eslink_is_mini(void);
 uint8_t eslink_is_offline_mode(void) ;
 void es_set_trget_power(trget_power_t power);
-
+void eslink_led_set(led_state_t state);
   
 #ifdef __cplusplus
 }

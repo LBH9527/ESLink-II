@@ -1,5 +1,5 @@
-#ifndef _ISP_PORT_H
-#define _ISP_PORT_H
+#ifndef _PROGRAM_PORT_H
+#define _PROGRAM_PORT_H
 
 void es_set_trget_power(trget_power_t power);
 

@@ -1,6 +1,7 @@
 #include "eslink.h"
 #include "es_common.h"  
 #include "sflash_port.h"
+#include "program_port.h"
 #include "swd_host.h"
 #include "swd_target_config.h"  
 #include "swd_prog_intf.h"  
@@ -39,7 +40,7 @@ struct  es_prog_ops swd_prog_intf = {
     es_swd_erase_chip,
     es_swd_check_empty,
     es_swd_read_chipid,
-//    swd_chipid_check,
+    es_swd_chipid_check,
     es_swd_read_checksum,
     es_swd_encrypt_chip,
 
@@ -292,7 +293,7 @@ static error_t es_swd_program_config(uint32_t addr, uint8_t *buf, uint32_t size,
     if(size & 0x03)
         return ERROR_OUT_OF_BOUNDS;
             
-    prog_addr  =  CHIP_INFO_FLASH_OFFSET;     //info1的偏移地址
+    prog_addr  =  CHIP_INFO_FLASH_OFFSET+ CHIP_INFO_PART1_ADDR;     //info1的偏移地址
     prog_size = CHIP_INFO_PART1_SIZE * 4;     //字节长度
     ret = swd_program_flash(INFO_AREA, prog_addr, buf, prog_size );
     if(ret != ERROR_SUCCESS)

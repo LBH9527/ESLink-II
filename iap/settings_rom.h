@@ -1,17 +1,12 @@
 #ifndef _SETTINGS_ROM_H
 #define _SETTINGS_ROM_H   
 
-//ESLink模式
-#define ESLINK_MODE_COMPLETE    0x00        //ESLINK 全功能
-#define ESLINK_MODE_MINI        0x01        //ESLINK MINI
  
 //跳转的APP 标志
 #define UPDATE_BOOT_APP     0x00
 #define UPDATE_OFFLINE_APP  0x4F46464c     //OFFL   ‘O' ‘F’ ‘F' ’L‘
 #define UPDATE_LINK_APP     0x4c494E4B     //LINK   'L' ‘I' 'N' 'K'
-//联机工程模式
-#define LINK_ONLINE_MODE    0x6F6E6d64         //onlink mode  'o' 'n' 'm' 'd'
-#define LINK_OFFLINE_MODE   0x6f666d64         //offline mode 'o' 'f' 'm' 'd'
+
 
 void settings_rom_init(void);
 uint32_t get_timing_checksum(void);

@@ -1,4 +1,5 @@
 #include "eslink.h"
+#include "./es_isp.h"
 
 #define ID_CHECK_CMD                0xFA559669 
 #define ID_CHECK_VAL                0x2E01624D

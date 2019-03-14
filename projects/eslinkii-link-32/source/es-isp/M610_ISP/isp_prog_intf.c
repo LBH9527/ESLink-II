@@ -2,8 +2,8 @@
 #include "errno.h"
 #include "isp_prog_intf.h" 
 #include "sflash_port.h"  
-#include "isp_port.h" 
-#include "./ES_ISP.h"
+#include "program_port.h"
+#include "./es_isp.h"
 #include "./target_info.h"
 
 static void isp_init(es_target_cfg *target);
@@ -806,7 +806,9 @@ static error_t judge_write_info1(uint8_t *data)
     for(i=0;i<10;i++)
     {
         es_delay_ms(90);
-        //ret = isp_prog_init() ;
+        ret = isp_prog_init() ;
+        if(ERROR_SUCCESS != ret) 
+            continue;
         if(isp_erase_info1() != TRUE)
             continue;
         ret = isp_prog_program_config(CHIP_INFO1_ADDR, data, CHIP_INFO1_SIZE, NULL);

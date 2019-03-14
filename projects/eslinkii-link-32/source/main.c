@@ -117,7 +117,7 @@ int main (void)
     
     if(eslink_is_mini() != TRUE)
     {
-        ofl_file_init(); 
+        ofl_file_init(ESLINK_PLUS_TYPE); 
         #if ESLINK_RTC_ENABLE    
         rtc_Init();
         #endif
@@ -322,6 +322,8 @@ void main_10ms_task(void)
         gui_refresh();
     }
 }
+
+
 
 struct exception_stack_frame
 {

@@ -26,15 +26,12 @@ typedef enum {
 } file_state_t;
 static file_state_t state = FILE_STATE_CLOSED;
 
-//const char eslink_online_name[] = "S0:\\EslinkOnline";
-
-
 FATFS FatFs;                    /* Work area (file system object) for logical drive */
 static FIL file_handle;         /* File object */
 static char file_name[OFL_FILE_NAME_MAX_LEN];
 static struct ofl_file_tbl file_tbl;
-//static uint8_t file_partition[OFL_PRJ_PARTITION_LEN] ;       //保存分区信息
 static  ofl_file_partition file_partition;
+static uint8_t eslink_type;
 
 static uint8_t file_mount(void)
 {    
@@ -307,6 +304,7 @@ error_t get_all_ofl_file(void)
 error_t get_ofl_file_num( uint8_t *data)
 {
     *data = file_tbl.count; 
+    
     return ERROR_SUCCESS;
 }
 /*
@@ -389,16 +387,23 @@ error_t ofl_file_open(char *path)
  *  脱机工程初始化，挂载文件系统，获取工程列表
  *  
  */
-error_t ofl_file_init(void)
+error_t ofl_file_init(uint8_t type)
 {
     error_t ret;     
     
-    if(file_mount() != TRUE)
-        return ERROR_FS_MOUNT ;
-    
-    ret = get_all_ofl_file();
-
-    return ret;
+    eslink_type = type;
+    if(ESLINK_PLUS_TYPE == type)
+    {
+        if(file_mount() != TRUE)
+            return ERROR_FS_MOUNT ;         
+        ret = get_all_ofl_file();           
+        return ret;   
+    }
+    else
+    {     
+        file_tbl.count = 0;
+        return  ERROR_SUCCESS;
+    }   
 }
 
 
@@ -535,7 +540,8 @@ error_t ofl_file_get_free(void)
     FATFS *fs;
     FRESULT res;        
     DWORD fre_clust, fre_sect;
-
+    if(eslink_type != ESLINK_PLUS_TYPE)
+        return ERROR_OFL_TYPE;
     res = f_getfree("0:", &fre_clust, &fs);
      /* Get total sectors and free sectors */
 //    tot_sect = (fs->n_fatent - 2) * fs->csize;

@@ -24,7 +24,7 @@
 #include "main.h"
 
 #include "uart.h"
-#include "eslink_gpio.h"
+#include "eslink.h"
 //add by 9527
 #include "systick.h"
 #ifdef ES_32BIT
@@ -180,9 +180,7 @@ void cdc_process_event()
 
     if (len_data) {
         if (USBD_CDC_ACM_DataSend(data , len_data)) {
-//            main_blink_cdc_led(MAIN_LED_FLASH);
-            
-            LED_YELLOW_TOGGLE();
+            eslink_led_set(LED_BUSY);
         }
     }
 
@@ -198,8 +196,7 @@ void cdc_process_event()
 
     if (len_data) {
         if (uart_write_data(data, len_data)) {
-//            main_blink_cdc_led(MAIN_LED_FLASH);
-            LED_YELLOW_TOGGLE();
+            eslink_led_set(LED_BUSY);
         }
     }
  

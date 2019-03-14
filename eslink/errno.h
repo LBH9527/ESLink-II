@@ -109,6 +109,7 @@ typedef enum {
     ERROR_OFL_DATA_FORMAT = 0x87,               //脱机文件数据格式错误，此脱机方案数据出错
     ERROR_OFL_DECODE = 0x88,                    //脱机文件解析失败
     ERROR_OFL_SPACE_NOT_ENOUGH = 0x89,          //脱机文件保存空间不错____NEW
+    ERROR_OFL_TYPE = 0x8A,                      //不支持此设备类型__20190308
     //RTC
     
     ERROR_RTC_CALI_START = 0x90,                //调教前编程失败

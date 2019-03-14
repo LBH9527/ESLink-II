@@ -1097,7 +1097,7 @@ uint32_t prog_process_command(uint8_t *request, uint8_t *response)
         result = ERROR_DEVICE_TYPE;
         goto __ACK;
     }
-    LED_YELLOW_ON();
+    eslink_led_set(LED_BUSY);
     prog_data.device_type   = *(request+4);
     prog_data.fun_code      = *(request+5);
     prog_data.data_length   = (*(request+6) << 0) | (*(request+7) << 8);
@@ -1357,10 +1357,10 @@ uint32_t prog_process_command(uint8_t *request, uint8_t *response)
     prog_data.rdbuf[4] = ESLINKII_DEVICE_TYPE;
     prog_data.rdbuf[5] = prog_data.fun_code;
     prog_data.state = ERROR_ESLINK_RUN_OK;
-    LED_GREEN_ON();
+    eslink_led_set(LED_OK);
     if(result != ERROR_SUCCESS)
     {
-        LED_RED_ON();
+        eslink_led_set(LED_FAIL);
         if(result == ERROR_FRAME_HEAD)
         {
             prog_data.rdbuf[5] = 0x00;
@@ -1433,4 +1433,96 @@ error_t es_burner_init(void)
 
 
 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
  

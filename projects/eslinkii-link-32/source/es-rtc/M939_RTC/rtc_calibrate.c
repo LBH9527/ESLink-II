@@ -16,9 +16,10 @@
 #include "errno.h"
 #include "es_common.h" 
 #include "eslink_gpio.h"   
-#include "fsl_ftm.h"    
-#include "isp_prog_intf.h"
+#include "fsl_ftm.h"   
 #include "eeprom_port.h"
+#include "program_port.h"
+#include "isp_prog_intf.h"
 #include "rtc_target.h" 
 #include "rtc_calibrate.h"
 #include "target_config.h" 
@@ -160,7 +161,7 @@ static error_t rtc_calibration_start(void)
     uint8_t result;  
     uint32_t reg_temp[6] = {0x00};    //寄存器临时变量
     uint32_t rtc_info_reg[RTC_INFO_SIZE];          //rtc info寄存器值
-    uint32_t temp1, temp2;
+//    uint32_t temp1, temp2;
     
     //ISP编程
     ret = isp_prog_intf.prog_init();      

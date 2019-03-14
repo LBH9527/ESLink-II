@@ -5,6 +5,7 @@
 *	文件名称 : target_program_config.h
 *	版    本 : V1.0
 *	说    明 : 头文件
+*   2019年3月14日  9527    M938    脱机检测次数为3
 *
 ********************************************************************************
 */
@@ -19,7 +20,7 @@
 /* BOOTISP */
 #define  ESLINK_BOOTISP_ENABLE      0                  //BOOTISP功能使能
 /* RTC */
-#define  ESLINK_RTC_ENABLE          0                 //RTC功能使能
+#define  ESLINK_RTC_ENABLE          1                //RTC功能使能
 
 //默认烧录接口
 #define ESLINK_ONLINE_DEFAULT_INTF      (PRG_INTF_ISP)  //联机默认烧录接口
@@ -29,10 +30,10 @@
 //脱机检测次数
 #define PROG_MODE_CHECK_TIME        5                   //脱机检测次数
 
-#define M610    
+//#define M610    
 //#define M620    
 //#define M621    
-////#define M939    
+#define M939    
 //#define M938    
 
 

@@ -2,8 +2,8 @@
 #include "errno.h"
 #include "isp_prog_intf.h" 
 #include "sflash_port.h"  
-#include "isp_port.h" 
-#include "./ES_ISP.h"
+#include "program_port.h"
+#include "./es_isp.h"
 #include "./target_info.h"
 
 static void isp_init(es_target_cfg *target);
@@ -331,26 +331,29 @@ static error_t isp_prog_verify_flash(uint32_t addr,  uint8_t *data, uint32_t siz
  *配置字编程
  * ERROR_ISP_PROG_CONFIG
  */
-static error_t isp_prog_program_config(uint32_t addr, uint8_t *data, uint32_t size, uint32_t *failed_addr )
+static error_t isp_prog_program_config(uint32_t addr, uint8_t *buf, uint32_t size, uint32_t *failed_addr )
 {   
     uint8_t ret ;  
-//    uint32_t rd_buf[64];
-//    uint32_t verify_size;
-    uint32_t size_in_words;
     uint32_t offset;    
+    const struct info_part_map *part;
+    uint32_t i;  
         
     if(size & 0x03)
         return ERROR_OUT_OF_BOUNDS;
-    size_in_words = size/4;
-	        
-    ret = isp_program_config(addr, (uint32_t*)data, size_in_words, &offset);
-    if(ret != TRUE)
+ 
+    for(i=0; i<ITEM_NUM(info_part_map); i++)
     {
-        if(failed_addr)
-            *failed_addr =  addr + offset * 4;
-        return ERROR_ISP_PROG_CFG_WORD;
-    }
-        
+        part = &info_part_map[i];     
+    
+        ret = isp_program_config(part->addr, (uint32_t*)buf, part->size, &offset);
+        if(ret != TRUE)
+        {
+            if(failed_addr)
+                *failed_addr = part->addr + offset*4 ; 
+             return ERROR_ISP_PROG_CFG_WORD;
+        } 
+        buf += (part->size) * 4;    
+    }    
     return ERROR_SUCCESS;        
 }
 
@@ -361,59 +364,74 @@ static error_t isp_prog_program_config(uint32_t addr, uint8_t *data, uint32_t si
 static error_t isp_prog_read_config(uint32_t addr,  uint8_t *buf, uint32_t size)
 {
     error_t ret = ERROR_SUCCESS;
-    uint32_t size_in_words; 
+    const struct info_part_map *part;        
+    uint32_t i;  
     
     ret = isp_chipid_check();
     if(ERROR_SUCCESS != ret)
         return ret; 
 
     if(size & 0x03)
-        return ERROR_OUT_OF_BOUNDS;
-    size_in_words = size/4;    
-    if(isp_read_config(addr, (uint32_t*)buf, size_in_words) != TRUE)
-        return ERROR_ISP_READ_CFG_WORD;
+        return ERROR_OUT_OF_BOUNDS;        
+ 
+    for(i=0; i<ITEM_NUM(info_part_map); i++)
+    {
+        part = &info_part_map[i];     
+    
+        if( isp_read_config(part->addr, (uint32_t*)buf, part->size) != TRUE)
+            return ERROR_ISP_READ_CFG_WORD;  
+        buf += (part->size) * 4;    
+    }   
+    
     return ERROR_SUCCESS;        
 }
 /*
  * 配置字校验
  * return :   ERROR_SUCCESS   
  */
-static error_t isp_prog_verify_config(uint32_t addr,  uint8_t *data, uint32_t size,uint32_t *failed_addr, uint32_t *failed_data)
-{
+static error_t isp_prog_verify_config(uint32_t addr,  uint8_t *buf, uint32_t size,uint32_t *failed_addr, uint32_t *failed_data)
+{      
     uint8_t ret ; 
-    uint32_t i;
+    uint32_t i,j;
     uint32_t rd_buf[ISP_PRG_MINI_SIZE/4];
-    uint32_t verify_size;
-    uint32_t size_in_words;    
+    uint32_t verify_size;     
+    uint32_t read_addr;
+    uint32_t read_size;
+    const struct info_part_map *part;        
     
     if(size & 0x03)
-        return ERROR_OUT_OF_BOUNDS;
-    size_in_words = size/4;
-    
-    while (size_in_words > 0) 
-    {          
-        verify_size = MIN(size_in_words, sizeof(rd_buf));
-        ret = isp_read_config(addr, rd_buf, verify_size); 
-        if( ret != TRUE)
-            return ERROR_ISP_READ_CFG_WORD;
-        for(i=0; i< verify_size; i++)
-        {
-            if( (data[i*4]   != ((rd_buf[i]>>0)&0xFF))  ||                        
-                (data[i*4+1] != ((rd_buf[i]>>8)&0xFF))  ||
-                (data[i*4+2] != ((rd_buf[i]>>16)&0xFF)) ||
-                (data[i*4+3] != ((rd_buf[i]>>24)&0xFF)) )
+        return ERROR_OUT_OF_BOUNDS;  
+
+    for(j=0; j<ITEM_NUM(info_part_map); j++)    
+    {
+        part = &info_part_map[j]; 
+        read_addr = part->addr;     
+        read_size = part->size; 
+        while (read_size > 0) 
+        {          
+            verify_size = MIN(read_size, sizeof(rd_buf));
+            ret = isp_read_config(read_addr, rd_buf, verify_size); 
+            if( ret != TRUE)
+                return ERROR_ISP_READ_CFG_WORD;
+            for(i=0; i< verify_size; i++)
             {
-                if( failed_addr)
-                    *failed_addr = addr + i*4 ;
-                if( failed_data)
-                    *failed_data = rd_buf[i];
-                return  ERROR_ISP_CFG_WORD_VERIFY;  
+                if( (buf[i*4] != ((rd_buf[i]>>0)&0xFF))  ||                        
+                    (buf[i*4+1] != ((rd_buf[i]>>8)&0xFF))  ||
+                    (buf[i*4+2] != ((rd_buf[i]>>16)&0xFF)) ||
+                    (buf[i*4+3] != ((rd_buf[i]>>24)&0xFF)) )
+                {
+                    if(failed_addr)
+                        *failed_addr = read_addr + i*4 ;  
+                    if(failed_data)
+                        *failed_data = rd_buf[i];
+                    return  ERROR_ISP_CFG_WORD_VERIFY;  
+                } 
             } 
-        } 
-        addr += verify_size;
-        size_in_words -= verify_size;
+            read_addr += verify_size;
+            read_size -= verify_size;
+        }  
+        buf += part->size * 4;    
     }
-    
     return ERROR_SUCCESS;       
 }
 

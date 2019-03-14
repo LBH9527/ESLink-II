@@ -16,7 +16,7 @@
         <TargetCommonOption>
           <Device>MK22FN128VLH10</Device>
           <Vendor>NXP</Vendor>
-          <PackID>NXP.MK22F12810_DFP.10.0.0</PackID>
+          <PackID>NXP.MK22F12810_DFP.11.0.0</PackID>
           <PackURL>http://mcuxpresso.nxp.com/cmsis_pack/repo/</PackURL>
           <Cpu>IRAM(0x1fffe000,0x2000) IRAM2(0x20000000,0x4000) IROM(0x00000000,0x020000) CPUTYPE("Cortex-M4") FPU2 CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
@@ -402,11 +402,6 @@
               <FilePath>..\..\..\eslink\eslink_config.h</FilePath>
             </File>
             <File>
-              <FileName>eslink_debug.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\eslink\eslink_debug.h</FilePath>
-            </File>
-            <File>
               <FileName>es_burner.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\eslink\es_burner.c</FilePath>
@@ -516,6 +511,16 @@
               <FileType>5</FileType>
               <FilePath>..\source\target_config.h</FilePath>
             </File>
+            <File>
+              <FileName>program_port.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\program_port.c</FilePath>
+            </File>
+            <File>
+              <FileName>program_port.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\source\program_port.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -572,19 +577,14 @@
           <GroupName>es-isp</GroupName>
           <Files>
             <File>
-              <FileName>isp_port.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\source\es-isp\isp_port.c</FilePath>
-            </File>
-            <File>
-              <FileName>M610_ISP.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\source\es-isp\M610_ISP\M610_ISP.c</FilePath>
-            </File>
-            <File>
               <FileName>isp_prog_intf.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\source\es-isp\M610_ISP\isp_prog_intf.c</FilePath>
+              <FilePath>..\source\es-isp\M939_ISP\isp_prog_intf.c</FilePath>
+            </File>
+            <File>
+              <FileName>M939_ISP.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\es-isp\M939_ISP\M939_ISP.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -593,6 +593,13 @@
         </Group>
         <Group>
           <GroupName>es-rtc</GroupName>
+          <Files>
+            <File>
+              <FileName>rtc_calibrate.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\es-rtc\M939_RTC\rtc_calibrate.c</FilePath>
+            </File>
+          </Files>
         </Group>
         <Group>
           <GroupName>es-swd</GroupName>

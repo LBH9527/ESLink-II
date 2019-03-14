@@ -1,0 +1,8 @@
+// <<< Use Configuration Wizard in Context Menu >>>
+
+// <h>Cortex-M4 Debug Settings
+//   <o.0>    Release At Connection     <i> Release Cortex-M4 during debug connection
+// </h>
+ReleaseM4 = 0x00000001;
+
+// <<< end of configuration section >>>
