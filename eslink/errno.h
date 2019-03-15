@@ -36,7 +36,7 @@ typedef enum {
     ERROR_OUT_OF_BOUNDS = 0x13,                 //读写长度越界， 
     ERROR_CHIP_ID_NOT_MATCH = 0x20,             //ID不匹配
     ERROR_PROM_VOLTAGE      = 0x21,             //电压设置错误
-    
+    ERROR_LV2_ENCRYPT = 0x22,                   //芯片已LEVEL 2 加密，任何操作请先执行擦除
     //--------------------------------------------------------------------------  
     //联机错误     
     ERROR_TIMING_CHECKSUM   = 0x30,             //时序校验和错误    
@@ -72,9 +72,9 @@ typedef enum {
     ERROR_SWD_PROG_CFG_WORD = 0x53,             //swd配置字编程失败
     ERROR_SWD_VERIFY        = 0x54,             //swd校验失败    
     ERROR_SWD_READ          = 0x55,             //swd读失败
-    ERROR_SWD_FLASH_CHECK_EMPTY   = 0x56,       //swd FLASH查空失败   ___NEW
-    ERROR_SWD_CFG_WORD_CHECK_EMPTY   = 0x57,    //swd 配置字查空失败  ___NEW
-    ERROR_SWD_ENCRYPT       = 0x58,             //swd 加密失败        ___NEW
+    ERROR_SWD_FLASH_CHECK_EMPTY   = 0x56,       //swd FLASH查空失败   
+    ERROR_SWD_CFG_WORD_CHECK_EMPTY   = 0x57,    //swd 配置字查空失败  
+    ERROR_SWD_ENCRYPT       = 0x58,             //swd 加密失败        
     /* swd target flash errors */ 
     ERROR_RESET             = 0x67,             //"SWD FAILED to reset/halt the target MCU",  
     ERROR_ALGO_DL           = 0x68,             //"SWD FAILED to download the flash programming algorithms to the target MCU",
@@ -93,9 +93,9 @@ typedef enum {
     ERROR_UARTBOOT_CHECK_EMPTY = 0x73,           //bootisp查空失败     
     ERROR_UARTBOOT_PROG      = 0x74,             //bootisp编程失败
     ERROR_UARTBOOT_PROG_CFG_WORD = 0x75,         //bootisp编程失败
-    ERROR_UARTBOOT_READ     	= 0x76,            	//bootisp写失败____NEW
-	ERROR_UARTBOOT_ENCRYPT 	= 0x77,				//bootisp加密失败____NEW
-	ERROR_UARTBOOT_VERIFY	= 0x78,		        //bootisp校验失败____NEW
+    ERROR_UARTBOOT_READ     	= 0x76,            	//bootisp写失败
+	ERROR_UARTBOOT_ENCRYPT 	= 0x77,				//bootisp加密失败
+	ERROR_UARTBOOT_VERIFY	= 0x78,		        //bootisp校验失败
     
     //脱机
     ERROR_PROG_INTF = 0x80,                     //烧录接口设置错误  
@@ -108,8 +108,8 @@ typedef enum {
     ERROR_OFL_NUM_OVERSTEP = 0x86,              //脱机文件超过支持的最大文件数
     ERROR_OFL_DATA_FORMAT = 0x87,               //脱机文件数据格式错误，此脱机方案数据出错
     ERROR_OFL_DECODE = 0x88,                    //脱机文件解析失败
-    ERROR_OFL_SPACE_NOT_ENOUGH = 0x89,          //脱机文件保存空间不错____NEW
-    ERROR_OFL_TYPE = 0x8A,                      //不支持此设备类型__20190308
+    ERROR_OFL_SPACE_NOT_ENOUGH = 0x89,          //脱机文件保存空间不错
+    ERROR_OFL_TYPE = 0x8A,                      //不支持此设备类型__NEW
     //RTC
     
     ERROR_RTC_CALI_START = 0x90,                //调教前编程失败
@@ -117,7 +117,7 @@ typedef enum {
     ERROR_RTC_CALI_PROG = 0x92,                 //RTC编程失败
     ERROR_RTC_CALI_VERIFY = 0x93,               //RTC验证失败
     ERROR_RTC_SELF_CAIL = 0X94,                 //rtc未自校正
-    ERROR_RTC_DATA_FORMAT = 0X95,               //rtc数据格式错误____NEW
+    ERROR_RTC_DATA_FORMAT = 0X95,               //rtc数据格式错误
     //DEBUG
     ERR_FRAME_HEAD = 0xA0,
     ERR_DEVICE_TYPE  = 0xA1,

@@ -169,6 +169,11 @@ static error_t es_swd_erase_chip (uint8_t para)
 {
     error_t status = ERROR_SUCCESS;
     const program_target_t *const flash = swd_target_device.flash_algo;
+    
+    status = es_swd_chipid_check();
+    if( (ERROR_SUCCESS != status) && (ERROR_LV2_ENCRYPT != status))
+        return status;   
+        
     //擦除flash
     if (0 == swd_flash_syscall_exec(&flash->sys_call_s, flash->erase_chip, 0, 0, 0, 0)) {
         return ERROR_SWD_ERASE;
@@ -199,15 +204,21 @@ static error_t es_swd_read_chipid(uint8_t *buf)
 static error_t es_swd_chipid_check(void)
 {
     uint32_t chipid = 0;
-   
+    uint32_t reg_data ;
+    
     if (!swd_read_memory(CHIP_INFO_FLASH_OFFSET + target_dev->chipid_addr, (uint8_t*)&chipid, 4) )  
     {
         return ERROR_SWD_READ;
     }
     if(chipid != target_dev->chipid_value)    
     {
-          //测试模式，不判断ID
-//         return  ERROR_CHIP_ID_NOT_MATCH;
+        if (!swd_read_memory(CHIP_INFO_FLASH_OFFSET + CHIP_CFG_GBRDP_ADDR, (uint8_t*)&reg_data, 4) )  
+        {
+            return ERROR_SWD_READ;
+        }
+        if((chipid == 0x00000000) && ( reg_data == 0x00000000))
+             return  ERROR_LV2_ENCRYPT;
+        return  ERROR_CHIP_ID_NOT_MATCH;
     }
         
     return ERROR_SUCCESS; 
@@ -216,6 +227,7 @@ static error_t es_swd_chipid_check(void)
 static error_t es_swd_read_checksum(uint8_t *buf)
 {
     error_t ret = ERROR_SUCCESS;
+    
     ret = es_swd_chipid_check();
     if(ERROR_SUCCESS != ret)
         return ret;  
@@ -292,7 +304,11 @@ static error_t es_swd_program_config(uint32_t addr, uint8_t *buf, uint32_t size,
 
     if(size & 0x03)
         return ERROR_OUT_OF_BOUNDS;
-            
+     
+    ret = es_swd_chipid_check();
+    if(ERROR_SUCCESS != ret)
+        return ret;  
+        
     prog_addr  =  CHIP_INFO_FLASH_OFFSET+ CHIP_INFO_PART1_ADDR;     //info1的偏移地址
     prog_size = CHIP_INFO_PART1_SIZE * 4;     //字节长度
     ret = swd_program_flash(INFO_AREA, prog_addr, buf, prog_size );

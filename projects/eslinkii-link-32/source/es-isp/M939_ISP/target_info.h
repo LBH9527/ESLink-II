@@ -10,9 +10,11 @@ struct info_part_map
 
 //1.芯片信息根据芯片手动调整的数据信息     //根据IDE Space 修改
 #define CHIP_CHIPID                 0xC40            
-#define CHIP_CHECKSUM_ADDR          0x7C0   
+#define CHIP_CHECKSUM_ADDR          0x7C0  
+#define CHIP_CFG_GBRDP_ADDR         0x800   
 
 //2.CHIP INFO的信息需要根据芯片的xml文件来确认 
+#define CHIP_CFG_GBRDP_OFFSET       120  
 #define CHIP_INFO_PART1_ADDR        0x400
 #define CHIP_INFO_PART1_SIZE        14              //字
 

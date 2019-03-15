@@ -579,12 +579,17 @@
             <File>
               <FileName>isp_prog_intf.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\source\es-isp\M939_ISP\isp_prog_intf.c</FilePath>
+              <FilePath>..\source\es-isp\M620_ISP\isp_prog_intf.c</FilePath>
             </File>
             <File>
-              <FileName>M939_ISP.c</FileName>
+              <FileName>M620_ISP.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\source\es-isp\M939_ISP\M939_ISP.c</FilePath>
+              <FilePath>..\source\es-isp\M620_ISP\M620_ISP.c</FilePath>
+            </File>
+            <File>
+              <FileName>target_info.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\source\es-isp\M620_ISP\target_info.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -593,13 +598,6 @@
         </Group>
         <Group>
           <GroupName>es-rtc</GroupName>
-          <Files>
-            <File>
-              <FileName>rtc_calibrate.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\source\es-rtc\M939_RTC\rtc_calibrate.c</FilePath>
-            </File>
-          </Files>
         </Group>
         <Group>
           <GroupName>es-swd</GroupName>

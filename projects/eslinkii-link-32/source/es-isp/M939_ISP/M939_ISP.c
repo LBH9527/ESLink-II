@@ -630,7 +630,7 @@ uint8_t isp_erase_chip(void)
         return FALSE; 
 
     //擦除info2    
-    result = erase_and_check(ERASE_M3_CMD, INFO_2_AREA, 2);
+    result = erase_and_check(ERASE_M3_CMD, INFO_2_AREA, 3);
     if(result != TRUE)
         return FALSE;         
 #if 0

@@ -173,10 +173,11 @@ static error_t isp_prog_check_empty(uint32_t *failed_addr, uint32_t *failed_data
 	uint32_t code_addr;	
 	uint32_t code_size;	
     uint32_t cfg_word_addr;	
-	uint32_t cfg_word_size;	
-    
+	uint32_t cfg_word_size;	     
     uint32_t read_buf[ISP_PRG_MINI_SIZE/4]; 
 	uint32_t copy_size; 
+    const struct info_part_map *part;        
+    uint32_t item_num;
     
     ret = isp_chipid_check();
     if(ERROR_SUCCESS != ret)
@@ -208,32 +209,38 @@ static error_t isp_prog_check_empty(uint32_t *failed_addr, uint32_t *failed_data
             break;
         } 
 	}  
-	cfg_word_addr =  isp_target_dev->config_word_start;
-	cfg_word_size =  isp_target_dev->config_word_size/4;     //字长度
-    while(true)
-	{
-		copy_size = MIN(cfg_word_size, sizeof(read_buf)/4 );
-	    isp_read_config(cfg_word_addr, read_buf, copy_size);
-		for(i = 0; i<copy_size; i++)
-		{
-			if(read_buf[i] != 0xFFFFFFFF)
-			{     
-                if(failed_addr)
-                    *failed_addr = cfg_word_addr + i*4  ;
-                if(failed_data)
-                    *failed_data = read_buf[i] ; 
-				return ERROR_ISP_CFG_WORD_CHECK_EMPTY;
-			} 				
-		} 
-        // Update variables
-        cfg_word_addr  += copy_size;
-        cfg_word_size  -= copy_size;
-        
-        // Check for end
-        if (code_size <= 0) {
-            break;
-        } 
-	} 
+    //配置字查空      
+    for(item_num=0; item_num<ITEM_NUM(info_part_map); item_num++) 
+    {
+        part = &info_part_map[item_num]; 
+        cfg_word_addr = part->addr;     
+        cfg_word_size = part->size; 
+        while(true)
+        {
+            copy_size = MIN(cfg_word_size, sizeof(read_buf)/4 );
+            isp_read_config(cfg_word_addr, read_buf, copy_size);
+            for(i = 0; i<copy_size; i++)
+            {
+                if(read_buf[i] != 0xFFFFFFFF)
+                {     
+                    if(failed_addr)
+                        *failed_addr = cfg_word_addr + i*4  ;
+                    if(failed_data)
+                        *failed_data = read_buf[i] ; 
+                    return ERROR_ISP_CFG_WORD_CHECK_EMPTY;
+                } 				
+            } 
+            // Update variables
+            cfg_word_addr  += copy_size;
+            cfg_word_size  -= copy_size;
+            
+            // Check for end
+            if (code_size <= 0) {
+                break;
+            } 
+        }     
+    }
+
     return ERROR_SUCCESS;      
 } 
 /*******************************************************************************
@@ -392,19 +399,20 @@ static error_t isp_prog_read_config(uint32_t addr,  uint8_t *buf, uint32_t size)
 static error_t isp_prog_verify_config(uint32_t addr,  uint8_t *buf, uint32_t size,uint32_t *failed_addr, uint32_t *failed_data)
 {      
     uint8_t ret ; 
-    uint32_t i,j;
+    uint32_t i;
     uint32_t rd_buf[ISP_PRG_MINI_SIZE/4];
     uint32_t verify_size;     
     uint32_t read_addr;
     uint32_t read_size;
     const struct info_part_map *part;        
-    
+    uint32_t item_num;
+        
     if(size & 0x03)
         return ERROR_OUT_OF_BOUNDS;  
 
-    for(j=0; j<ITEM_NUM(info_part_map); j++)    
+    for(item_num=0; item_num<ITEM_NUM(info_part_map); item_num++)    
     {
-        part = &info_part_map[j]; 
+        part = &info_part_map[item_num]; 
         read_addr = part->addr;     
         read_size = part->size; 
         while (read_size > 0) 

@@ -104,7 +104,12 @@ static error_t uartboot_prog_uninit(void) //退出模式
 static error_t uartboot_prog_erase_chip (uint8_t para)
 {
     uint8_t data[4]; 
-
+	error_t ret;
+	
+	ret = uartboot_chipid_check();         
+    if( (ERROR_SUCCESS != ret) && (ERROR_LV2_ENCRYPT != ret))
+        return ret;  
+        
     //flash 擦除 
     data[0] = FULL_ERASE_CMD_H;
     data[1] = FULL_ERASE_CMD_L;        
@@ -132,6 +137,12 @@ static error_t uartboot_prog_erase_chip (uint8_t para)
 *******************************************************************************/
 static error_t uartboot_prog_check_empty(uint32_t *failed_addr, uint32_t *failed_data) 
 {    
+    error_t ret;
+    
+    ret = uartboot_chipid_check();
+    if(ERROR_SUCCESS != ret)
+        return ret; 
+        
     if(uartboot_check_empty(target_dev->code_start , target_dev->code_size) != TRUE)
 	{
 	    if(failed_addr)
@@ -172,15 +183,19 @@ static error_t uartboot_prog_read_chipid(uint8_t *buf)
 static error_t uartboot_chipid_check(void)
 {
     uint32_t chipid = 0;
-   
+    uint32_t reg_data ;
+    
     if (uartboot_read_memory(CHIP_INFO_FLASH_OFFSET + target_dev->chipid_addr, (uint8_t*)&chipid, 4) != TRUE)  
     {
         return ERROR_UARTBOOT_READ;
     }
     if(chipid != target_dev->chipid_value)    
     {
-          //测试模式，不判断ID
-//         return  ERROR_CHIP_ID_NOT_MATCH;
+        if(uartboot_read_memory(CHIP_INFO_FLASH_OFFSET+ CHIP_CFG_GBRDP_ADDR, (uint8_t*)&reg_data, 4) != TRUE)
+             return ERROR_ISP_READ_CFG_WORD;
+        if((chipid == 0x00000000) && ( reg_data == 0x00000000))
+             return  ERROR_LV2_ENCRYPT;
+        return  ERROR_CHIP_ID_NOT_MATCH;
     }
         
     return ERROR_SUCCESS; 
@@ -277,7 +292,6 @@ static error_t uartboot_prog_read_config(uint32_t addr,  uint8_t *buf, uint32_t 
     if(size & 0x03)
         return ERROR_OUT_OF_BOUNDS;
 
-    //配置字在inf1区，保留未用的数据未下发。此信息需要根据XML文件修改。
     read_addr = CHIP_INFO_FLASH_OFFSET + CHIP_INFO_PART1_ADDR; 
     read_size = CHIP_INFO_PART1_SIZE * 4 ;
     if (uartboot_read_memory(read_addr, buf, read_size) != TRUE) 
@@ -305,7 +319,6 @@ static error_t uartboot_prog_verify_config(uint32_t addr,  uint8_t *buf, uint32_
     if(size & 0x03)
         return ERROR_OUT_OF_BOUNDS;
     
-    //配置字在inf1区，保留未用的数据未下发。此信息需要根据XML文件修改。
     read_addr = CHIP_INFO_FLASH_OFFSET + CHIP_INFO_PART1_ADDR; 
     read_size = CHIP_INFO_PART1_SIZE * 4  ;
     while (read_size > 0) 
@@ -368,6 +381,12 @@ static error_t uartboot_prog_program_flash(uint32_t addr, uint8_t *data, uint32_
 }
 static error_t uartboot_prog_read_flash(uint32_t addr, uint8_t *data, uint32_t size)
 {
+    error_t ret;
+    
+    ret = uartboot_chipid_check();
+    if(ERROR_SUCCESS != ret)
+        return ret; 
+        
     if(uartboot_read_memory(addr, data, size) != TRUE)
         return ERROR_UARTBOOT_READ;
     return ERROR_SUCCESS; 

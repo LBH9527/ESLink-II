@@ -139,12 +139,17 @@ static error_t isp_prog_read_chipid(uint8_t *buf)
 static error_t isp_chipid_check(void)
 {
     uint32_t chipid = 0;
+    uint32_t reg_data ;
    
     if(isp_read_config(isp_target_dev->chipid_addr, &chipid, 1) != TRUE)
         return ERROR_ISP_READ_CFG_WORD;
     if(chipid != isp_target_dev->chipid_value)    
     {
-         return  ERROR_CHIP_ID_NOT_MATCH;
+        if(isp_read_config(CHIP_CFG_GBRDP_ADDR, &reg_data, 1) != TRUE)
+             return ERROR_ISP_READ_CFG_WORD;
+        if((chipid == 0x00000000) && ( reg_data == 0x00000000))
+             return  ERROR_LV2_ENCRYPT;
+        return  ERROR_CHIP_ID_NOT_MATCH;
     }
         
     return ERROR_SUCCESS; 
@@ -331,19 +336,20 @@ static error_t isp_prog_read_config(uint32_t addr,  uint8_t *buf, uint32_t size)
 static error_t isp_prog_verify_config(uint32_t addr,  uint8_t *buf, uint32_t size,uint32_t *failed_addr, uint32_t *failed_data)
 {
     uint8_t ret ; 
-    uint32_t i,j;
+    uint32_t i;
     uint32_t rd_buf[ISP_PRG_MINI_SIZE/4];
     uint32_t verify_size;     
     uint32_t read_addr;
     uint32_t read_size;
-    const struct info_part_map *part;        
+    const struct info_part_map *part;  
+    uint32_t item_num;
     
     if(size & 0x03)
         return ERROR_OUT_OF_BOUNDS;  
 
-    for(j=0; j<ITEM_NUM(info_part_map); j++)    
+    for(item_num=0; item_num<ITEM_NUM(info_part_map); item_num++)    
     {
-        part = &info_part_map[j]; 
+        part = &info_part_map[item_num]; 
         read_addr = part->addr;     
         read_size = part->size; 
         while (read_size > 0) 
@@ -384,11 +390,15 @@ static error_t isp_prog_encrypt_chip(void)
 { 
     error_t ret = ERROR_SUCCESS;
     uint8_t result;
+    static uint8_t reg_data[4] ;
     
     ret = isp_chipid_check();
     if(ERROR_SUCCESS != ret)
         return ret; 
-    result = isp_program_config(isp_target_dev->encrypt_addr, (uint32_t *)&isp_target_dev->encrypt_value, 1, NULL);
+    ret = isp_prog_intf.cb(CFG_WORD, CHIP_CFG_GBRDP_OFFSET, reg_data , sizeof(reg_data));
+    if( ret !=  ERROR_SUCCESS)
+        return ret;     
+    result = isp_program_config(CHIP_CFG_GBRDP_ADDR, (uint32_t*)reg_data, 1, NULL);
     if(result != TRUE)
         return ERROR_ISP_ENCRYPT;  
     //加载加密字
@@ -406,12 +416,11 @@ static error_t isp_prog_encrypt_chip(void)
 static error_t isp_prog_erase_chip (uint8_t  para) 
 {
     error_t ret = ERROR_SUCCESS;
-//    uint8_t erase_mode;    
-    
+  
     ret = isp_chipid_check();
-    if(ERROR_SUCCESS != ret)
+    if( (ERROR_SUCCESS != ret) && (ERROR_LV2_ENCRYPT != ret))
         return ret;   
-        
+  
     if(isp_erase_chip() != TRUE)
 		 return ERROR_ISP_ERASE;
          
@@ -430,10 +439,12 @@ error_t isp_prog_check_empty(uint32_t *failed_addr, uint32_t *failed_data)
 	uint32_t code_addr;	
 	uint32_t code_size;	
     uint32_t cfg_word_addr;	
-	uint32_t cfg_word_size;	
-    
+	uint32_t cfg_word_size;	     
     uint32_t read_buf[ISP_PRG_MINI_SIZE/4]; 
-	uint32_t copy_size;   
+	uint32_t copy_size;         
+    const struct info_part_map *part;  
+    uint32_t item_num;
+    
     
     ret = isp_chipid_check();
     if(ERROR_SUCCESS != ret)
@@ -465,88 +476,119 @@ error_t isp_prog_check_empty(uint32_t *failed_addr, uint32_t *failed_data)
             break;
         } 
 	}  
-    //配置字查空
-	cfg_word_addr =  CHIP_INFO_PART1_ADDR;
-	cfg_word_size =  CHIP_INFO_PART1_SIZE;     //字长度
-    while(true)
-	{
-		copy_size = MIN(cfg_word_size, sizeof(read_buf)/4 );
-	    isp_read_config(cfg_word_addr, read_buf, copy_size);
-		for(i = 0; i<copy_size; i++)
-		{
-			if(read_buf[i] != 0xFFFFFFFF)
-			{              
-                if(failed_addr)
-                    *failed_addr = code_addr + i*4  ;
-                if(failed_data)
-                    *failed_data = read_buf[i] ; 
-				return ERROR_ISP_CFG_WORD_CHECK_EMPTY;
-			} 				
-		} 
-        // Update variables
-        cfg_word_addr  += copy_size;
-        cfg_word_size  -= copy_size;
-        
-        // Check for end
-        if (code_size <= 0) {
-            break;
-        } 
-	} 
-    
-	cfg_word_addr =  CHIP_INFO_PART2_ADDR;
-	cfg_word_size =  CHIP_INFO_PART2_SIZE;     //字长度
-    while(true)
-	{
-		copy_size = MIN(cfg_word_size, sizeof(read_buf)/4 );
-	    isp_read_config(cfg_word_addr, read_buf, copy_size);
-		for(i = 0; i<copy_size; i++)
-		{
-			if(read_buf[i] != 0xFFFFFFFF)
-			{              
-			    if(failed_addr)
-                    *failed_addr = code_addr + i*4  ;
-                if(failed_data)
-                    *failed_data = read_buf[i] ; 
-				return ERROR_ISP_CFG_WORD_CHECK_EMPTY;
-			} 				
-		} 
-        // Update variables
-        cfg_word_addr  += copy_size;
-        cfg_word_size  -= copy_size;
-        
-        // Check for end
-        if (code_size <= 0) {
-            break;
-        } 
-	} 
-#if RTC_DEBUG  
-    cfg_word_addr =  CHIP_RTC_INFO_ADDR;
-	cfg_word_size =  CHIP_RTC_INFO_SIZE;     //字长度
-    while(true)
-	{
-		copy_size = MIN(cfg_word_size, sizeof(read_buf)/4 );
-	    isp_read_config(cfg_word_addr, read_buf, copy_size);
-		for(i = 0; i<copy_size; i++)
-		{
-			if(read_buf[i] != 0xFFFFFFFF)
-			{              
-			    if(failed_addr)
-                    *failed_addr = code_addr + i*4  ;
-                if(failed_data)
-                    *failed_data = read_buf[i] ; 
-				return ERROR_ISP_CFG_WORD_CHECK_EMPTY;
-			} 				
-		} 
-        // Update variables
-        cfg_word_addr  += copy_size;
-        cfg_word_size  -= copy_size;
-        
-        // Check for end
-        if (code_size <= 0) {
-            break;
-        } 
-	} 
-#endif
+    //配置字查空      
+    for(item_num=0; item_num<ITEM_NUM(info_part_map); item_num++) 
+    {
+        part = &info_part_map[item_num]; 
+        cfg_word_addr = part->addr;     
+        cfg_word_size = part->size; 
+        while(true)
+        {
+            copy_size = MIN(cfg_word_size, sizeof(read_buf)/4 );
+            isp_read_config(cfg_word_addr, read_buf, copy_size);
+            for(i = 0; i<copy_size; i++)
+            {
+                if(read_buf[i] != 0xFFFFFFFF)
+                {              
+                    if(failed_addr)
+                        *failed_addr = code_addr + i*4  ;
+                    if(failed_data)
+                        *failed_data = read_buf[i] ; 
+                    return ERROR_ISP_CFG_WORD_CHECK_EMPTY;
+                } 				
+            } 
+            // Update variables
+            cfg_word_addr  += copy_size;
+            cfg_word_size  -= copy_size;
+            
+            // Check for end
+            if (code_size <= 0) 
+            {
+                break;
+            } 
+        }
+    }    
+//	cfg_word_addr =  CHIP_INFO_PART1_ADDR;
+//	cfg_word_size =  CHIP_INFO_PART1_SIZE;     //字长度
+//    while(true)
+//	{
+//		copy_size = MIN(cfg_word_size, sizeof(read_buf)/4 );
+//	    isp_read_config(cfg_word_addr, read_buf, copy_size);
+//		for(i = 0; i<copy_size; i++)
+//		{
+//			if(read_buf[i] != 0xFFFFFFFF)
+//			{              
+//                if(failed_addr)
+//                    *failed_addr = code_addr + i*4  ;
+//                if(failed_data)
+//                    *failed_data = read_buf[i] ; 
+//				return ERROR_ISP_CFG_WORD_CHECK_EMPTY;
+//			} 				
+//		} 
+//        // Update variables
+//        cfg_word_addr  += copy_size;
+//        cfg_word_size  -= copy_size;
+//        
+//        // Check for end
+//        if (code_size <= 0) {
+//            break;
+//        } 
+//	} 
+//    
+//	cfg_word_addr =  CHIP_INFO_PART2_ADDR;
+//	cfg_word_size =  CHIP_INFO_PART2_SIZE;     //字长度
+//    while(true)
+//	{
+//		copy_size = MIN(cfg_word_size, sizeof(read_buf)/4 );
+//	    isp_read_config(cfg_word_addr, read_buf, copy_size);
+//		for(i = 0; i<copy_size; i++)
+//		{
+//			if(read_buf[i] != 0xFFFFFFFF)
+//			{              
+//			    if(failed_addr)
+//                    *failed_addr = code_addr + i*4  ;
+//                if(failed_data)
+//                    *failed_data = read_buf[i] ; 
+//				return ERROR_ISP_CFG_WORD_CHECK_EMPTY;
+//			} 				
+//		} 
+//        // Update variables
+//        cfg_word_addr  += copy_size;
+//        cfg_word_size  -= copy_size;
+//        
+//        // Check for end
+//        if (code_size <= 0) {
+//            break;
+//        } 
+//	} 
+//#if RTC_DEBUG  
+//    cfg_word_addr =  CHIP_RTC_INFO_ADDR;
+//	cfg_word_size =  CHIP_RTC_INFO_SIZE;     //字长度
+//    while(true)
+//	{
+//		copy_size = MIN(cfg_word_size, sizeof(read_buf)/4 );
+//	    isp_read_config(cfg_word_addr, read_buf, copy_size);
+//		for(i = 0; i<copy_size; i++)
+//		{
+//			if(read_buf[i] != 0xFFFFFFFF)
+//			{              
+//			    if(failed_addr)
+//                    *failed_addr = code_addr + i*4  ;
+//                if(failed_data)
+//                    *failed_data = read_buf[i] ; 
+//				return ERROR_ISP_CFG_WORD_CHECK_EMPTY;
+//			} 				
+//		} 
+//        // Update variables
+//        cfg_word_addr  += copy_size;
+//        cfg_word_size  -= copy_size;
+//        
+//        // Check for end
+//        if (code_size <= 0) {
+//            break;
+//        } 
+//	} 
+//#endif
     return ERROR_SUCCESS;     
 }  
 
