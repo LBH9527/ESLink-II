@@ -4,8 +4,8 @@
 #define STATUS_CHECK_CMD            0xF0        //ISP状态读取
 #define ISP_MODE_CMD                0xF1        //设置ISP模式
 #define ENCRYPT_CHECK_CMD           0xFF       //加密字加载
-#define UNLOCK_CHECK_VAL     		0xA0                                                //Unlock Success Value
-#define ISP_MODE_CHECK_VAL       	0xA1                                                //ISP Mode Check Value
+#define UNLOCK_CHECK_VAL         0xA0                                                //Unlock Success Value
+#define ISP_MODE_CHECK_VAL         0xA1                                                //ISP Mode Check Value
 
 //接口访问
 #define AREA_SET_CMD                0xE1            //主程序区/信息区选址命令
@@ -86,21 +86,21 @@ static void isp_writeb(uint8_t data)
 {
     uint32_t n;
     
-	for (n=0; n<8; n++)
+  for (n=0; n<8; n++)
     {
         PIN_ISPCLK_CLR(); 
-		if (data & 0x80)     
-			PIN_ISPSDA_SET();
-		else
-			PIN_ISPSDA_CLR(); 
-		PIN_DELAY(1);
-		PIN_ISPCLK_SET();
-		PIN_DELAY(1);
+    if (data & 0x80)     
+      PIN_ISPSDA_SET();
+    else
+      PIN_ISPSDA_CLR(); 
+    PIN_DELAY(1);
+    PIN_ISPCLK_SET();
+    PIN_DELAY(1);
         
         data <<= 1;
-	}
-	PIN_ISPCLK_CLR(); 
-	PIN_DELAY(1); 
+  }
+  PIN_ISPCLK_CLR(); 
+  PIN_DELAY(1); 
     PIN_ISPSDA_CLR();    
 }
  static uint8_t isp_readb(void)

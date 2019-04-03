@@ -20,7 +20,7 @@ static void Key_InitVar(void)
     /* 给每个按键结构体成员变量赋一组缺省值 */
     for (i=0; i<KEY_COUNT; i++)
     {
-		key_param[i].FilterTime = KEY_DOWN_PERIOD;
+    key_param[i].FilterTime = KEY_DOWN_PERIOD;
         key_param[i].LongTime = KEY_LONG_PERIOD;       /* 长按时间 0 表示不检测长按键事件 */       
         key_param[i].Count = 0;
         key_param[i].RepeatTime = 0;  /* 按键连发的速度，0表示不支持连发，5表示每个50ms自动发送键值*/
@@ -34,7 +34,7 @@ static void Key_InitVar(void)
     key_param[KID_K0].key_long_value = KEY0_LONG;
 
     /* 判断按键按下的函数 */
-    key_param[KID_K0].IsKeyDownFunc = gpio_key0_down;  	
+    key_param[KID_K0].IsKeyDownFunc = gpio_key0_down;    
 }
 void key_clear_buffers(void)
 {
@@ -43,7 +43,7 @@ void key_clear_buffers(void)
 
 uint8_t key_write_data(uint8_t *key_value)
 {
-	uint8_t cnt;
+  uint8_t cnt;
     
     cnt = circ_buf_write(&key_buffer, key_value, 1);
     
@@ -51,10 +51,10 @@ uint8_t key_write_data(uint8_t *key_value)
 }
 
 /*******************************************************************************
-*	函 数 名: key_read_data
-*	功能说明: 读按键值
-*	形    参: 按键值指针
-*	返 回 值: 0：没有按键值 1 有按键值
+*  函 数 名: key_read_data
+*  功能说明: 读按键值
+*  形    参: 按键值指针
+*  返 回 值: 0：没有按键值 1 有按键值
 *******************************************************************************/
 uint8_t key_read_data(uint8_t *key_value)
 {
@@ -63,23 +63,23 @@ uint8_t key_read_data(uint8_t *key_value)
 
 
 /*******************************************************************************
-*	函 数 名: key_init
-*	功能说明: 初始化按键.
-*	形    参: 无
-*	返 回 值: 无
+*  函 数 名: key_init
+*  功能说明: 初始化按键.
+*  形    参: 无
+*  返 回 值: 无
 *******************************************************************************/
 void key_init(void)
 {
-	Key_InitVar();		/* 初始化按键变量 */
+  Key_InitVar();    /* 初始化按键变量 */
     key_clear_buffers();
 }
 
 
 /*******************************************************************************
-*	函 数 名: bsp_detect_key()
-*	功能说明: 检测一个按键。非阻塞状态，必须被周期性的调用。
-*	形    参:  按键结构变量指针
-*	返 回 值: 无
+*  函 数 名: bsp_detect_key()
+*  功能说明: 检测一个按键。非阻塞状态，必须被周期性的调用。
+*  形    参:  按键结构变量指针
+*  返 回 值: 无
 *******************************************************************************/
 static void bsp_detect_key(uint8_t i)
 {
@@ -99,7 +99,7 @@ static void bsp_detect_key(uint8_t i)
             if (key->IsKeyDownFunc())         
             {                
                 key->state = STATE_KEY_DOWN;    
-				key->Count = 0;				
+        key->Count = 0;        
             }            
             else            
             {                
@@ -114,14 +114,14 @@ static void bsp_detect_key(uint8_t i)
                 {                   
                     /* 100ms 发送按钮按下的消息 */                    
 //                    key_write_data(&(key->key_down_value));
-					if (key->LongTime > 0)    	 	//检测长按键
-					{
-						key->state = STATE_KEY_LONG;   
-					}
-					else							//不检测长按键
-					{
-						key->state = STATE_KEY_RELEASE;   
-					}                                 
+          if (key->LongTime > 0)         //检测长按键
+          {
+            key->state = STATE_KEY_LONG;   
+          }
+          else              //不检测长按键
+          {
+            key->state = STATE_KEY_RELEASE;   
+          }                                 
                 }            
             }            
             else          
@@ -132,22 +132,22 @@ static void bsp_detect_key(uint8_t i)
          case STATE_KEY_LONG:
             if (key->IsKeyDownFunc())  
             {               
-				key->Count++;  
-				if (key->Count >= key->LongTime)
-				{
-					/* 2s，发送按钮长按下的消息 */ 
-					key_write_data(&(key->key_long_value));
-					if (key->RepeatTime> 0)     	//检测连续按键
-					{
-						key->state = STATE_KEY_REPEAT;
-						key->Count = 0;						
-					}
-					else
-					{
-						 key->state = STATE_KEY_RELEASE;
-					}
+        key->Count++;  
+        if (key->Count >= key->LongTime)
+        {
+          /* 2s，发送按钮长按下的消息 */ 
+          key_write_data(&(key->key_long_value));
+          if (key->RepeatTime> 0)       //检测连续按键
+          {
+            key->state = STATE_KEY_REPEAT;
+            key->Count = 0;            
+          }
+          else
+          {
+             key->state = STATE_KEY_RELEASE;
+          }
 
-				}              
+        }              
             }
             else          
             {                
@@ -157,14 +157,14 @@ static void bsp_detect_key(uint8_t i)
         case  STATE_KEY_REPEAT:
             if (key->IsKeyDownFunc())  
             {                
-				 key->Count++;  
-				 if (key->Count >= key->RepeatTime)
-				 {
-					 /* 常按键后，每隔KEY_REPEAT_PERIOD发送1个按键消息 */
-					 key_write_data(&(key->key_down_value));
-					 key->state = STATE_KEY_REPEAT;
-					 key->Count = 0;
-				 }                 
+         key->Count++;  
+         if (key->Count >= key->RepeatTime)
+         {
+           /* 常按键后，每隔KEY_REPEAT_PERIOD发送1个按键消息 */
+           key_write_data(&(key->key_down_value));
+           key->state = STATE_KEY_REPEAT;
+           key->Count = 0;
+         }                 
             }
             else
             {
@@ -182,19 +182,19 @@ static void bsp_detect_key(uint8_t i)
     }
 }
 /*******************************************************************************
-*	函 数 名: key_scan
-*	功能说明: 扫描所有按键。非阻塞，周期性的调用
-*	形    参:  无
-*	返 回 值: 无
+*  函 数 名: key_scan
+*  功能说明: 扫描所有按键。非阻塞，周期性的调用
+*  形    参:  无
+*  返 回 值: 无
 *******************************************************************************/
 void key_scan(void)
 {
-	uint8_t i;
+  uint8_t i;
 
-	for (i = 0; i < KEY_COUNT; i++)
-	{
-		bsp_detect_key(i);
-	}
+  for (i = 0; i < KEY_COUNT; i++)
+  {
+    bsp_detect_key(i);
+  }
 }
 
 

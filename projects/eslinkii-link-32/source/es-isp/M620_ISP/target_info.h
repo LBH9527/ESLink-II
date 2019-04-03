@@ -12,10 +12,10 @@ struct info_part_map
 
 //2.CHIP INFO的信息需要根据芯片的xml文件来确认 
 #define CHIP_INFO_PART1_ADDR        0x00
-#define CHIP_INFO_PART1_SIZE        12              //字
+#define CHIP_INFO_PART1_SIZE        48     //12--->48字节长度
 
 #define CHIP_INFO_PART2_ADDR        0x200
-#define CHIP_INFO_PART2_SIZE        1               //字
+#define CHIP_INFO_PART2_SIZE        4     //1--->4字节长度
 
 static const struct info_part_map info_part_map[] =
 {

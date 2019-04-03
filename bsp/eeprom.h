@@ -3,21 +3,21 @@
 
 #define  FM24C04            //使用24c04
 #ifdef FM24C02
-	#define EE_MODEL_NAME		"FM24C02"
-	#define EE_DEV_ADDR			0xA0		/* 设备地址 */
-//	#define EE_PAGE_SIZE		8			/* 页面大小(字节) */
-	#define EE_SIZE				256			/* 总容量(字节) */
-	#define EE_ADDR_BYTES		1			/* 地址字节个数 */
-	#define EE_ADDR_A8			0			/* 9bit ADDRESS */
+  #define EE_MODEL_NAME    "FM24C02"
+  #define EE_DEV_ADDR      0xA0    /* 设备地址 */
+//  #define EE_PAGE_SIZE    8      /* 页面大小(字节) */
+  #define EE_SIZE        256      /* 总容量(字节) */
+  #define EE_ADDR_BYTES    1      /* 地址字节个数 */
+  #define EE_ADDR_A8      0      /* 9bit ADDRESS */
 #endif
 
 #ifdef FM24C04
-	#define EE_MODEL_NAME		"FM24C04"
-	#define EE_DEV_ADDR			0xA0		/* 设备地址 */
-//	#define EE_PAGE_SIZE		16			/* 页面大小(字节) */
-	#define EE_SIZE				512			/* 总容量(字节) */
-	#define EE_ADDR_BYTES		1			/* 地址字节个数 */
-	#define EE_ADDR_A8			1			/* 9bit ADDRESS */
+  #define EE_MODEL_NAME    "FM24C04"
+  #define EE_DEV_ADDR      0xA0    /* 设备地址 */
+//  #define EE_PAGE_SIZE    16      /* 页面大小(字节) */
+  #define EE_SIZE        512      /* 总容量(字节) */
+  #define EE_ADDR_BYTES    1      /* 地址字节个数 */
+  #define EE_ADDR_A8      1      /* 9bit ADDRESS */
 #endif
 
 

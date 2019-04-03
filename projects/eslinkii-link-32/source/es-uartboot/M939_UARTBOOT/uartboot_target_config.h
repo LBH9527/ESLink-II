@@ -6,14 +6,14 @@
 #define BOOTISP_ACK                     0x79        //ACK                     
 #define BOOTISP_NACK                    0x1F
 //bootisp 命令码
-#define CMD_START                       0xFF  	    //satrt /* 启动命令，用于波特率检测*/
-#define CMD_RD_MEMORY	                0x91		/* 读应用程序 */
-#define CMD_GO	                        0xA1		/* 跳转到内部flash或SRAM内的应用程序代码 */
-#define CMD_WR_MEMORY                   0xB1		/* 写数据*/
-#define CMD_ERASE                       0xC4  	    /* 擦除一个到全部falsh */
-#define CMD_GET_CRC                     0xD0		/* 读取若干字节的CRC32 */
-#define CMD_CHECK_EMPTY                 0xD1		/* 查空 */    
-#define CHIP_INFO1_INDEX		        0x0101	    //info1 索引值
+#define CMD_START                       0xFF        //satrt /* 启动命令，用于波特率检测*/
+#define CMD_RD_MEMORY                  0x91    /* 读应用程序 */
+#define CMD_GO                          0xA1    /* 跳转到内部flash或SRAM内的应用程序代码 */
+#define CMD_WR_MEMORY                   0xB1    /* 写数据*/
+#define CMD_ERASE                       0xC4        /* 擦除一个到全部falsh */
+#define CMD_GET_CRC                     0xD0    /* 读取若干字节的CRC32 */
+#define CMD_CHECK_EMPTY                 0xD1    /* 查空 */    
+#define CHIP_INFO1_INDEX            0x0101      //info1 索引值
 
 /******************************************************************************/
 //写入的最大数据块长度

@@ -30,7 +30,7 @@ typedef struct {
 #define ESLINKII_DEVICE_TYPE                    0x52   
 #define PROG_FRAME_HEAD                         0xBADCCDAB  
 #define PROG_FRAME_MAX_SIZE                     0x400               //帧长度 1024 
-#define PROG_DATA_OFFSET					    0x08                //数据区在buffer中的偏移
+#define PROG_DATA_OFFSET              0x08                //数据区在buffer中的偏移
 #define FRAME_HEADER_LEN                        8                   //协议头长度 
 
 // ESLINKII Command IDs
@@ -46,7 +46,7 @@ typedef struct {
 
 //#define ID_DL_TIMING                        0x19    //时序下载(1024)
 //#define ID_DL_TIMING_START                  0x1B    //时序下载开始    
-//#define ID_DL_TIMING_END                    0x1C	//时序下载结束
+//#define ID_DL_TIMING_END                    0x1C  //时序下载结束
 #define ID_READ_TIMING_INFO                 0x28    //读芯片信息
 #define ID_DL_TIMING_INFO                   0x27    //下载芯片信息
 #define ID_READ_CHIP_CHKSUM                 0x2D    //读芯片校验和

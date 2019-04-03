@@ -41,8 +41,8 @@ isp、bootisp、swd、rtc的联机调试都是在底层实现“擦除”“查�
  * NOTICE
  * ****************************************************************************/
 1、系统时钟修改后，需要修改：
-	File_Config.c中的 #define CPU_CLK     60000000	#define __FPCLK   	72000000
-    RTX_Config.c中的  #define OS_CLOCK   	72000000
+  File_Config.c中的 #define CPU_CLK     60000000  #define __FPCLK     72000000
+    RTX_Config.c中的  #define OS_CLOCK     72000000
     DAP_Config.h中的  #define CPU_CLOCK     45750000U 
 2、SPI Flash的格式化较慢，整片擦除大概需要50s左右，首次使用务必先格式化。
 /* ****************************************************************************
@@ -51,7 +51,7 @@ isp、bootisp、swd、rtc的联机调试都是在底层实现“擦除”“查�
 ## TODOList:
 1、错误类型的规范，ISP操作函数中的错误类型恢复需要规范
 增加错误类型：1）读写flash错误
-			  2） 读芯片数据失败
+        2） 读芯片数据失败
 2、util_assert 函数相关的部分程序需要修改。
 //3、uint32_t_uint8_t 定义的数组需要修改
 

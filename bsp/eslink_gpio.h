@@ -382,7 +382,7 @@ extern "C" {
 #define IIC_SDA_OUT()  \
     PIN_IIC_SDA_GPIO->PDDR |= (1U << PIN_IIC_SDA_BIT) 
 #define IIC_SDA_IN() \
-	PIN_IIC_SDA_GPIO->PDDR &= ~(1 << PIN_IIC_SDA_BIT)       
+  PIN_IIC_SDA_GPIO->PDDR &= ~(1 << PIN_IIC_SDA_BIT)       
     
 static __forceinline uint8_t IIC_SDA_READ(void)
 {

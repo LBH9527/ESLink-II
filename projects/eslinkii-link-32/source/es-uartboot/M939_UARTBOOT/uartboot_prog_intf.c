@@ -71,19 +71,19 @@ static error_t uartboot_prog_init(void) //进模式
 }
 static error_t uartboot_set_target_reset(void)  
 {
-	uint32_t addr;
-	uint32_t data;
-	
-	addr = 0x40080000;
-	data = 0x55AA6996;
+  uint32_t addr;
+  uint32_t data;
+  
+  addr = 0x40080000;
+  data = 0x55AA6996;
     if(uartboot_write_memory(addr, (uint8_t*)&data, 4) != TRUE)
-		return  ERROR_UARTBOOT_WRITE;
-	
-	addr = 0x40080824;
-	data = 0x00000001;
+    return  ERROR_UARTBOOT_WRITE;
+  
+  addr = 0x40080824;
+  data = 0x00000001;
     if(uartboot_write_memory(addr, (uint8_t*)&data, 4) != TRUE)
-		return  ERROR_UARTBOOT_WRITE;
-	return ERROR_SUCCESS; 
+    return  ERROR_UARTBOOT_WRITE;
+  return ERROR_SUCCESS; 
 }
 
 static error_t uartboot_prog_uninit(void) //退出模式
@@ -96,17 +96,17 @@ static error_t uartboot_prog_uninit(void) //退出模式
 #define FULL_ERASE_CMD_H    0xFF
 #define FULL_ERASE_CMD_L    0xFF
 /*******************************************************************************
-*	函 数 名: uartboot_prog_erase_chip
-*	功能说明: 擦除.芯片加密后
-*	形    参:  
-*	返 回 值: 错误类型
+*  函 数 名: uartboot_prog_erase_chip
+*  功能说明: 擦除.芯片加密后
+*  形    参:  
+*  返 回 值: 错误类型
 *******************************************************************************/
 static error_t uartboot_prog_erase_chip (uint8_t para)
 {
     uint8_t data[4]; 
-	error_t ret;
-	
-	ret = uartboot_chipid_check();         
+  error_t ret;
+  
+  ret = uartboot_chipid_check();         
     if( (ERROR_SUCCESS != ret) && (ERROR_LV2_ENCRYPT != ret))
         return ret;  
         
@@ -130,10 +130,10 @@ static error_t uartboot_prog_erase_chip (uint8_t para)
     return ERROR_SUCCESS; 
 }
 /*******************************************************************************
-*	函 数 名: uartboot_prog_check_empty
-*	功能说明: 查空
-*	形    参: failed_addr：错误地址  failedData:错误hsuju
-*	返 回 值: 错误类型
+*  函 数 名: uartboot_prog_check_empty
+*  功能说明: 查空
+*  形    参: failed_addr：错误地址  failedData:错误hsuju
+*  返 回 值: 错误类型
 *******************************************************************************/
 static error_t uartboot_prog_check_empty(uint32_t *failed_addr, uint32_t *failed_data) 
 {    
@@ -144,29 +144,29 @@ static error_t uartboot_prog_check_empty(uint32_t *failed_addr, uint32_t *failed
         return ret; 
         
     if(uartboot_check_empty(target_dev->code_start , target_dev->code_size) != TRUE)
-	{
-	    if(failed_addr)
+  {
+      if(failed_addr)
             *failed_addr = 0xFFFFFFFF ; 
-		if(failed_data)
+    if(failed_data)
             *failed_data = 0xFFFFFFFF ; 
-		return ERROR_UARTBOOT_CHECK_EMPTY;
-	}
+    return ERROR_UARTBOOT_CHECK_EMPTY;
+  }
         
-	if(uartboot_check_empty(CHIP_INFO1_ADDR , CHIP_INFO1_SIZE) != TRUE)
-	{
-		if(failed_addr)
+  if(uartboot_check_empty(CHIP_INFO1_ADDR , CHIP_INFO1_SIZE) != TRUE)
+  {
+    if(failed_addr)
             *failed_addr = 0xFFFFFFFF ; 
-		if(failed_data)
+    if(failed_data)
             *failed_data = 0xFFFFFFFF ; 
-		return ERROR_UARTBOOT_CHECK_EMPTY;	
-	}         
+    return ERROR_UARTBOOT_CHECK_EMPTY;  
+  }         
     return ERROR_SUCCESS; 
 }
 /*******************************************************************************
-*	函 数 名: uartboot_prog_read_chipid
-*	功能说明: 读chipid
-*	形    参:  
-*	返 回 值: 错误类型
+*  函 数 名: uartboot_prog_read_chipid
+*  功能说明: 读chipid
+*  形    参:  
+*  返 回 值: 错误类型
 *******************************************************************************/
 static error_t uartboot_prog_read_chipid(uint8_t *buf)
 {
@@ -175,10 +175,10 @@ static error_t uartboot_prog_read_chipid(uint8_t *buf)
     return ERROR_SUCCESS; 
 }
 /*******************************************************************************
-*	函 数 名: uartboot_chipid_check
-*	功能说明: id检测
-*	形    参:  
-*	返 回 值: 错误类型
+*  函 数 名: uartboot_chipid_check
+*  功能说明: id检测
+*  形    参:  
+*  返 回 值: 错误类型
 *******************************************************************************/
 static error_t uartboot_chipid_check(void)
 {
@@ -201,34 +201,34 @@ static error_t uartboot_chipid_check(void)
     return ERROR_SUCCESS; 
 }
 /*******************************************************************************
-*	函 数 名:  uartboot_prog_read_checksum
-*	功能说明:  读校验和
-*	形    参:  
-*	返 回 值:  错误类型
+*  函 数 名:  uartboot_prog_read_checksum
+*  功能说明:  读校验和
+*  形    参:  
+*  返 回 值:  错误类型
 *******************************************************************************/
 static error_t uartboot_prog_read_checksum(uint8_t *buf)
 {
-	error_t ret;
-	
-	ret = uartboot_chipid_check();
+  error_t ret;
+  
+  ret = uartboot_chipid_check();
     if(ERROR_SUCCESS != ret)
         return ret;  
-		
+    
     if(uartboot_read_memory(CHIP_INFO_FLASH_OFFSET + CHIP_CHECKSUM_ADDR, buf, 4) != TRUE)
         return ERROR_UARTBOOT_READ;
     return ERROR_SUCCESS; 
 }
 /*******************************************************************************
-*	函 数 名:  uartboot_prog_encrypt_chip
-*	功能说明:  加密
-*	形    参:  
-*	返 回 值:  错误类型
+*  函 数 名:  uartboot_prog_encrypt_chip
+*  功能说明:  加密
+*  形    参:  
+*  返 回 值:  错误类型
 *******************************************************************************/
 static error_t uartboot_prog_encrypt_chip(void)
 {
     error_t ret = ERROR_SUCCESS;
     uint8_t status;
-	
+  
     ret = uartboot_chipid_check();
     if(ERROR_SUCCESS != ret)
         return ret; 
@@ -240,10 +240,10 @@ static error_t uartboot_prog_encrypt_chip(void)
     return ERROR_SUCCESS;   
 }
 /*******************************************************************************
-*	函 数 名: uartboot_prog_program_config
-*	功能说明: 配置字编程
-*	形    参:  
-*	返 回 值: 
+*  函 数 名: uartboot_prog_program_config
+*  功能说明: 配置字编程
+*  形    参:  
+*  返 回 值: 
 *******************************************************************************/
 static error_t uartboot_prog_program_config(uint32_t addr, uint8_t *buf, uint32_t size,uint32_t *failed_addr )
 {
@@ -255,7 +255,7 @@ static error_t uartboot_prog_program_config(uint32_t addr, uint8_t *buf, uint32_
         return ERROR_OUT_OF_BOUNDS;
             
     prog_addr = CHIP_INFO_FLASH_OFFSET + CHIP_INFO_PART1_ADDR;     
-    prog_size = CHIP_INFO_PART1_SIZE * 4;     
+    prog_size = CHIP_INFO_PART1_SIZE ;     
     ret = uartboot_write_memory(prog_addr, buf, prog_size );
     if(ret != TRUE)
     {
@@ -266,7 +266,7 @@ static error_t uartboot_prog_program_config(uint32_t addr, uint8_t *buf, uint32_
     
     buf += prog_size; 
     prog_addr = CHIP_INFO_FLASH_OFFSET + CHIP_INFO_PART2_ADDR;     
-    prog_size = CHIP_INFO_PART2_SIZE * 4;     
+    prog_size = CHIP_INFO_PART2_SIZE ;     
     
     ret = uartboot_write_memory(prog_addr, buf, prog_size);
     if(ret != TRUE)
@@ -285,7 +285,7 @@ static error_t uartboot_prog_read_config(uint32_t addr,  uint8_t *buf, uint32_t 
     uint32_t read_addr;
     uint32_t read_size;
     
-	ret = uartboot_chipid_check();
+  ret = uartboot_chipid_check();
     if(ERROR_SUCCESS != ret)
         return ret; 
         
@@ -293,13 +293,13 @@ static error_t uartboot_prog_read_config(uint32_t addr,  uint8_t *buf, uint32_t 
         return ERROR_OUT_OF_BOUNDS;
 
     read_addr = CHIP_INFO_FLASH_OFFSET + CHIP_INFO_PART1_ADDR; 
-    read_size = CHIP_INFO_PART1_SIZE * 4 ;
+    read_size = CHIP_INFO_PART1_SIZE ;
     if (uartboot_read_memory(read_addr, buf, read_size) != TRUE) 
         return ERROR_UARTBOOT_READ; 
         
     buf += read_size;    
     read_addr = CHIP_INFO_FLASH_OFFSET + CHIP_INFO_PART2_ADDR;
-    read_size = CHIP_INFO_PART2_SIZE * 4;     
+    read_size = CHIP_INFO_PART2_SIZE ;     
     
     if (uartboot_read_memory(read_addr, buf, read_size) != TRUE) 
         return ERROR_UARTBOOT_READ;     
@@ -320,12 +320,12 @@ static error_t uartboot_prog_verify_config(uint32_t addr,  uint8_t *buf, uint32_
         return ERROR_OUT_OF_BOUNDS;
     
     read_addr = CHIP_INFO_FLASH_OFFSET + CHIP_INFO_PART1_ADDR; 
-    read_size = CHIP_INFO_PART1_SIZE * 4  ;
+    read_size = CHIP_INFO_PART1_SIZE   ;
     while (read_size > 0) 
     {          
         verify_size = MIN(read_size, sizeof(read_buf));
-		if (uartboot_read_memory(read_addr, read_buf, verify_size) != TRUE) 
-			return ERROR_UARTBOOT_READ; 
+    if (uartboot_read_memory(read_addr, read_buf, verify_size) != TRUE) 
+      return ERROR_UARTBOOT_READ; 
         for(i=0; i< verify_size; i++)
         {
             if( *buf++ != read_buf[i] ) 
@@ -335,7 +335,7 @@ static error_t uartboot_prog_verify_config(uint32_t addr,  uint8_t *buf, uint32_
                 *failed_data |= (read_buf[*failed_addr+1] << 8) ; 
                 *failed_data |= (read_buf[*failed_addr+2] << 16) ; 
                 *failed_data |= (read_buf[*failed_addr+3] << 24) ; 
-				return ERROR_UARTBOOT_VERIFY;  
+        return ERROR_UARTBOOT_VERIFY;  
             }  
         } 
         read_addr += verify_size;
@@ -343,12 +343,12 @@ static error_t uartboot_prog_verify_config(uint32_t addr,  uint8_t *buf, uint32_
     }
     
     read_addr = CHIP_INFO_FLASH_OFFSET + CHIP_INFO_PART2_ADDR;
-    read_size = CHIP_INFO_PART2_SIZE * 4;     
+    read_size = CHIP_INFO_PART2_SIZE ;     
     while (read_size > 0) 
     {          
         verify_size = MIN(read_size, sizeof(read_buf));
-		if (uartboot_read_memory(read_addr, read_buf, verify_size) != TRUE) 
-			return ERROR_UARTBOOT_READ; 
+    if (uartboot_read_memory(read_addr, read_buf, verify_size) != TRUE) 
+      return ERROR_UARTBOOT_READ; 
         for(i=0; i< verify_size; i++)
         {
             if( *buf++ != read_buf[i] ) 
@@ -358,7 +358,7 @@ static error_t uartboot_prog_verify_config(uint32_t addr,  uint8_t *buf, uint32_
                 *failed_data |= (read_buf[*failed_addr+1] << 8) ; 
                 *failed_data |= (read_buf[*failed_addr+2] << 16) ; 
                 *failed_data |= (read_buf[*failed_addr+3] << 24) ; 
-				return ERROR_UARTBOOT_VERIFY;  
+        return ERROR_UARTBOOT_VERIFY;  
             }  
         } 
         read_addr += verify_size;
@@ -404,7 +404,7 @@ static error_t uartboot_prog_verify_flash(uint32_t addr,  uint8_t *data, uint32_
     {          
         verify_size = MIN(size, sizeof(read_buf));
         if (uartboot_read_memory(addr, read_buf, verify_size) != TRUE) 
-			return ERROR_UARTBOOT_READ; 
+      return ERROR_UARTBOOT_READ; 
         for(i=0; i< verify_size; i++)
         {
             if( data[i] != read_buf[i] ) 
@@ -414,7 +414,7 @@ static error_t uartboot_prog_verify_flash(uint32_t addr,  uint8_t *data, uint32_
                 *failed_data |= (read_buf[*failed_addr+1] << 8) ; 
                 *failed_data |= (read_buf[*failed_addr+2] << 16) ; 
                 *failed_data |= (read_buf[*failed_addr+3] << 24) ; 
-				return ERROR_SWD_VERIFY;              
+        return ERROR_SWD_VERIFY;              
             }
         } 
         addr += verify_size;
@@ -423,17 +423,17 @@ static error_t uartboot_prog_verify_flash(uint32_t addr,  uint8_t *data, uint32_
     return ERROR_SUCCESS;  
 }
 /*******************************************************************************
-*	函 数 名:  uartboot_target_program_config_all
-*	功能说明:  配置字编程
-*	形    参:  failed_addr  ： 编程失败地址
-*	返 回 值: 
+*  函 数 名:  uartboot_target_program_config_all
+*  功能说明:  配置字编程
+*  形    参:  failed_addr  ： 编程失败地址
+*  返 回 值: 
 *******************************************************************************/
 static error_t uartboot_target_program_config_all(uint32_t *failed_addr)
 {
     error_t ret = ERROR_SUCCESS;
         
-    uint32_t cfg_word_addr;	
-	uint32_t cfg_word_size;	 
+    uint32_t cfg_word_addr;  
+  uint32_t cfg_word_size;   
     
     uint32_t copy_size;
     uint32_t read_addr;
@@ -444,7 +444,7 @@ static error_t uartboot_target_program_config_all(uint32_t *failed_addr)
         return ret; 
         
     cfg_word_addr =  target_dev->config_word_start;
-	cfg_word_size =  target_dev->config_word_size;
+  cfg_word_size =  target_dev->config_word_size;
     read_addr =  0;
 
     while(true)
@@ -469,20 +469,20 @@ static error_t uartboot_target_program_config_all(uint32_t *failed_addr)
     return ERROR_SUCCESS;    
 }
 /*******************************************************************************
-*	函 数 名: uartboot_target_program_all
-*	功能说明: 编程  编程256k时间需要3分钟
-*	形    参:  
-*	返 回 值: 
+*  函 数 名: uartboot_target_program_all
+*  功能说明: 编程  编程256k时间需要3分钟
+*  形    参:  
+*  返 回 值: 
 *******************************************************************************/
 static error_t uartboot_target_program_all(  uint8_t sn_enable, serial_number_t *sn , uint32_t *failed_addr)
 {
     error_t ret = ERROR_SUCCESS;
     uint32_t i;
     
-    uint32_t code_addr;	
-	uint32_t code_size;	
-    uint32_t cfg_word_addr;	
-	uint32_t cfg_word_size;	   
+    uint32_t code_addr;  
+  uint32_t code_size;  
+    uint32_t cfg_word_addr;  
+  uint32_t cfg_word_size;     
     
     uint32_t copy_size;      
     uint32_t read_addr;
@@ -493,7 +493,7 @@ static error_t uartboot_target_program_all(  uint8_t sn_enable, serial_number_t 
         return ret; 
         
     code_addr =  target_dev->code_start;
-	code_size =  target_dev->code_size;
+  code_size =  target_dev->code_size;
     read_addr =  0; 
         
     while(true)
@@ -504,7 +504,7 @@ static error_t uartboot_target_program_all(  uint8_t sn_enable, serial_number_t 
         if(ERROR_SUCCESS != ret)
             return ret;
         if(sn_enable == ENABLE)     //序列号代码使能
-            serial_number_intercept_write(sn ,code_addr, read_buf, copy_size);	//填入序列号
+            serial_number_intercept_write(sn ,code_addr, read_buf, copy_size);  //填入序列号
         for(i=0; i<copy_size; i++)
         {
             if(read_buf[i] != 0xFF)
@@ -525,14 +525,14 @@ static error_t uartboot_target_program_all(  uint8_t sn_enable, serial_number_t 
             break;       
     }
     cfg_word_addr =  target_dev->config_word_start;
-	cfg_word_size =  target_dev->config_word_size;
+  cfg_word_size =  target_dev->config_word_size;
     read_addr =  0;
     while(true)
     {
         copy_size = MIN(cfg_word_size, sizeof(read_buf) );          
         ret = uartboot_prog_intf.cb(CFG_WORD, read_addr, read_buf , copy_size);
         if(ERROR_SUCCESS != ret)
-            return ret;     		
+            return ret;         
         ret = uartboot_prog_program_config(cfg_word_addr, read_buf, copy_size, failed_addr); 
         if( ret !=  ERROR_SUCCESS)
             return ret;             
@@ -547,11 +547,11 @@ static error_t uartboot_target_program_all(  uint8_t sn_enable, serial_number_t 
     return ret;     
 }
 /*******************************************************************************
-*	函 数 名: uartboot_target_verify_all
-*	功能说明: 芯片数据校验
-*	形    参: sn_enable：序列号是否使能  sn：序列号  failed_addr：错误地址 
+*  函 数 名: uartboot_target_verify_all
+*  功能说明: 芯片数据校验
+*  形    参: sn_enable：序列号是否使能  sn：序列号  failed_addr：错误地址 
 *             failed_data：错误数据
-*	返 回 值: 错误类型
+*  返 回 值: 错误类型
 *******************************************************************************/
 static error_t uartboot_target_verify_all( uint8_t sn_enable, serial_number_t *sn , uint32_t *failed_addr, uint32_t *failed_data)
 {
@@ -559,10 +559,10 @@ static error_t uartboot_target_verify_all( uint8_t sn_enable, serial_number_t *s
 
     uint32_t checksum = 0;  
     uint32_t sf_checksum = 0;   //spi保存的校验和         
-    uint32_t code_addr;	
-	uint32_t code_size;	
-    uint32_t cfg_word_addr;	
-	uint32_t cfg_word_size;	     
+    uint32_t code_addr;  
+  uint32_t code_size;  
+    uint32_t cfg_word_addr;  
+  uint32_t cfg_word_size;       
     uint32_t verify_size; 
     uint32_t sf_addr;  
     uint8_t sf_buf[BOOTISP_PRG_SIZE];     
@@ -572,7 +572,7 @@ static error_t uartboot_target_verify_all( uint8_t sn_enable, serial_number_t *s
         return ret; 
         
     code_addr =  target_dev->code_start;
-	code_size =  target_dev->code_size;
+  code_size =  target_dev->code_size;
     sf_addr = 0;
     while(true)
     {
@@ -583,7 +583,7 @@ static error_t uartboot_target_verify_all( uint8_t sn_enable, serial_number_t *s
             return ret; 
         checksum += check_sum(verify_size, sf_buf);     //计算原始数据校验和
         if( sn_enable == ENABLE)
-            serial_number_intercept_write(sn, code_addr, sf_buf, verify_size);	//填入序列号         
+            serial_number_intercept_write(sn, code_addr, sf_buf, verify_size);  //填入序列号         
         ret = uartboot_prog_verify_flash(code_addr, sf_buf, verify_size,failed_addr,failed_data);                        
         if( ret !=  ERROR_SUCCESS)
             return ret; 
@@ -603,7 +603,7 @@ static error_t uartboot_target_verify_all( uint8_t sn_enable, serial_number_t *s
     }         
     
     cfg_word_addr =  target_dev->config_word_start;
-	cfg_word_size =  target_dev->config_word_size;
+  cfg_word_size =  target_dev->config_word_size;
     sf_addr =  0;
     checksum = 0;
     while(true)

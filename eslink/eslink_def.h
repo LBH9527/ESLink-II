@@ -44,17 +44,17 @@ typedef struct{
  *  序列号代码
  */
 typedef struct {     
-    uint32_t addr;           	//序列号起始地址
-    uint32_t size;           	//序列号数据长度
-    uint8_t data[16];       		//序列号代码值
+    uint32_t addr;             //序列号起始地址
+    uint32_t size;             //序列号数据长度
+    uint8_t data[16];           //序列号代码值
 }serial_number_t;
 
 //编程协议帧接口
 typedef struct{
     uint32_t  frame_head;
     uint8_t   device_type;
-	uint8_t   fun_code ;
-	uint16_t  data_length;
+  uint8_t   fun_code ;
+  uint16_t  data_length;
     uint8_t   state;
     uint16_t  checksum;
     uint8_t *wrbuf;
@@ -65,9 +65,9 @@ typedef struct{
 //调试协议帧接口
 typedef struct{
     uint32_t  frame_head;           //帧头
-	uint16_t  data_length;          //数据长度（接收、发送）
+  uint16_t  data_length;          //数据长度（接收、发送）
     uint8_t   device_addr;          //设备地址
-	uint8_t   fun_code ;            //功能码                           
+  uint8_t   fun_code ;            //功能码                           
     
     uint8_t   device_state;         //设备状态
     uint16_t  checksum;             //校验和 

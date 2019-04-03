@@ -22,22 +22,33 @@ Dialog DLL:      TCM.DLL V1.36.1.0
  
 <h2>Project:</h2>
 D:\DAPLink_Workspace\eslink-ii\projects\eslinkii-link-32\project\eslink.uvprojx
-Project File Date:  03/15/2019
+Project File Date:  04/03/2019
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 6 (build 750)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'es_link_II'
+compiling usbd_user_cls.c...
+compiling offline_app.c...
+compiling main.c...
+compiling es_burner.c...
 compiling isp_prog_intf.c...
-..\source\es-isp\M620_ISP\./target_info.h(30): warning:  #1-D: last line of file ends without a newline
+..\source\es-isp\M621_ISP\./target_info.h(30): warning:  #1-D: last line of file ends without a newline
   #endif
-..\source\es-isp\M620_ISP\isp_prog_intf.c: 1 warning, 0 errors
+..\source\es-isp\M621_ISP\isp_prog_intf.c(93): warning:  #177-D: function "isp_out_mode"  was declared but never referenced
+  static error_t isp_out_mode(void)
+..\source\es-isp\M621_ISP\isp_prog_intf.c: 2 warnings, 0 errors
+compiling M621_ISP.c...
+..\source\es-isp\M621_ISP\./target_info.h(30): warning:  #1-D: last line of file ends without a newline
+  #endif
+..\source\es-isp\M621_ISP\M621_ISP.c: 1 warning, 0 errors
+compiling usbd_user_cdc_acm.c...
 linking...
-Program Size: Code=46284 RO-data=7764 RW-data=668 ZI-data=16580  
+Program Size: Code=46320 RO-data=7820 RW-data=676 ZI-data=16576  
 FromELF: creating hex file...
 After Build - User command #1: .\CopyHex_Flash.bat
 D:\DAPLink_Workspace\eslink-ii\projects\eslinkii-link-32\project>copy Objects\output.hex ..\..\ES8PXXX 
 已复制         1 个文件。
-".\Objects\output.axf" - 0 Error(s), 1 Warning(s).
+".\Objects\output.axf" - 0 Error(s), 3 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -51,7 +62,7 @@ Package Vendor: NXP
   C:\Keil_v5\ARM\PACK\NXP\MK22F12810_DFP\11.0.0
 
 <h2>Collection of Component Files used:</h2>
-Build Time Elapsed:  00:00:04
+Build Time Elapsed:  00:00:06
 </pre>
 </body>
 </html>

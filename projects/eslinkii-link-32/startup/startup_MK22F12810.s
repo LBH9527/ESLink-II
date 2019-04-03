@@ -59,7 +59,7 @@ __Vectors       DCD     |Image$$ARM_LIB_STACK$$ZI$$Limit| ; Top of Stack
                 DCD     BusFault_Handler                    ;Bus Fault Handler
                 DCD     UsageFault_Handler                  ;Usage Fault Handler
                 DCD     0                                   ;Reserved
-                DCD     0				            		;
+                DCD     0                        ;
                 DCD     0                                   ;Reserved
                 DCD     0                                   ;Reserved
                 DCD     SVC_Handler                         ;SVCall Handler

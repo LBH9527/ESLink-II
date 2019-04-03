@@ -93,9 +93,9 @@ typedef enum {
     ERROR_UARTBOOT_CHECK_EMPTY = 0x73,           //bootisp查空失败     
     ERROR_UARTBOOT_PROG      = 0x74,             //bootisp编程失败
     ERROR_UARTBOOT_PROG_CFG_WORD = 0x75,         //bootisp编程失败
-    ERROR_UARTBOOT_READ     	= 0x76,            	//bootisp写失败
-	ERROR_UARTBOOT_ENCRYPT 	= 0x77,				//bootisp加密失败
-	ERROR_UARTBOOT_VERIFY	= 0x78,		        //bootisp校验失败
+    ERROR_UARTBOOT_READ       = 0x76,              //bootisp写失败
+  ERROR_UARTBOOT_ENCRYPT   = 0x77,        //bootisp加密失败
+  ERROR_UARTBOOT_VERIFY  = 0x78,            //bootisp校验失败
     
     //脱机
     ERROR_PROG_INTF = 0x80,                     //烧录接口设置错误  
@@ -122,9 +122,9 @@ typedef enum {
     ERR_FRAME_HEAD = 0xA0,
     ERR_DEVICE_TYPE  = 0xA1,
     FUN_ERROR = 0xA2   ,
-    ERR_CHECKSUM  =	0xA3    ,
+    ERR_CHECKSUM  =  0xA3    ,
     BUSY_ERROR = 0xA4     ,
-    ERR_CHIP_INFO =	0xA5 ,      //芯片信息错误
+    ERR_CHIP_INFO =  0xA5 ,      //芯片信息错误
     SCHEDULE_CHECKSUM_ERROR  =  0xA6 ,
     SEND_DATE_ADDR_ERROR  = 0xA7,
     SEND_DATE_LENTH_ERROR  =  0xA8,

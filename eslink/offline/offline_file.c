@@ -1,11 +1,11 @@
 /*******************************************************************************
 *
-*	模块名称 : 
-*	文件名称 : main.c
-*	版    本 : V1.0
-*	说    明 :   任务设置：
-*	修改记录 :
-*	版本号    日期         作者        说明
+*  模块名称 : 
+*  文件名称 : main.c
+*  版    本 : V1.0
+*  说    明 :   任务设置：
+*  修改记录 :
+*  版本号    日期         作者        说明
 *
 *
 *******************************************************************************/
@@ -44,7 +44,7 @@ static uint8_t file_mount(void)
         res = f_mkfs("0:",0,0);
         if(res ==  FR_OK)
         {
-            res = f_mount(0,"0:",0);	    //取消挂载				
+            res = f_mount(0,"0:",0);      //取消挂载        
             res = f_mount(&FatFs,"0:",1);    //挂载文件
         }
         else
@@ -111,7 +111,7 @@ static uint8_t file_write( const uint8_t *buf, uint32_t size)
     }    
 //    fpos = ftell (file_handle);    
     result = f_write(&file_handle, buf , size, &bw);
-	if (result != FR_OK) 
+  if (result != FR_OK) 
     {
         f_close(&file_handle); 
         return FALSE;
@@ -171,25 +171,25 @@ static uint8_t file_find(void)
 //    uint8_t cnt = 0;
     char *fn ;
     FileInf.lfname = lfname;
-	FileInf.lfsize = sizeof(lfname);      
+  FileInf.lfsize = sizeof(lfname);      
     
-	result = f_opendir(&DirInf, "/"); 
-	if (result != FR_OK)
+  result = f_opendir(&DirInf, "/"); 
+  if (result != FR_OK)
     {
         f_close(&file_handle); 
         return FALSE;  
     }
     for(;;)
     {
-         result = f_readdir(&DirInf,&FileInf); 		    /* Read a directory item */
-		if (result != FR_OK || FileInf.fname[0] == 0)   /* Break on error or end of dir */
-		{
-			break;
-		}
+         result = f_readdir(&DirInf,&FileInf);         /* Read a directory item */
+    if (result != FR_OK || FileInf.fname[0] == 0)   /* Break on error or end of dir */
+    {
+      break;
+    }
         if (FileInf.fname[0] == '.')                    /* Ignore dot entry */
-		{
-			continue;
-		}
+    {
+      continue;
+    }
         fn = *FileInf.lfname ? FileInf.lfname : FileInf.fname;
 
         if(! (FileInf.fattrib & AM_DIR) )
@@ -460,7 +460,7 @@ error_t ofl_file_save_partition(void)
         return ERROR_FS_WRITE;
     }     
     result = f_write(&file_handle, (uint8_t*)&file_partition , OFL_PRJ_PARTITION_LEN, &bw);
-	if (result != FR_OK) 
+  if (result != FR_OK) 
     {
         f_close(&file_handle); 
         return ERROR_FS_WRITE;
@@ -514,7 +514,7 @@ error_t ofl_file_lseek_write(char *path, uint32_t addr, uint8_t *buf, uint32_t s
         return ERROR_FS_WRITE;
     }     
     result = f_write(&fd, buf , size, &bw);
-	if (result != FR_OK) 
+  if (result != FR_OK) 
     {
         f_close(&fd); 
         return ERROR_FS_WRITE;
@@ -538,7 +538,7 @@ error_t ofl_file_lseek_write(char *path, uint32_t addr, uint8_t *buf, uint32_t s
 error_t ofl_file_get_free(void)
 {
     FATFS *fs;
-    FRESULT res;        
+    FRESULT res;
     DWORD fre_clust, fre_sect;
     if(eslink_type != ESLINK_PLUS_TYPE)
         return ERROR_OFL_TYPE;

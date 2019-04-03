@@ -7,8 +7,8 @@
 /*
 *   开关全局中断
 */
-#define ENABLE_INT()	__set_PRIMASK(0)	/* ?????? */
-#define DISABLE_INT()	__set_PRIMASK(1)	/* ?????? */
+#define ENABLE_INT()  __set_PRIMASK(0)  /* ?????? */
+#define DISABLE_INT()  __set_PRIMASK(1)  /* ?????? */
 /**
  * \brief 关闭本地CPU中断
  *

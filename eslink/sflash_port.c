@@ -40,10 +40,10 @@ static error_t get_sflash_addr(uint8_t type, uint32_t *addr)
     return ERROR_SUCCESS;
 }
 /*******************************************************************************
-*	函 数 名: online_file_erase
-*	功能说明: 擦除
-*	形    参: type：擦除数据类型   size：擦除长度
-*	返 回 值: 无
+*  函 数 名: online_file_erase
+*  功能说明: 擦除
+*  形    参: type：擦除数据类型   size：擦除长度
+*  返 回 值: 无
 *******************************************************************************/
 error_t online_file_erase(uint8_t type, uint32_t size )
 {
@@ -71,10 +71,10 @@ error_t online_file_erase(uint8_t type, uint32_t size )
 }
 
 /*******************************************************************************
-*	函 数 名: online_file_write
-*	功能说明: spi 写
-*	形    参: type：数据类型   addr：写入地址 buf：数据 size：长度
-*	返 回 值: 无
+*  函 数 名: online_file_write
+*  功能说明: spi 写
+*  形    参: type：数据类型   addr：写入地址 buf：数据 size：长度
+*  返 回 值: 无
 *******************************************************************************/
 error_t online_file_write(uint8_t type, uint32_t addr, const uint8_t *buf, uint32_t size )
 {

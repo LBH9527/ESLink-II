@@ -141,13 +141,13 @@ void rtc_pwm_out(uint8_t mode)
 static uint32_t abs(uint32_t x1, uint32_t x2)
 {
     if (x1 >= x2)
-	{
-		return(x1 - x2);
-	}
-	else
-	{
-		return(x2 - x1);
-	}  
+  {
+    return(x1 - x2);
+  }
+  else
+  {
+    return(x2 - x1);
+  }  
 }
 
 //rtc调校开始

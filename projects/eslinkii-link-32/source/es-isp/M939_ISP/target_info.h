@@ -16,24 +16,21 @@ struct info_part_map
 //2.CHIP INFO的信息需要根据芯片的xml文件来确认 
 #define CHIP_CFG_GBRDP_OFFSET       120  
 #define CHIP_INFO_PART1_ADDR        0x400
-#define CHIP_INFO_PART1_SIZE        14              //字
+#define CHIP_INFO_PART1_SIZE        56    //14---->56         
 
 #define CHIP_INFO_PART2_ADDR        0x7C0
-#define CHIP_INFO_PART2_SIZE        24              //字
+#define CHIP_INFO_PART2_SIZE        96    //24--->96        
 
 //RTC INFO 地址
 #define CHIP_RTC_INFO_ADDR          0x1000    
-#define CHIP_RTC_INFO_SIZE          16              //16个字长
-#define CHIP_RTC_INFO_OFFSET        38              //rtcinfo 在配置字中的偏移量
+#define CHIP_RTC_INFO_SIZE          64    //16---->64         //16个字长
+#define CHIP_RTC_INFO_OFFSET        152   //38---->152              //rtcinfo 在配置字中的偏移量
 
 
 static const struct info_part_map info_part_map[] =
 {
     {CHIP_INFO_PART1_ADDR, CHIP_INFO_PART1_SIZE},
     {CHIP_INFO_PART2_ADDR, CHIP_INFO_PART2_SIZE},
-#if ESLINK_RTC_ENABLE   
-    {CHIP_RTC_INFO_ADDR, CHIP_RTC_INFO_SIZE},
-#endif
 };  
  
 

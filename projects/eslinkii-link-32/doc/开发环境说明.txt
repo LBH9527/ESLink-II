@@ -8,13 +8,13 @@
 
 
 【3】外部器件
-1、SPI Flash	IC:	MX25L6406	
-	容量：64Mb=8Mbyte ,   Addr Ranger  0x000000---0x7FFFFF
-	8M容量分为128个块（Block） block = 64K	
-	每个Block 有 16个扇区（sector） sector = 4K
-	8M = 128 * 64K = 128 * 16 * 4K
-					
-			
+1、SPI Flash  IC:  MX25L6406  
+  容量：64Mb=8Mbyte ,   Addr Ranger  0x000000---0x7FFFFF
+  8M容量分为128个块（Block） block = 64K  
+  每个Block 有 16个扇区（sector） sector = 4K
+  8M = 128 * 64K = 128 * 16 * 4K
+          
+      
 
 
 【5】GPIO分配表
@@ -26,13 +26,13 @@
 【6】FatFs移植记录
 
 1、FF_USE_MKFS = 1
-2、扇区大小	
-	#define FF_MIN_SS		4096
-	#define FF_MAX_SS		4096
-	
-	
-	
-	
+2、扇区大小  
+  #define FF_MIN_SS    4096
+  #define FF_MAX_SS    4096
+  
+  
+  
+  
 LED黄灯：设备忙
 LED绿灯：pass
 LED红灯：ERROR

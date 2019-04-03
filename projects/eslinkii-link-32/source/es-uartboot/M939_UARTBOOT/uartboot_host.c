@@ -11,20 +11,20 @@ static void uartboot_delay(uint32_t n)
 //异或校验
 static uint8_t check_xor(uint8_t *data, uint8_t size)
 {
-	uint8_t Xor = 0;
+  uint8_t Xor = 0;
     uint8_t i;
     
-	if (size == 1)
-	{
-		Xor = data[0] ^ 0xff;
-		return  Xor;
-	}
-	for ( i = 0; i < size; i++)
-	{
-		Xor ^= data[i];
-	}
+  if (size == 1)
+  {
+    Xor = data[0] ^ 0xff;
+    return  Xor;
+  }
+  for ( i = 0; i < size; i++)
+  {
+    Xor ^= data[i];
+  }
     
-	return Xor;
+  return Xor;
 }
 
  
@@ -175,7 +175,7 @@ uint8_t uartboot_check_empty(uint32_t addr, uint32_t size)
     wr_buf[0] = (addr & 0xff000000) >> 24;
     wr_buf[1] = (addr & 0x00ff0000) >> 16;
     wr_buf[2] = (addr & 0x0000ff00) >> 8;
-	wr_buf[3] = (addr & 0x000000ff);
+  wr_buf[3] = (addr & 0x000000ff);
     if(write_data_oxr(wr_buf, 4) != TRUE)
         return FALSE;  
     //check ack
@@ -186,7 +186,7 @@ uint8_t uartboot_check_empty(uint32_t addr, uint32_t size)
     wr_buf[0] = ((size-1) & 0xff000000) >> 24;
     wr_buf[1] = ((size-1) & 0x00ff0000) >> 16;
     wr_buf[2] = ((size-1) & 0x0000ff00) >> 8;
-	wr_buf[3] = ((size-1) & 0x000000ff);
+  wr_buf[3] = ((size-1) & 0x000000ff);
     if(write_data_oxr(wr_buf, 4) != TRUE)
         return FALSE;  
     //check ack
@@ -213,14 +213,14 @@ static uint8_t uartboot_read_block(uint32_t addr, uint8_t *data, uint32_t size)
     wr_buf[0] = (addr & 0xff000000) >> 24;
     wr_buf[1] = (addr & 0x00ff0000) >> 16;
     wr_buf[2] = (addr & 0x0000ff00) >> 8;
-	wr_buf[3] = (addr & 0x000000ff);
+  wr_buf[3] = (addr & 0x000000ff);
     if(write_data_oxr(wr_buf, 4) != TRUE)
         return FALSE;   
     //check ack
     if(read_cmd_and_check(BOOTISP_ACK, BOOTISP_DEFAULT_TIME) != TRUE)  
         return FALSE; 
     //read size
-    wr_buf[0] = size - 1; //发送的数据为实际接收数据长度 -1  	    
+    wr_buf[0] = size - 1; //发送的数据为实际接收数据长度 -1        
     if(write_data_oxr(wr_buf, 1) != TRUE)//需要接收数据长度  第一个字节为ACK后面紧接着为数据
         return FALSE;  
     //check ack
@@ -234,16 +234,16 @@ static uint8_t uartboot_read_block(uint32_t addr, uint8_t *data, uint32_t size)
 }
 static uint8_t uartboot_read_block_retry(uint32_t addr, uint8_t *data, uint32_t size)
 {
-	uint8_t i;
-	
-	for (i = 0; i < 3; i++) 
-	{
-		if ( uartboot_read_block(addr, data, size) != FALSE) 
-			break;
-	}
+  uint8_t i;
+  
+  for (i = 0; i < 3; i++) 
+  {
+    if ( uartboot_read_block(addr, data, size) != FALSE) 
+      break;
+  }
     if(i >= 3)
-		return FALSE;
-	return TRUE;
+    return FALSE;
+  return TRUE;
 }
 uint8_t uartboot_read_memory(uint32_t addr, uint8_t *data, uint32_t size)
 {
@@ -288,7 +288,7 @@ static uint8_t uartboot_write_block(uint32_t addr,  uint8_t *data, uint32_t size
     addr_buf[0] = (addr & 0xff000000) >> 24;
     addr_buf[1] = (addr & 0x00ff0000) >> 16;
     addr_buf[2] = (addr & 0x0000ff00) >> 8;
-	addr_buf[3] = (addr & 0x000000ff);  
+  addr_buf[3] = (addr & 0x000000ff);  
     if(write_data_oxr(addr_buf, 4) != TRUE)
         return FALSE;  
      //check ack
@@ -308,16 +308,16 @@ static uint8_t uartboot_write_block(uint32_t addr,  uint8_t *data, uint32_t size
 
 uint8_t uartboot_write_block_retry(uint32_t addr,  uint8_t *data, uint32_t size)  
 {
-	uint8_t i;
-	
-	for (i = 0; i < 3; i++) 
-	{
-		if ( uartboot_write_block(addr, data, size) != FALSE) 
-			break;
-	}
+  uint8_t i;
+  
+  for (i = 0; i < 3; i++) 
+  {
+    if ( uartboot_write_block(addr, data, size) != FALSE) 
+      break;
+  }
     if(i >= 3)
-		return FALSE;
-	return TRUE;
+    return FALSE;
+  return TRUE;
 
 }
 uint8_t uartboot_write_memory(uint32_t addr,  uint8_t *data, uint32_t size)
@@ -357,7 +357,7 @@ static uint8_t uartboot_get_crc32_cmd(uint32_t addr, uint32_t size, uint32_t *cr
     wr_buf[0] = (addr & 0xff000000) >> 24;
     wr_buf[1] = (addr & 0x00ff0000) >> 16;
     wr_buf[2] = (addr & 0x0000ff00) >> 8;
-	wr_buf[3] = (addr & 0x000000ff);
+  wr_buf[3] = (addr & 0x000000ff);
     if(write_data_oxr(wr_buf, 4) != TRUE)
         return FALSE; 
     //check ack
@@ -368,7 +368,7 @@ static uint8_t uartboot_get_crc32_cmd(uint32_t addr, uint32_t size, uint32_t *cr
     wr_buf[0] = (size & 0xff000000) >> 24;
     wr_buf[1] = (size & 0x00ff0000) >> 16;
     wr_buf[2] = (size & 0x0000ff00) >> 8;
-	wr_buf[3] = (size & 0x000000ff);
+  wr_buf[3] = (size & 0x000000ff);
 
     if(write_data_oxr(wr_buf, 4) != TRUE)
         return FALSE; 
@@ -393,7 +393,7 @@ uint8_t uartboot_go_cmd(uint32_t addr)
     wr_buf[0] = (addr & 0xff000000) >> 24;
     wr_buf[1] = (addr & 0x00ff0000) >> 16;
     wr_buf[2] = (addr & 0x0000ff00) >> 8;
-	wr_buf[3] = (addr & 0x000000ff);
+  wr_buf[3] = (addr & 0x000000ff);
     
     if(write_data_oxr(wr_buf, 4) != TRUE)
         return FALSE;  

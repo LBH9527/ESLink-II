@@ -33,12 +33,12 @@ typedef enum {
 
 typedef struct
 {
-	uint32_t chip_id;		/* 芯片ID */
-	char ChipName[16];		/* 芯片型号字符串，主要用于显示 */
-	uint32_t capacity;		/* 总容量 */
-    uint32_t block_size;			/* The Block size in the flash */
-	uint32_t block_start;		/* The start of available block*/
-	uint32_t block_end;			/* The end of available block */
+  uint32_t chip_id;    /* 芯片ID */
+  char ChipName[16];    /* 芯片型号字符串，主要用于显示 */
+  uint32_t capacity;    /* 总容量 */
+    uint32_t block_size;      /* The Block size in the flash */
+  uint32_t block_start;    /* The start of available block*/
+  uint32_t block_end;      /* The end of available block */
 }SPI_FLASH_t;
 
 //extern SPI_FLASH_t g_flash;

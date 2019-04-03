@@ -25,9 +25,9 @@
 static es_target_cfg es_target_device;      //目标芯片信息
 static struct es_prog_ops *online_prog_intf;
 typedef enum {
-    STATE_DISABLE,	//失能
-	STATE_DL,		//序列号下载完成
-    STATE_WRITE,	//序列号写入完成  
+    STATE_DISABLE,  //失能
+  STATE_DL,    //序列号下载完成
+    STATE_WRITE,  //序列号写入完成  
 } sn_state_t;
 //static sn_state_t sn_state = STATE_DISABLE;
 static serial_number_t prog_sn ;       //序列号
@@ -49,10 +49,10 @@ static void int2array(uint32_t *data, uint8_t len, uint8_t *res ) {
 } 
 
 /*******************************************************************************
-*	函 数 名: es_prog_set_intf
-*	功能说明: 编程接口设置
-*	形    参: type 编程接口类型
-*	返 回 值: error
+*  函 数 名: es_prog_set_intf
+*  功能说明: 编程接口设置
+*  形    参: type 编程接口类型
+*  返 回 值: error
 *******************************************************************************/
 error_t es_prog_set_intf(prog_intf_type_t type)
 {
@@ -119,17 +119,17 @@ static error_t es_prog_get_intf(uint8_t *data)
  */
 static error_t serial_number_download(uint8_t *data)
 {
-	uint8_t i;
-	uint8_t len ;
+  uint8_t i;
+  uint8_t len ;
     len = sizeof(serial_number_t) ;
     
     //TODO:判断序列号合法性。
-	for(i = 0; i< len; i++)
+  for(i = 0; i< len; i++)
     {
-		 *((uint8_t*)&prog_sn + i) =  *(data++);
-	}
-//	prog_sn.addr = prog_sn.addr * 4;	//上位机下发的地址是除以4后的地址。还原为实际地址
-	return ERROR_SUCCESS;
+     *((uint8_t*)&prog_sn + i) =  *(data++);
+  }
+//  prog_sn.addr = prog_sn.addr * 4;  //上位机下发的地址是除以4后的地址。还原为实际地址
+  return ERROR_SUCCESS;
 }
 
 
@@ -373,10 +373,10 @@ static error_t es_download_prg_intf(const uint8_t *buf)
     return ret;
 } 
 /*******************************************************************************
-*	函 数 名: es_erase_chip
-*	功能说明: 芯片擦除
-*	形    参: 擦除模式
-*	返 回 值: 无
+*  函 数 名: es_erase_chip
+*  功能说明: 芯片擦除
+*  形    参: 擦除模式
+*  返 回 值: 无
 *******************************************************************************/
 error_t es_erase_chip(uint8_t *data)
 {
@@ -400,10 +400,10 @@ fail:
     return ret;
 }
 /*******************************************************************************
-*	函 数 名: es_check_empty
-*	功能说明: 芯片查空。 查空flash 和配置字
-*	形    参: 查空失败的地址和数据
-*	返 回 值: 无
+*  函 数 名: es_check_empty
+*  功能说明: 芯片查空。 查空flash 和配置字
+*  形    参: 查空失败的地址和数据
+*  返 回 值: 无
 *******************************************************************************/
 error_t es_check_empty(uint8_t *data)
 {
@@ -429,10 +429,10 @@ fail:
     return ret;
 }  
 /*******************************************************************************
-*	函 数 名: es_program_flash
-*	功能说明: 芯片编程。flash和配置字编程
-*	形    参: 编程错误地址 
-*	返 回 值: 无
+*  函 数 名: es_program_flash
+*  功能说明: 芯片编程。flash和配置字编程
+*  形    参: 编程错误地址 
+*  返 回 值: 无
 *******************************************************************************/
 error_t es_program_flash(uint8_t sn_enable, uint8_t *data)
 {
@@ -458,10 +458,10 @@ fail:
     
 }
 /*******************************************************************************
-*	函 数 名: es_program_verify
-*	功能说明: 芯片校验 ，读出芯片中的flash和配置字并计算累加和，与spi flash保存的累加和作比较
-*	形    参: 校验错误地址 和数据
-*	返 回 值: 无
+*  函 数 名: es_program_verify
+*  功能说明: 芯片校验 ，读出芯片中的flash和配置字并计算累加和，与spi flash保存的累加和作比较
+*  形    参: 校验错误地址 和数据
+*  返 回 值: 无
 *******************************************************************************/
 error_t es_program_verify(uint8_t sn_enable,uint8_t *data)
 {
@@ -489,10 +489,10 @@ fail:
     return ret;
 }
 /*******************************************************************************
-*	函 数 名: es_program_encrypt
-*	功能说明: 加密
-*	形    参: NONE
-*	返 回 值: error_t
+*  函 数 名: es_program_encrypt
+*  功能说明: 加密
+*  形    参: NONE
+*  返 回 值: error_t
 *******************************************************************************/
 error_t es_program_encrypt(void)
 {
@@ -513,10 +513,10 @@ fail:
     return ret;
 }
 /*******************************************************************************
-*	函 数 名: es_read_flash
-*	功能说明: 读目标芯片flash数据
-*	形    参: 读出的数据
-*	返 回 值: error_t
+*  函 数 名: es_read_flash
+*  功能说明: 读目标芯片flash数据
+*  形    参: 读出的数据
+*  返 回 值: error_t
 *******************************************************************************/
 static error_t es_read_flash(uint8_t *wrbuf, uint8_t *rdbuf, uint16_t *read_size)
 {
@@ -563,10 +563,10 @@ fail:
 
 }
 /*******************************************************************************
-*	函 数 名: es_program_config_word
-*	功能说明: 配置字编程
-*	形    参: data: 编程错误地址 
-*	返 回 值: error_t
+*  函 数 名: es_program_config_word
+*  功能说明: 配置字编程
+*  形    参: data: 编程错误地址 
+*  返 回 值: error_t
 *******************************************************************************/
 static error_t es_program_config_word(uint8_t *data)
 {
@@ -1040,8 +1040,8 @@ static error_t download_ofl_prj_end(uint8_t *data)
     //保存分区信息
     ret = ofl_file_save_partition();
    //更新脱机方案
-	ret =  get_all_ofl_file() ;
-	return ret;
+  ret =  get_all_ofl_file() ;
+  return ret;
 }
 
 #if ESLINK_RTC_ENABLE
@@ -1212,7 +1212,7 @@ uint32_t prog_process_command(uint8_t *request, uint8_t *response)
             else
                 prog_data.data_length = 4;
             break;
-        case ID_FULL_ERASE:	                            //0x20
+        case ID_FULL_ERASE:                              //0x20
             result = es_erase_chip(&prog_data.wrbuf[PROG_DATA_OFFSET]);  
             prog_data.data_length = 0;
             break;  
@@ -1267,7 +1267,7 @@ uint32_t prog_process_command(uint8_t *request, uint8_t *response)
             prog_data.data_length = 4;
             break;
         case ID_DL_SERIALNUM:                           //下载序列号代码
-			result = serial_number_download (&prog_data.wrbuf[PROG_DATA_OFFSET]);           
+      result = serial_number_download (&prog_data.wrbuf[PROG_DATA_OFFSET]);           
             prog_data.data_length = 0;
             break;           
                    
@@ -1316,10 +1316,10 @@ uint32_t prog_process_command(uint8_t *request, uint8_t *response)
             prog_data.data_length = 0;
             break; 
         
-		case ID_DL_OFFLINE_END:							//脱机方案下载完成
-			result = download_ofl_prj_end(&prog_data.wrbuf[PROG_DATA_OFFSET]);
-		    prog_data.data_length = 0; 
-			break;
+    case ID_DL_OFFLINE_END:              //脱机方案下载完成
+      result = download_ofl_prj_end(&prog_data.wrbuf[PROG_DATA_OFFSET]);
+        prog_data.data_length = 0; 
+      break;
 #if ESLINK_RTC_ENABLE
         case ID_RTC_START_SELF_CALIBRATE:               //启动RTC自校正
             rtc_out_mode(ENABLE);
@@ -1379,150 +1379,17 @@ uint32_t prog_process_command(uint8_t *request, uint8_t *response)
 }  
 
 /*******************************************************************************
-*	函 数 名: es_burner_init
-*	功能说明: 
-*	形    参: 无
-*	返 回 值: 无
+*  函 数 名: es_burner_init
+*  功能说明: 
+*  形    参: 无
+*  返 回 值: 无
 *******************************************************************************/
 error_t es_burner_init(void)
 {    
     error_t ret;
-	get_target_info((uint8_t*)&es_target_device);       //获取目标芯片信息
-	ret = es_prog_set_intf(ESLINK_ONLINE_DEFAULT_INTF); //上电后默认是ISP编程
-	ISP_SETUP();
+  get_target_info((uint8_t*)&es_target_device);       //获取目标芯片信息
+  ret = es_prog_set_intf(ESLINK_ONLINE_DEFAULT_INTF); //上电后默认是ISP编程
+  ISP_SETUP();
     return ret;       
 }
 
-
- 
-                                 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 

@@ -76,11 +76,11 @@ static uint8_t isp_read_write(uint8_t op_code, uint32_t *data, uint8_t mode)
     PIN_DELAY(1);      
           
     /* op code */          
-	for (n = 7U; n; n--) 
+  for (n = 7U; n; n--) 
     {             
         ISP_WRITE_BIT(op_code);
         op_code >>= 1;
-	}     
+  }     
    
     /* Turnaround */ 
     PIN_ISPSDA_OUT_DISABLE();

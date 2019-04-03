@@ -486,11 +486,6 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\bsp\beep.c</FilePath>
             </File>
-            <File>
-              <FileName>adc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\bsp\adc.c</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>
@@ -579,17 +574,12 @@
             <File>
               <FileName>isp_prog_intf.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\source\es-isp\M620_ISP\isp_prog_intf.c</FilePath>
+              <FilePath>..\source\es-isp\M621_ISP\isp_prog_intf.c</FilePath>
             </File>
             <File>
-              <FileName>M620_ISP.c</FileName>
+              <FileName>M621_ISP.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\source\es-isp\M620_ISP\M620_ISP.c</FilePath>
-            </File>
-            <File>
-              <FileName>target_info.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\source\es-isp\M620_ISP\target_info.h</FilePath>
+              <FilePath>..\source\es-isp\M621_ISP\M621_ISP.c</FilePath>
             </File>
           </Files>
         </Group>

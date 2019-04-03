@@ -3,8 +3,8 @@
 
 
 typedef struct list_node {
-	struct list_node	*next;          //point to next node
-	struct list_node	*prev;          //point to prev node
+  struct list_node  *next;          //point to next node
+  struct list_node  *prev;          //point to prev node
 } list_node;
 typedef struct list_node list_t;                  /**< Type for lists. */
 

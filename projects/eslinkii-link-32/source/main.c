@@ -1,16 +1,16 @@
 /*******************************************************************************
 *
-*	模块名称 : 主程序模块
-*	文件名称 : main.c
-*	版    本 : V1.0
-*	说    明 :   任务设置：
+*  模块名称 : 主程序模块
+*  文件名称 : main.c
+*  版    本 : V1.0
+*  说    明 :   任务设置：
 *                1. os_idle_demon，   优先级0: 系统空闲任务。
 *                2. 按键任务
-*	修改记录 :
-*		版本号    日期         作者        说明
+*  修改记录 :
+*    版本号    日期         作者        说明
 *
 *
-*******************************************************************************/	
+*******************************************************************************/  
 #include "fsl_device_registers.h"       
 #include "board.h" 
 #include "clock_config.h" 
@@ -41,7 +41,7 @@
 #include "rtc_calibrate.h"
 
 /*******************************************************************************
-								变量
+                变量
 *******************************************************************************/  
 uint32_t  task_flags = 0;
 /* 事件标志 */
@@ -56,7 +56,7 @@ uint32_t  task_flags = 0;
           
 #define FLAGS_USB_HANDLER           (1 << 15)       
 ///*******************************************************************************
-//							函数声明
+//              函数声明
 //*******************************************************************************/
 void oline_app(void);
 void ofl_app(void);
@@ -101,7 +101,7 @@ uint8_t rtc_out_mode(uint8_t enable)
 #endif
 
 int main (void) 
-{	
+{  
     SCB->VTOR = SCB_VTOR_TBLOFF_Msk & ESLINK_ROM_LINK_START;    
     /* Init board hardware. */
     BOARD_InitPins();
@@ -124,7 +124,7 @@ int main (void)
         oled_init(); 
         bsp_init_systick();
         fm24cxx_init(); 
-        gui_msg_init();   	
+        gui_msg_init();     
         if(eslink_is_offline_mode() != TRUE)
         {   
             oline_app();        
@@ -314,7 +314,7 @@ void main_10ms_task(void)
 {
     static uint8_t count = 0;
     /* 按键扫描 */
-	key_scan();
+  key_scan();
     // 蜂鸣器扫描
     beep_scan();
     if (!(count++ % 10))        //100ms刷新 oled

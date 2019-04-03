@@ -403,68 +403,68 @@ static error_t isp_prog_erase_chip (uint8_t  para)
         return ret;  
         
     if(isp_erase_code(isp_target_dev->code_start, isp_target_dev->code_size) != TRUE)
-		return ERROR_ISP_ERASE;   
+    return ERROR_ISP_ERASE;   
 
     //擦除info7
     if(isp_erase_info7() != TRUE)
-		return ERROR_ISP_ERASE;
+    return ERROR_ISP_ERASE;
          
     return ERROR_SUCCESS;
 }
 
 
 /*******************************************************************************
-*	函 数 名: isp_prog_check_empty
-*	功能说明: 查空
-*	形    参: failed_addr：错误地址  failed_data：错误数据
-*	返 回 值: 错误类型
+*  函 数 名: isp_prog_check_empty
+*  功能说明: 查空
+*  形    参: failed_addr：错误地址  failed_data：错误数据
+*  返 回 值: 错误类型
 *******************************************************************************/
 error_t isp_prog_check_empty(uint32_t *failed_addr, uint32_t *failed_data)           
 {
     error_t ret = ERROR_SUCCESS;
     uint32_t i;
-	uint32_t code_addr;	
-	uint32_t code_size;	
-    uint32_t cfg_word_addr;	
-	uint32_t cfg_word_size;	
+  uint32_t code_addr;  
+  uint32_t code_size;  
+    uint32_t cfg_word_addr;  
+  uint32_t cfg_word_size;  
     
     uint8_t read_buf[ISP_READ_MAX_SIZE]; 
-	uint32_t copy_size; 
+  uint32_t copy_size; 
     
     ret = isp_chipid_check();
     if(ERROR_SUCCESS != ret)
         return ret; 
         
-	code_addr =  isp_target_dev->code_start;
-	code_size =  isp_target_dev->code_size ; //64K bytes
-	while(true)
-	{
-		copy_size = MIN(code_size, sizeof(read_buf) );      
-	    isp_read_code(code_addr, read_buf, copy_size);
-		for(i = 0; i<copy_size; i++)
-		{
-			if(read_buf[i] != 0xFF)
-			{    
-                if(failed_addr)
-                    *failed_addr = code_addr + i  ;
-                if( failed_data)
-                    *failed_data = read_buf[i] ; 
-				return ERROR_ISP_FLASH_CHECK_EMPTY;
-			} 				
-		} 
-        // Update variables
-        code_addr  += copy_size*4;
-        code_size  -= copy_size*4;
-        
-        // Check for end
-        if (code_size <= 0) {
-            break;
-        } 
-	}  
+  code_addr =  isp_target_dev->code_start;
+  code_size =  isp_target_dev->code_size ; //64K bytes
+  while(true)
+  {
+    copy_size = MIN(code_size, sizeof(read_buf) );      
+    isp_read_code(code_addr, read_buf, copy_size);
+    for(i = 0; i<copy_size; i++)
+    {
+      if(read_buf[i] != 0xFF)
+      {    
+        if(failed_addr)
+            *failed_addr = code_addr + i  ;
+        if( failed_data)
+            *failed_data = read_buf[i] ; 
+        return ERROR_ISP_FLASH_CHECK_EMPTY;
+      }         
+    } 
+      // Update variables
+      code_addr  += copy_size;
+      code_size  -= copy_size;
+      
+      // Check for end
+      if (code_size <= 0) {
+          break;
+      } 
+  }  
 
     //配置字查空
-	cfg_word_addr = CHIP_INFO_PART2_ADDR;
-	cfg_word_size = CHIP_INFO_PART2_SIZE + CHIP_INFO_PART3_SIZE;     //字长度
+  cfg_word_addr = CHIP_INFO_PART2_ADDR;
+  cfg_word_size = CHIP_INFO_PART2_SIZE + CHIP_INFO_PART3_SIZE;     
 
     isp_read_config(cfg_word_addr, read_buf, cfg_word_size);
     for(i = 0; i<cfg_word_size; i++)
@@ -476,11 +476,11 @@ error_t isp_prog_check_empty(uint32_t *failed_addr, uint32_t *failed_data)
             if(failed_data)
                 *failed_data = read_buf[i] ; 
             return ERROR_ISP_FLASH_CHECK_EMPTY;
-        } 				
+        }         
     } 
 
-	cfg_word_addr = CHIP_INFO_PART4_ADDR;
-	cfg_word_size = CHIP_INFO_PART4_SIZE ;     //字长度
+  cfg_word_addr = CHIP_INFO_PART4_ADDR;
+  cfg_word_size = CHIP_INFO_PART4_SIZE ;     //字长度
 
     isp_read_config(cfg_word_addr, read_buf, cfg_word_size);
     for(i = 0; i<cfg_word_size; i++)
@@ -492,23 +492,23 @@ error_t isp_prog_check_empty(uint32_t *failed_addr, uint32_t *failed_data)
             if(failed_data)
                 *failed_data = read_buf[i] ; 
             return ERROR_ISP_FLASH_CHECK_EMPTY;
-        } 				
+        }         
     } 
 
     return ERROR_SUCCESS;     
 }  
 
 /*******************************************************************************
-*	函 数 名: isp_target_program_config_all
-*	功能说明: 芯片配置字编程。
-*	形    参: failed_addr：错误地址  
-*	返 回 值: 编程错误地址
+*  函 数 名: isp_target_program_config_all
+*  功能说明: 芯片配置字编程。
+*  形    参: failed_addr：错误地址  
+*  返 回 值: 编程错误地址
 *******************************************************************************/
 static error_t isp_target_program_config_all(uint32_t *failed_addr)
 {
     error_t ret = ERROR_SUCCESS;       
-    uint32_t cfg_word_addr;	
-	uint32_t cfg_word_size;	 
+    uint32_t cfg_word_addr;  
+  uint32_t cfg_word_size;   
     
     uint32_t copy_size;
     uint32_t read_addr;
@@ -519,7 +519,7 @@ static error_t isp_target_program_config_all(uint32_t *failed_addr)
         return ret; 
         
     cfg_word_addr =  isp_target_dev->config_word_start;
-	cfg_word_size =  isp_target_dev->config_word_size;
+  cfg_word_size =  isp_target_dev->config_word_size;
     read_addr =  0;
 
     while(true)
@@ -544,21 +544,21 @@ static error_t isp_target_program_config_all(uint32_t *failed_addr)
 } 
     
 /*******************************************************************************
-*	函 数 名: isp_target_program_all
-*	功能说明: 芯片编程。flash和配置字编程
-*	形    参: sn_enable：是否已编程序列号 sn：序列号代码 
+*  函 数 名: isp_target_program_all
+*  功能说明: 芯片编程。flash和配置字编程
+*  形    参: sn_enable：是否已编程序列号 sn：序列号代码 
 *             failed_addr：错误地址   failed_data ：错误数据
-*	返 回 值: 错误类型
+*  返 回 值: 错误类型
 *******************************************************************************/
 static error_t isp_target_program_all(uint8_t sn_enable, serial_number_t *sn , uint32_t *failed_addr) 
 {
     error_t ret = ERROR_SUCCESS;
     uint32_t i;
     
-    uint32_t code_addr;	
-	uint32_t code_size;	
-    uint32_t cfg_word_addr;	
-	uint32_t cfg_word_size;	   
+    uint32_t code_addr;  
+  uint32_t code_size;  
+    uint32_t cfg_word_addr;  
+  uint32_t cfg_word_size;     
     
     uint32_t copy_size;      
     uint32_t read_addr;
@@ -569,7 +569,7 @@ static error_t isp_target_program_all(uint8_t sn_enable, serial_number_t *sn , u
         return ret; 
         
     code_addr =  isp_target_dev->code_start;
-	code_size =  isp_target_dev->code_size;
+  code_size =  isp_target_dev->code_size;
     read_addr =  0; 
         
     while(true)
@@ -580,7 +580,7 @@ static error_t isp_target_program_all(uint8_t sn_enable, serial_number_t *sn , u
         if(ERROR_SUCCESS != ret)
             return ret;
         if(sn_enable == ENABLE)     //序列号代码使能
-            serial_number_intercept_write(sn ,code_addr, read_buf, copy_size);	//填入序列号
+            serial_number_intercept_write(sn ,code_addr, read_buf, copy_size);  //填入序列号
         for(i=0; i<copy_size; i++)
         {
             if(read_buf[i] != 0xFF)
@@ -601,14 +601,14 @@ static error_t isp_target_program_all(uint8_t sn_enable, serial_number_t *sn , u
             break;       
     }
     cfg_word_addr =  isp_target_dev->config_word_start;
-	cfg_word_size =  isp_target_dev->config_word_size;
+  cfg_word_size =  isp_target_dev->config_word_size;
     read_addr =  0;
     while(true)
     {
         copy_size = MIN(cfg_word_size, sizeof(read_buf) );          
         ret = isp_prog_intf.cb(CFG_WORD, read_addr, read_buf , copy_size);
         if(ERROR_SUCCESS != ret)
-            return ret;     		
+            return ret;         
         ret = isp_prog_program_config(cfg_word_addr, read_buf, copy_size, failed_addr); 
         if( ret !=  ERROR_SUCCESS)
             return ret;             
@@ -624,11 +624,11 @@ static error_t isp_target_program_all(uint8_t sn_enable, serial_number_t *sn , u
 }
 
 /*******************************************************************************
-*	函 数 名: isp_target_verify_all
-*	功能说明: 芯片验证
-*	形    参: sn_enable：是否已编程序列号 sn：序列号代码 
+*  函 数 名: isp_target_verify_all
+*  功能说明: 芯片验证
+*  形    参: sn_enable：是否已编程序列号 sn：序列号代码 
 *             failed_addr：错误地址   
-*	返 回 值: 错误类型
+*  返 回 值: 错误类型
 *******************************************************************************/
 static error_t  isp_target_verify_all( uint8_t sn_enable, serial_number_t *sn , uint32_t *failed_addr, uint32_t *failed_data)
 {       
@@ -637,10 +637,10 @@ static error_t  isp_target_verify_all( uint8_t sn_enable, serial_number_t *sn , 
     uint32_t checksum = 0;  
     uint32_t sf_checksum = 0;   //spi保存的校验和   
     
-    uint32_t code_addr;	
-	uint32_t code_size;	
-    uint32_t cfg_word_addr;	
-	uint32_t cfg_word_size;	   
+    uint32_t code_addr;  
+  uint32_t code_size;  
+    uint32_t cfg_word_addr;  
+  uint32_t cfg_word_size;     
 //    uint8_t read_buf[FLASH_PRG_MIN_SIZE];
     
     uint32_t verify_size; 
@@ -652,7 +652,7 @@ static error_t  isp_target_verify_all( uint8_t sn_enable, serial_number_t *sn , 
         return ret; 
         
     code_addr =  isp_target_dev->code_start;
-	code_size =  isp_target_dev->code_size;
+  code_size =  isp_target_dev->code_size;
     sf_addr = 0;
     while(true)
     {
@@ -663,7 +663,7 @@ static error_t  isp_target_verify_all( uint8_t sn_enable, serial_number_t *sn , 
         checksum += check_sum(verify_size, sf_buf);     //计算原始数据校验和
         if( sn_enable == ENABLE)
         {              
-            serial_number_intercept_write(sn, code_addr, sf_buf, verify_size);	//填入序列号 
+            serial_number_intercept_write(sn, code_addr, sf_buf, verify_size);  //填入序列号 
         }                       
         ret = isp_prog_verify_flash(code_addr, sf_buf, verify_size,failed_addr,failed_data);                        
         if( ret !=  ERROR_SUCCESS)
@@ -684,7 +684,7 @@ static error_t  isp_target_verify_all( uint8_t sn_enable, serial_number_t *sn , 
     }         
     
     cfg_word_addr =  isp_target_dev->config_word_start;
-	cfg_word_size =  isp_target_dev->config_word_size;
+  cfg_word_size =  isp_target_dev->config_word_size;
     sf_addr =  0;
     checksum = 0;
     while(true)

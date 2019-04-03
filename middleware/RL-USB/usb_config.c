@@ -48,8 +48,8 @@
 //   </h>
 #define USBD_POWER                  0
 #define USBD_MAX_PACKET0            64
-#define USBD_DEVDESC_IDVENDOR       0x0D28
-#define USBD_DEVDESC_IDPRODUCT      0x0204
+#define USBD_DEVDESC_IDVENDOR       0x30CC  //0x0D28--->0x30CC
+#define USBD_DEVDESC_IDPRODUCT      0x9527  //0x0204--->0x9527
 #define USBD_DEVDESC_BCDDEVICE      0x1000 //was 0x0100
 
 //   <h> Configuration Settings
@@ -80,7 +80,7 @@
 //     </e>
 //   </h>
 #define USBD_STRDESC_LANGID         0x0409
-#define USBD_STRDESC_MAN            L"ESSEMI"
+#define USBD_STRDESC_MAN            L"essemi"
 #define USBD_STRDESC_PROD           L"ESLinkII"
 #define USBD_STRDESC_SER_ENABLE     1
 #define USBD_STRDESC_SER            L"0001A000000A"
@@ -139,7 +139,7 @@
 #define USBD_HID_HS_ENABLE          0
 #define USBD_HID_HS_WMAXPACKETSIZE  64
 #define USBD_HID_HS_BINTERVAL       6
-#define USBD_HID_STRDESC            L"CMSIS-DAP"
+#define USBD_HID_STRDESC            L"essemi CMSIS-DAP"
 #define USBD_HID_INREPORT_NUM       1
 #define USBD_HID_OUTREPORT_NUM      1
 #define USBD_HID_INREPORT_MAX_SZ    64
@@ -317,8 +317,8 @@
 #define USBD_CDC_ACM_HS_ENABLE1         0
 #define USBD_CDC_ACM_HS_WMAXPACKETSIZE1 64
 #define USBD_CDC_ACM_HS_BINTERVAL1      0
-#define USBD_CDC_ACM_CIF_STRDESC        L"Serial Port"
-#define USBD_CDC_ACM_DIF_STRDESC        L"Serial Port"
+#define USBD_CDC_ACM_CIF_STRDESC        L"essemi Serial Port"
+#define USBD_CDC_ACM_DIF_STRDESC        L"essemi Serial Port"
 #define USBD_CDC_ACM_SENDBUF_SIZE       64
 #define USBD_CDC_ACM_RECEIVEBUF_SIZE    64
 #if (((USBD_CDC_ACM_HS_ENABLE1) && (USBD_CDC_ACM_SENDBUF_SIZE    < USBD_CDC_ACM_HS_WMAXPACKETSIZE1)) || (USBD_CDC_ACM_SENDBUF_SIZE    < USBD_CDC_ACM_WMAXPACKETSIZE1))
@@ -514,7 +514,7 @@
 
 // --------------------------------------------------- 
 // added by 9527 for WinUSB
-#define	USBD_LEN_OS_DESC								0x12
+#define  USBD_LEN_OS_DESC                0x12
 #define USBD_MS_OS_VENDOR_CODE                          0x97        
 #define USBD_WINUSB_STRING 'M',0,'S',0,'F',0,'T',0,'1',0,'0',0,'0',0, USBD_MS_OS_VENDOR_CODE, 0
 // --------------------------------------------------- 

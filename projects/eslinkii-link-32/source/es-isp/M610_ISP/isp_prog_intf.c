@@ -230,7 +230,7 @@ static error_t isp_prog_check_empty(uint32_t *failed_addr, uint32_t *failed_data
     code_size =  isp_target_dev->code_size / 4; //字长度
     while(true)
     {
-        copy_size = MIN(code_size, sizeof(read_buf)/4 );      
+        copy_size = MIN(code_size, sizeof(read_buf)/sizeof(read_buf[0]));      
         isp_read_code(code_addr, read_buf, copy_size);
         for(i = 0; i<copy_size; i++)
         {
@@ -246,7 +246,7 @@ static error_t isp_prog_check_empty(uint32_t *failed_addr, uint32_t *failed_data
         } 
         // Update variables
         code_addr  += copy_size*4;
-        code_size  -= copy_size*4;
+        code_size  -= copy_size;
         
         // Check for end
         if (code_size <= 0) {
@@ -257,7 +257,7 @@ static error_t isp_prog_check_empty(uint32_t *failed_addr, uint32_t *failed_data
     cfg_word_size =  isp_target_dev->config_word_size/4;     //字长度
     while(true)
     {
-        copy_size = MIN(cfg_word_size, sizeof(read_buf)/4 );
+        copy_size = MIN(cfg_word_size, sizeof(read_buf)/sizeof(read_buf[0]) );
         isp_read_config(cfg_word_addr, read_buf, copy_size);
         for(i = 0; i<copy_size; i++)
         {
@@ -272,7 +272,7 @@ static error_t isp_prog_check_empty(uint32_t *failed_addr, uint32_t *failed_data
             }   
         } 
         // Update variables
-        cfg_word_addr  += copy_size;
+        cfg_word_addr  += copy_size*4;
         cfg_word_size  -= copy_size;
         
         // Check for end
@@ -364,7 +364,7 @@ static error_t isp_prog_verify_flash(uint32_t addr,  uint8_t *data, uint32_t siz
     
     while (size_in_words > 0) 
     {          
-        verify_size = MIN(size_in_words, sizeof(rd_buf));
+        verify_size = MIN(size_in_words, sizeof(rd_buf)/sizeof(rd_buf[0]));
         ret = isp_read_code(addr, rd_buf, verify_size); 
         if( ret != TRUE)
             return ERROR_ISP_READ;
@@ -382,7 +382,7 @@ static error_t isp_prog_verify_flash(uint32_t addr,  uint8_t *data, uint32_t siz
                 return  ERROR_ISP_VERIFY;  
             } 
         } 
-        addr += verify_size;
+        addr += verify_size*4;
         size_in_words -= verify_size;
     }
     
@@ -460,7 +460,7 @@ static error_t isp_prog_verify_config(uint32_t addr,  uint8_t *data, uint32_t si
     
     while (size_in_words > 0) 
     {          
-        verify_size = MIN(size_in_words, sizeof(rd_buf));
+        verify_size = MIN(size_in_words, sizeof(rd_buf)/sizeof(rd_buf[0]));
         if(isp_read_config(addr, rd_buf, verify_size) != TRUE)
         {
             return ERROR_ISP_READ_CFG_WORD;
@@ -479,7 +479,7 @@ static error_t isp_prog_verify_config(uint32_t addr,  uint8_t *data, uint32_t si
                 return ERROR_ISP_CFG_WORD_VERIFY; 
             } 
         } 
-        addr += verify_size;
+        addr += verify_size*4;
         size_in_words -= verify_size;
     }
     
@@ -531,8 +531,8 @@ static error_t isp_target_program_config_all(uint32_t *failed_addr)
 {
     error_t ret = ERROR_SUCCESS;
     
-    uint32_t cfg_word_addr;	
-    uint32_t cfg_word_size;	 
+    uint32_t cfg_word_addr;
+    uint32_t cfg_word_size;
     
     uint32_t copy_size;
     uint32_t read_addr;

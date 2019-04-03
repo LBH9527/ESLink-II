@@ -217,11 +217,11 @@ extern "C" {
 
 
 //发送事件
-#define flag_send(c,b)			( (c) |= (b) ) 
+#define flag_send(c,b)      ( (c) |= (b) ) 
 //接收事件   
-#define flag_recv(c,b)		    ( ( (c) & (b)) >0 )
+#define flag_recv(c,b)        ( ( (c) & (b)) >0 )
 //清除事件
-#define flag_clr(c,b)			( (c) &= ~(b) )
+#define flag_clr(c,b)      ( (c) &= ~(b) )
 
 //#define LONG_TO_BIG_ENDIAN_ADDRESS(n, m)       \
 //    {                                              \
@@ -243,7 +243,7 @@ extern "C" {
   
 #if defined(LIB_DEBUG)
     #include <stdio.h>
-    #define LIB_TRACE	printf
+    #define LIB_TRACE  printf
 #else
     #define LIB_TRACE(...)
 #endif                
