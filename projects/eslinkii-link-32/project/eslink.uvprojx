@@ -572,25 +572,59 @@
           <GroupName>es-isp</GroupName>
           <Files>
             <File>
-              <FileName>isp_prog_intf.c</FileName>
+              <FileName>M939_ISP.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\source\es-isp\M621_ISP\isp_prog_intf.c</FilePath>
+              <FilePath>..\source\es-isp\M939_ISP\M939_ISP.c</FilePath>
             </File>
             <File>
-              <FileName>M621_ISP.c</FileName>
+              <FileName>isp_prog_intf.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\source\es-isp\M621_ISP\M621_ISP.c</FilePath>
+              <FilePath>..\source\es-isp\M939_ISP\isp_prog_intf.c</FilePath>
             </File>
           </Files>
         </Group>
         <Group>
           <GroupName>es-uartboot</GroupName>
+          <Files>
+            <File>
+              <FileName>uartboot_prog_intf.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\es-uartboot\M939_UARTBOOT\uartboot_prog_intf.c</FilePath>
+            </File>
+            <File>
+              <FileName>uartboot_host.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\es-uartboot\M939_UARTBOOT\uartboot_host.c</FilePath>
+            </File>
+          </Files>
         </Group>
         <Group>
           <GroupName>es-rtc</GroupName>
         </Group>
         <Group>
           <GroupName>es-swd</GroupName>
+          <Files>
+            <File>
+              <FileName>swd_prog_intf.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\swd\M939_SWD\swd_prog_intf.c</FilePath>
+            </File>
+            <File>
+              <FileName>swd_target_reset.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\swd\M939_SWD\swd_target_reset.c</FilePath>
+            </File>
+            <File>
+              <FileName>M939_flash_blob.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\swd\M939_SWD\M939_flash_blob.c</FilePath>
+            </File>
+            <File>
+              <FileName>swd_host.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\swd\swd_host.c</FilePath>
+            </File>
+          </Files>
         </Group>
         <Group>
           <GroupName>gui</GroupName>

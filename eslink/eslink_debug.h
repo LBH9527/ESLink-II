@@ -31,16 +31,18 @@
 #include "main.h"
 
 #define USB_DEBUG
-//#define UART_DEBUG    
-    
+//#define UART_DEBUG
+
 #ifdef util_assert
-#undef util_assert
+  #undef util_assert
 #endif
 #define util_assert(EXPR)                                                           \
-if (!(EXPR))                                                                   \
-{                                                                              \
+  if (!(EXPR))                                                                   \
+  {                                                                              \
 //    printf("(%s) has assert failed at %s.\n", #EXPR, __FUNCTION__);            \
-    while (1);                                                                 \
+while (1);
+
+\
 }
 
 
@@ -50,64 +52,69 @@ static const char error_msg[] = "\r\n<OVERFLOW>\r\n";
 
 static inline uint32_t daplink_debug(uint8_t *buf, uint32_t size)
 {
-    uint32_t total_free;
-    uint32_t write_free;
-    uint32_t error_len = strlen(error_msg);
-    if(usb_state !=  USB_CONNECTED)
-        return 0;
-    total_free = USBD_CDC_ACM_DataFree();
+  uint32_t total_free;
+  uint32_t write_free;
+  uint32_t error_len = strlen(error_msg);
 
-    if (total_free < error_len) {
-        // No space
-        return 0;
-    }
+  if (usb_state !=  USB_CONNECTED)
+    return 0;
 
-    // Size available for writing
-    write_free = total_free - error_len;
-    size = MIN(write_free, size);
-    USBD_CDC_ACM_DataSend(buf, size);
+  total_free = USBD_CDC_ACM_DataFree();
 
-    if (write_free == size) {
-        USBD_CDC_ACM_DataSend((uint8_t *)error_msg, error_len);
-    }
+  if (total_free < error_len)
+  {
+    // No space
+    return 0;
+  }
 
-    return size;
+  // Size available for writing
+  write_free = total_free - error_len;
+  size = MIN(write_free, size);
+  USBD_CDC_ACM_DataSend(buf, size);
+
+  if (write_free == size)
+  {
+    USBD_CDC_ACM_DataSend((uint8_t *)error_msg, error_len);
+  }
+
+  return size;
 }
 
 static char daplink_debug_buf[128] = {0};
 static inline uint32_t daplink_debug_print(const char *format, ...)
 {
-    uint32_t ret;
-    int32_t r = 0;
-    va_list arg;
-    ret = 1;
-    va_start(arg, format);
-    r = vsnprintf(daplink_debug_buf, sizeof(daplink_debug_buf), format, arg);
+  uint32_t ret;
+  int32_t r = 0;
+  va_list arg;
+  ret = 1;
+  va_start(arg, format);
+  r = vsnprintf(daplink_debug_buf, sizeof(daplink_debug_buf), format, arg);
 
-    if (r >= sizeof(daplink_debug_buf)) {
-        r = snprintf(daplink_debug_buf, sizeof(daplink_debug_buf), "<Error - string length %i exceeds print buffer>\r\n", r);
-        ret = 0;
-    }
+  if (r >= sizeof(daplink_debug_buf))
+  {
+    r = snprintf(daplink_debug_buf, sizeof(daplink_debug_buf), "<Error - string length %i exceeds print buffer>\r\n", r);
+    ret = 0;
+  }
 
-    va_end(arg);
-    daplink_debug((uint8_t *)daplink_debug_buf, r);
-    return ret;
+  va_end(arg);
+  daplink_debug((uint8_t *)daplink_debug_buf, r);
+  return ret;
 }
 
-//#elseif defined (USB_DEBUG)   
+//#elseif defined (USB_DEBUG)
 
 
-    
+
 #else
 
 static inline uint32_t daplink_debug_print(const char *format, ...)
 {
-    return 1;
+  return 1;
 }
 
 static inline uint32_t daplink_debug(uint8_t *data, uint32_t size)
 {
-    return 1;
+  return 1;
 }
 
 #endif

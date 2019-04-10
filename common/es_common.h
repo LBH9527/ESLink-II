@@ -209,7 +209,7 @@ extern "C" {
 #define HEX_TO_BCD(val)     ((((val) / 10) << 4) + (val) % 10)
 
 /******************************************************************************/
-#define ITEM_NUM(items)     sizeof(items) / sizeof(items[0])
+#define ITEM_NUM(items)     (sizeof(items) / sizeof(items[0]))
 
 #define MB(size)                        ((size) * 1024 * 1024)
 

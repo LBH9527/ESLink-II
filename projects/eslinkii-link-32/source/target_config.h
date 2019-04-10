@@ -16,9 +16,9 @@
 /*ISP */
 //默认使能
 /* SWD */   
-#define  ESLINK_SWD_ENABLE          0                  //SWD功能使能
+#define  ESLINK_SWD_ENABLE          1                  //SWD功能使能
 /* BOOTISP */
-#define  ESLINK_BOOTISP_ENABLE      0                  //BOOTISP功能使能
+#define  ESLINK_BOOTISP_ENABLE      1                  //BOOTISP功能使能
 /* RTC */
 #define  ESLINK_RTC_ENABLE          0                //RTC功能使能
 
@@ -30,10 +30,10 @@
 //脱机检测次数
 #define PROG_MODE_CHECK_TIME        5                   //脱机检测次数
 
-//#define M610    
-//#define M620    
-#define M621    
-//#define M939    
+//#define M610
+//#define M620
+//#define M621
+#define M939    
 //#define M938    
 
 

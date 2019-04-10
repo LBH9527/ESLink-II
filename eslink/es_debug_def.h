@@ -1,7 +1,7 @@
 #ifndef __DEBUG_DEF_H__
-#define __DEBUG_DEF_H__  
+#define __DEBUG_DEF_H__
 
-#include "stdint.h"      
+#include "stdint.h"
 
 /*******************************************************************************
 结构和联合定义
@@ -9,28 +9,31 @@
 
 
 //目标芯片状态
-typedef enum {     
-    ICD_RESET,  
-    ICD_HALT,                    // Halt the target without resetting it
-    ICD_RUN                      // Resume the target without resetting it    
+typedef enum
+{
+  ICD_RESET,
+  ICD_HALT,                    // Halt the target without resetting it
+  ICD_RUN                      // Resume the target without resetting it
 } debug_target_state;
 
 //extern ICD_TARGET_STATE icd_target_state;
 //icd debug 标志位设置
-typedef struct{
-    
-    uint8_t monitor;            //监视标志位。标志位为SET时，上传芯片运行停止信息
-                                //1、调试到断点位置时上报。2、
-    uint8_t stop;               //接收到上位机停止命令标志位。
-    
-}debug_flag_t;
+typedef struct
+{
+
+  uint8_t monitor;            //监视标志位。标志位为SET时，上传芯片运行停止信息
+  //1、调试到断点位置时上报。2、
+  uint8_t stop;               //接收到上位机停止命令标志位。
+
+} debug_flag_t;
 
 //icd main 地址相关寄存器
-typedef struct{
-    uint16_t addr;              //main的入口地址
-    uint16_t pointer_back;      //HR7P169B未用到，不清楚作用
-    uint8_t set_point;     //部分芯片的main地址需要手动设置      
-}debug_main_t; 
+typedef struct
+{
+  uint16_t addr;              //main的入口地址
+  uint16_t pointer_back;      //HR7P169B未用到，不清楚作用
+  uint8_t set_point;     //部分芯片的main地址需要手动设置
+} debug_main_t;
 
 /*******************************************************************************
     通信协议相关宏定义
@@ -58,7 +61,7 @@ typedef struct{
 #define  ID_CONFIG_WORD_DL          0x11  //配置下载
 #define  ID_USERHEX_DL            0x12  //用户程序下载
 #define ID_USERHEX_DL_END                   0x13    //用户程序下载完成
-        
+
 #define  Download_NoStopLab         0x14  //发送库函数地址段
 #define  ID_SET_MAIN_ADDR         0x15  //发送main首地址（仅用于c程序调试）
 #define Download_eep_data         0x16  //
@@ -87,7 +90,7 @@ typedef struct{
 #define ID_RD_ALL_STACK         0x37   //读全部堆栈内容
 #define Rd_data_stack            0x38
 #define Rd_eep_data                0x39
-#define ID_RETRY            0x3A  
+#define ID_RETRY            0x3A
 
 #define ID_WR_RAM              0x40
 #define ID_MODIFY_PC          0x41
@@ -101,14 +104,14 @@ typedef struct{
 
 //大端模式
 #define ICD_LEN(len, a, b) \
-                len =  ((uint16_t)(a) & 0xff) << 8) | \
-                         (uint16_t)((b) & 0xff)  
+  len =  ((uint16_t)(a) & 0xff) << 8) | \
+  (uint16_t)((b) & 0xff)
 
 #define ICD_ADDR(addr, a, b, c, d) \
-                addr =  ((uint32_t)((a) & 0xff) << 24) | \
-                         ((uint32_t)((b) & 0xff) << 16) | \
-                         ((uint32_t)((c) & 0xff) << 8)  | \
-                          (uint32_t)((d) & 0xff)
+  addr =  ((uint32_t)((a) & 0xff) << 24) | \
+          ((uint32_t)((b) & 0xff) << 16) | \
+          ((uint32_t)((c) & 0xff) << 8)  | \
+          (uint32_t)((d) & 0xff)
 
 #define COMBUFFERLEN 0x500//3200//2100  //发送缓冲区最大长度(8k)
 #define LARGESTBUF 0x500//1600   //接收缓冲区的最大长度(270 line ) 
@@ -140,7 +143,7 @@ typedef struct{
 
 //struct _sysSta{
 //  enum system_state{    //system state
-//    Sys_Reset,          
+//    Sys_Reset,
 //    Sys_Monitor,        //监视状态
 //    Sys_Run,            //系统处于运行状态
 //    Sys_Halt            //停止
@@ -150,7 +153,7 @@ typedef struct{
 //};
 ////////////////////////////////////
 //struct __serCtrl{
-//  uint8_t serTimeScope;  //to control series byte interval time  
+//  uint8_t serTimeScope;  //to control series byte interval time
 //  uint8_t hadOne;
 //};
 //////////////////04 emulator//////////////
@@ -158,8 +161,8 @@ typedef struct{
 //  struct ctrl{
 //        uint8_t   lowbit:1;  //signals associate with debug
 //        uint8_t   high_bit:6;
-//        uint8_t    high7bit:1; 
-//   
+//        uint8_t    high7bit:1;
+//
 //  }ctrl;
 //  uint8_t ctrl_byte;
 //};
@@ -205,10 +208,10 @@ typedef struct{
 
 //#define PIN_DETECT_ERROR                0xB8    //引脚检测失败
 //#define CHIP_ID_NOT_MATCH               0xB9
-//#define OPTION_NOT_MATCH                0xBA    //与界面设置不匹配 
+//#define OPTION_NOT_MATCH                0xBA    //与界面设置不匹配
 //#define NOT_IN_MODE                     0xBB    //没有进模式
 
-//#define RD_EE_ERR                       0xBC 
+//#define RD_EE_ERR                       0xBC
 //#define WR_EE_ERR                       0xBD
 
 //#define VERIFY_ERROR                    0xBE

@@ -24,35 +24,35 @@
 
 void target_before_init_debug(void)
 {
-    // any target specific sequences needed before attaching
-    //  to the DAP across JTAG or SWD
+  // any target specific sequences needed before attaching
+  //  to the DAP across JTAG or SWD
 //    swd_set_target_reset(1);
-    return;
+  return;
 }
 
 uint8_t target_unlock_sequence(void)
 {
-    // if the device can secure the flash and there is a way to
-    //  erase all it should be implemented here.
-    
-    return 1;
-    
+  // if the device can secure the flash and there is a way to
+  //  erase all it should be implemented here.
+
+  return 1;
+
 }
 
 uint8_t security_bits_set(uint32_t addr, uint8_t *data, uint32_t size)
 {
-    // if there are security bits in the programmable flash region
-    //  a check should be performed. This method is used when programming
-    //  by drag-n-drop and should refuse to program an image requesting
-    //  to set the device security. This can be performed with the debug channel
-    //  if needed.
-    return 0;
+  // if there are security bits in the programmable flash region
+  //  a check should be performed. This method is used when programming
+  //  by drag-n-drop and should refuse to program an image requesting
+  //  to set the device security. This can be performed with the debug channel
+  //  if needed.
+  return 0;
 }
 
 uint8_t target_set_state(TARGET_RESET_STATE state)
 {
-    // invoke reset by sw (VECT_REQ or SYS_REQ) or hw (hardware IO toggle)
-    //return swd_set_target_state_sw(state);
-    //or 
-    return swd_set_target_state_hw(state);
+  // invoke reset by sw (VECT_REQ or SYS_REQ) or hw (hardware IO toggle)
+  //return swd_set_target_state_sw(state);
+  //or
+  return swd_set_target_state_hw(state);
 }

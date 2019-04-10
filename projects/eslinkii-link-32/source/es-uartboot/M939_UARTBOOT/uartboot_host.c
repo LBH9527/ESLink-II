@@ -73,7 +73,7 @@ static uint8_t write_data(uint8_t *wr_data, uint8_t wr_size)
         if(len_data > wr_size)
             len_data = wr_size;
         uart_write_data(wr_data, len_data);
-        wr_data += 
+        wr_data += len_data;
         wr_size -= len_data;  
     }
     return TRUE;

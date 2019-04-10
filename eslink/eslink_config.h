@@ -3,8 +3,8 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif    
-    
+#endif
+
 #include "MK22f12810.h"
 #include "eslink_gpio.h"
 // Configure ISP I/O pins ------------------------------
@@ -16,16 +16,16 @@ Configures the DAP Hardware I/O pins for Serial Wire Debug (SWD) mode:
 */
 static inline void PORT_ISP_SETUP(void)
 {
-    PIN_ISPCLK_GPIO->PSOR     = 1 << PIN_ISPCLK_BIT;
-    PIN_ISPSDA_OUT_GPIO->PSOR = 1 << PIN_ISPSDA_OUT_BIT;    
-    PIN_ISPSDA_NOE_GPIO->PCOR = 1 << PIN_ISPSDA_NOE_BIT;    
-    PIN_ISPSCK_NOE_GPIO->PCOR = 1 << PIN_ISPSCK_NOE_BIT;    
-    PIN_RST_O_GPIO->PSOR        = 1 << PIN_RST_O_BIT;    
-    PIN_ISPSCK_NOE_GPIO->PDDR = PIN_ISPSCK_NOE_GPIO->PDDR | (1 << PIN_ISPSCK_NOE_BIT );   
-    PIN_ISPSCK_NOE_GPIO->PCOR = 1 << PIN_ISPSCK_NOE_BIT;    
-    PIN_ISPSDA_NOE_GPIO->PCOR = 1 << PIN_ISPSDA_NOE_BIT;    
-    PIN_RST_O_GPIO->PSOR = PIN_RST_O;
-    PIN_RST_O_GPIO->PDDR |= PIN_RST_O; //output
+  PIN_ISPCLK_GPIO->PSOR     = 1 << PIN_ISPCLK_BIT;
+  PIN_ISPSDA_OUT_GPIO->PSOR = 1 << PIN_ISPSDA_OUT_BIT;
+  PIN_ISPSDA_NOE_GPIO->PCOR = 1 << PIN_ISPSDA_NOE_BIT;
+  PIN_ISPSCK_NOE_GPIO->PCOR = 1 << PIN_ISPSCK_NOE_BIT;
+  PIN_RST_O_GPIO->PSOR        = 1 << PIN_RST_O_BIT;
+  PIN_ISPSCK_NOE_GPIO->PDDR = PIN_ISPSCK_NOE_GPIO->PDDR | (1 << PIN_ISPSCK_NOE_BIT);
+  PIN_ISPSCK_NOE_GPIO->PCOR = 1 << PIN_ISPSCK_NOE_BIT;
+  PIN_ISPSDA_NOE_GPIO->PCOR = 1 << PIN_ISPSDA_NOE_BIT;
+  PIN_RST_O_GPIO->PSOR = PIN_RST_O;
+  PIN_RST_O_GPIO->PDDR |= PIN_RST_O; //output
 //    PIN_RST_O_PORT->PCR[PIN_RST_O_BIT] = PORT_PCR_PS_MASK | PORT_PCR_PE_MASK | PORT_PCR_PFE_MASK | PORT_PCR_MUX(1);
 }
 
@@ -35,10 +35,10 @@ Disables the DAP Hardware I/O pins which configures:
 */
 static inline void PORT_ISP_OFF(void)
 {
-    PIN_ISPSDA_NOE_GPIO->PSOR = 1 << PIN_ISPSDA_NOE_BIT;
-    PIN_ISPSCK_NOE_GPIO->PSOR = 1 << PIN_ISPSCK_NOE_BIT;
+  PIN_ISPSDA_NOE_GPIO->PSOR = 1 << PIN_ISPSDA_NOE_BIT;
+  PIN_ISPSCK_NOE_GPIO->PSOR = 1 << PIN_ISPSCK_NOE_BIT;
 //    PIN_RST_O_GPIO->PSOR    = 1 << PIN_RST_O_BIT;
-    PIN_RST_O_GPIO->PDDR &= ~PIN_RST_O; //input    
+  PIN_RST_O_GPIO->PDDR &= ~PIN_RST_O; //input
 //    PIN_RST_O_PORT->PCR[PIN_RST_O_BIT] |= PORT_PCR_ISF_MASK;
 //    PIN_RST_O_PORT->PCR[PIN_RST_O_BIT] = PORT_PCR_PS_MASK | PORT_PCR_PE_MASK | PORT_PCR_PFE_MASK | PORT_PCR_MUX(1);
 }
@@ -51,7 +51,7 @@ Set the SWCLK/TCK DAP hardware I/O pin to high level.
 */
 static __forceinline void     PIN_ISPCLK_SET(void)
 {
-    PIN_ISPCLK_GPIO->PSOR = 1 << PIN_ISPCLK_BIT;
+  PIN_ISPCLK_GPIO->PSOR = 1 << PIN_ISPCLK_BIT;
 }
 
 /** ISPCLK pin: Set Output to Low.
@@ -59,7 +59,7 @@ Set the ISPCLK hardware I/O pin to low level.
 */
 static __forceinline void     PIN_ISPCLK_CLR(void)
 {
-    PIN_ISPCLK_GPIO->PCOR = 1 << PIN_ISPCLK_BIT;
+  PIN_ISPCLK_GPIO->PCOR = 1 << PIN_ISPCLK_BIT;
 }
 
 
@@ -70,7 +70,7 @@ static __forceinline void     PIN_ISPCLK_CLR(void)
 */
 static __forceinline uint32_t PIN_ISPSDA_IN(void)
 {
-    return ((PIN_ISPSDA_IN_GPIO->PDIR >> PIN_ISPSDA_IN_BIT) & 1);
+  return ((PIN_ISPSDA_IN_GPIO->PDIR >> PIN_ISPSDA_IN_BIT) & 1);
 }
 
 /** ISPSDA I/O pin: Set Output to High.
@@ -78,7 +78,7 @@ Set the ISPSDA hardware I/O pin to high level.
 */
 static __forceinline void     PIN_ISPSDA_SET(void)
 {
-    PIN_ISPSDA_OUT_GPIO->PSOR = 1 << PIN_ISPSDA_OUT_BIT;
+  PIN_ISPSDA_OUT_GPIO->PSOR = 1 << PIN_ISPSDA_OUT_BIT;
 }
 
 /** ISPSDA I/O pin: Set Output to Low.
@@ -86,7 +86,7 @@ Set the ISPSDA hardware I/O pin to low level.
 */
 static __forceinline void     PIN_ISPSDA_CLR(void)
 {
-    PIN_ISPSDA_OUT_GPIO->PCOR = 1 << PIN_ISPSDA_OUT_BIT;
+  PIN_ISPSDA_OUT_GPIO->PCOR = 1 << PIN_ISPSDA_OUT_BIT;
 }
 
 /** ISPSDA I/O pin: Get Input (used in SWD mode only).
@@ -102,10 +102,10 @@ static __forceinline void     PIN_ISPSDA_CLR(void)
 */
 static __forceinline void     PIN_ISPSDA_OUT(uint32_t bit)
 {
-    if (bit & 1)
-        PIN_ISPSDA_OUT_GPIO->PSOR = 1 << PIN_ISPSDA_OUT_BIT;
-    else
-        PIN_ISPSDA_OUT_GPIO->PCOR = 1 << PIN_ISPSDA_OUT_BIT;        
+  if (bit & 1)
+    PIN_ISPSDA_OUT_GPIO->PSOR = 1 << PIN_ISPSDA_OUT_BIT;
+  else
+    PIN_ISPSDA_OUT_GPIO->PCOR = 1 << PIN_ISPSDA_OUT_BIT;
 }
 
 /** ISPSDA I/O pin: Switch to Output mode (used in SWD mode only).
@@ -114,7 +114,7 @@ called prior \ref PIN_SWDIO_OUT function calls.
 */
 static __forceinline void     PIN_ISPSDA_OUT_ENABLE(void)
 {
-    PIN_ISPSDA_NOE_GPIO->PCOR = 1 << PIN_ISPSDA_NOE_BIT;
+  PIN_ISPSDA_NOE_GPIO->PCOR = 1 << PIN_ISPSDA_NOE_BIT;
 }
 
 /** ISPSDA I/O pin: Switch to Input mode (used in SWD mode only).
@@ -123,7 +123,7 @@ called prior \ref PIN_SWDIO_IN function calls.
 */
 static __forceinline void     PIN_ISPSDA_OUT_DISABLE(void)
 {
-    PIN_ISPSDA_NOE_GPIO->PSOR = 1 << PIN_ISPSDA_NOE_BIT;
+  PIN_ISPSDA_NOE_GPIO->PSOR = 1 << PIN_ISPSDA_NOE_BIT;
 }
 
 // RST Pin I/O------------------------------------------
@@ -133,7 +133,7 @@ static __forceinline void     PIN_ISPSDA_OUT_DISABLE(void)
 */
 static __forceinline uint32_t PIN_RST_IN(void)
 {
-    return ((PIN_RST_I_GPIO->PDIR >> PIN_RST_I_BIT) & 1);
+  return ((PIN_RST_I_GPIO->PDIR >> PIN_RST_I_BIT) & 1);
 //    return ((PIN_SWO_GPIO->PDIR >> PIN_SWO_BIT) & 1);
 }
 
@@ -144,7 +144,7 @@ static __forceinline uint32_t PIN_RST_IN(void)
 */
 static __forceinline void     PIN_RST_OUT(uint32_t bit)
 {
-    BITBAND_REG(PIN_RST_O_GPIO->PDOR, PIN_RST_O_BIT) = bit;
+  BITBAND_REG(PIN_RST_O_GPIO->PDOR, PIN_RST_O_BIT) = bit;
 }
 
 //CMSIS-DAP Hardware I/O and LED Pins are initialized with the function \ref DAP_SETUP.
@@ -160,35 +160,35 @@ Status LEDs. In detail the operation of Hardware I/O and LED pins are enabled an
 */
 static inline void ISP_SETUP(void)
 {
-    SIM->SCGC5 |= SIM_SCGC5_PORTA_MASK |  /* Enable Port A Clock */
-                  SIM_SCGC5_PORTB_MASK |  /* Enable Port B Clock */
-                  SIM_SCGC5_PORTC_MASK |  /* Enable Port C Clock */
-                  SIM_SCGC5_PORTD_MASK;   /* Enable Port D Clock */
-    /* Configure I/O pin ISPCLK */
-    PIN_ISPCLK_PORT->PCR[PIN_ISPCLK_BIT]         = PORT_PCR_MUX(1) |   /* GPIO */
-             PORT_PCR_DSE_MASK; /* High drive strength */
-    PIN_ISPCLK_GPIO->PSOR  = 1 << PIN_ISPCLK_BIT;                      /* High level */
-    PIN_ISPCLK_GPIO->PDDR |= 1 << PIN_ISPCLK_BIT;                      /* Output */
-    /* Configure I/O pin ISPSDA_OUT */
-    PIN_ISPSDA_OUT_PORT->PCR[PIN_ISPSDA_OUT_BIT] = PORT_PCR_MUX(1) |   /* GPIO */
-             PORT_PCR_DSE_MASK; /* High drive strength */
-    PIN_ISPSDA_OUT_GPIO->PSOR  = 1 << PIN_ISPSDA_OUT_BIT;              /* High level */
-    PIN_ISPSDA_OUT_GPIO->PDDR |= 1 << PIN_ISPSDA_OUT_BIT;              /* Output */
-    /* Configure I/O pin ISPSDA In */
-    PIN_ISPSDA_IN_PORT->PCR[PIN_ISPSDA_IN_BIT]   = PORT_PCR_MUX(1)  |  /* GPIO */
-            PORT_PCR_PE_MASK |  /* Pull enable */
-            PORT_PCR_PS_MASK;   /* Pull-up */
-    PIN_ISPSDA_IN_GPIO->PDDR &= ~(1 << PIN_ISPSDA_IN_BIT);             /* Input */
-    /* Configure I/O pin SWDIO_NOE */
-    PIN_ISPSDA_NOE_PORT->PCR[PIN_ISPSDA_NOE_BIT] = PORT_PCR_MUX(1) |   /* GPIO */
-             PORT_PCR_DSE_MASK; /* High drive strength */
-    PIN_ISPSDA_NOE_GPIO->PSOR  = 1 << PIN_SWDIO_NOE_BIT;              /* High level */
-    PIN_ISPSDA_NOE_GPIO->PDDR |= 1 << PIN_SWDIO_NOE_BIT;              /* Output */
-    /* Configure I/O pin SWD_NOE */
-    PIN_ISPSCK_NOE_PORT->PCR[PIN_SWD_NOE_BIT]     = PORT_PCR_MUX(1) |   /* GPIO */
-             PORT_PCR_DSE_MASK; /* High drive strength */
-    PIN_ISPSCK_NOE_GPIO->PSOR  = 1 << PIN_ISPSCK_NOE_BIT;                  /* High level */
-    PIN_ISPSCK_NOE_GPIO->PDDR |= 1 << PIN_ISPSCK_NOE_BIT;                  /* Output */
+  SIM->SCGC5 |= SIM_SCGC5_PORTA_MASK |  /* Enable Port A Clock */
+                SIM_SCGC5_PORTB_MASK |  /* Enable Port B Clock */
+                SIM_SCGC5_PORTC_MASK |  /* Enable Port C Clock */
+                SIM_SCGC5_PORTD_MASK;   /* Enable Port D Clock */
+  /* Configure I/O pin ISPCLK */
+  PIN_ISPCLK_PORT->PCR[PIN_ISPCLK_BIT]         = PORT_PCR_MUX(1) |   /* GPIO */
+      PORT_PCR_DSE_MASK; /* High drive strength */
+  PIN_ISPCLK_GPIO->PSOR  = 1 << PIN_ISPCLK_BIT;                      /* High level */
+  PIN_ISPCLK_GPIO->PDDR |= 1 << PIN_ISPCLK_BIT;                      /* Output */
+  /* Configure I/O pin ISPSDA_OUT */
+  PIN_ISPSDA_OUT_PORT->PCR[PIN_ISPSDA_OUT_BIT] = PORT_PCR_MUX(1) |   /* GPIO */
+      PORT_PCR_DSE_MASK; /* High drive strength */
+  PIN_ISPSDA_OUT_GPIO->PSOR  = 1 << PIN_ISPSDA_OUT_BIT;              /* High level */
+  PIN_ISPSDA_OUT_GPIO->PDDR |= 1 << PIN_ISPSDA_OUT_BIT;              /* Output */
+  /* Configure I/O pin ISPSDA In */
+  PIN_ISPSDA_IN_PORT->PCR[PIN_ISPSDA_IN_BIT]   = PORT_PCR_MUX(1)  |  /* GPIO */
+      PORT_PCR_PE_MASK |  /* Pull enable */
+      PORT_PCR_PS_MASK;   /* Pull-up */
+  PIN_ISPSDA_IN_GPIO->PDDR &= ~(1 << PIN_ISPSDA_IN_BIT);             /* Input */
+  /* Configure I/O pin SWDIO_NOE */
+  PIN_ISPSDA_NOE_PORT->PCR[PIN_ISPSDA_NOE_BIT] = PORT_PCR_MUX(1) |   /* GPIO */
+      PORT_PCR_DSE_MASK; /* High drive strength */
+  PIN_ISPSDA_NOE_GPIO->PSOR  = 1 << PIN_SWDIO_NOE_BIT;              /* High level */
+  PIN_ISPSDA_NOE_GPIO->PDDR |= 1 << PIN_SWDIO_NOE_BIT;              /* Output */
+  /* Configure I/O pin SWD_NOE */
+  PIN_ISPSCK_NOE_PORT->PCR[PIN_SWD_NOE_BIT]     = PORT_PCR_MUX(1) |   /* GPIO */
+      PORT_PCR_DSE_MASK; /* High drive strength */
+  PIN_ISPSCK_NOE_GPIO->PSOR  = 1 << PIN_ISPSCK_NOE_BIT;                  /* High level */
+  PIN_ISPSCK_NOE_GPIO->PDDR |= 1 << PIN_ISPSCK_NOE_BIT;                  /* Output */
 //    /* Configure I/O pin nRESET */
 //    PIN_RST_O_PORT->PCR[PIN_RST_O_BIT]       = PORT_PCR_MUX(1)  |  /* GPIO */
 //            PORT_PCR_PE_MASK |  /* Pull enable */
@@ -196,19 +196,19 @@ static inline void ISP_SETUP(void)
 //            PORT_PCR_ODE_MASK;  /* Open-drain */
 //    PIN_RST_O_GPIO->PSOR  = 1 << PIN_RST_O_BIT;                    /* High level */
 //    PIN_RST_O_GPIO->PDDR &= ~(1 << PIN_RST_O_BIT);                    /* Input */
-    
-    /* Configure I/O pin RST O */
-    PIN_RST_O_PORT->PCR[PIN_RST_O_BIT] = PORT_PCR_MUX(1) |   /* GPIO */
-             PORT_PCR_DSE_MASK; /* High drive strength */
-    PIN_RST_O_GPIO->PSOR  = 1 << PIN_RST_O_BIT;              /* High level */
-    PIN_RST_O_GPIO->PDDR |= 1 << PIN_RST_O_BIT;              /* Output */
-    
-    /* Configure I/O pin RST In */
-    PIN_RST_I_PORT->PCR[PIN_RST_I_BIT]   = PORT_PCR_MUX(1)  |  /* GPIO */
-            PORT_PCR_PE_MASK |  /* Pull enable */
-            PORT_PCR_PS_MASK;   /* Pull-up */
-    PIN_RST_I_GPIO->PDDR &= ~(1 << PIN_RST_I_BIT);             /* Input */
-    
+
+  /* Configure I/O pin RST O */
+  PIN_RST_O_PORT->PCR[PIN_RST_O_BIT] = PORT_PCR_MUX(1) |   /* GPIO */
+                                       PORT_PCR_DSE_MASK; /* High drive strength */
+  PIN_RST_O_GPIO->PSOR  = 1 << PIN_RST_O_BIT;              /* High level */
+  PIN_RST_O_GPIO->PDDR |= 1 << PIN_RST_O_BIT;              /* Output */
+
+  /* Configure I/O pin RST In */
+  PIN_RST_I_PORT->PCR[PIN_RST_I_BIT]   = PORT_PCR_MUX(1)  |  /* GPIO */
+                                         PORT_PCR_PE_MASK |  /* Pull enable */
+                                         PORT_PCR_PS_MASK;   /* Pull-up */
+  PIN_RST_I_GPIO->PDDR &= ~(1 << PIN_RST_I_BIT);             /* Input */
+
 //    /* Configure LED */
 //    LED_CONNECTED_PORT->PCR[LED_CONNECTED_BIT] = PORT_PCR_MUX(1)  |  /* GPIO */
 //            PORT_PCR_ODE_MASK;  /* Open-drain */

@@ -352,14 +352,14 @@ static error_t isp_prog_program_config(uint32_t addr, uint8_t *buf, uint32_t siz
     {
         part = &info_part_map[i];     
     
-        ret = isp_program_config(part->addr, (uint32_t*)buf, part->size, &offset);
+        ret = isp_program_config(part->addr, (uint32_t*)buf, part->size/4, &offset);
         if(ret != TRUE)
         {
             if(failed_addr)
                 *failed_addr = part->addr + offset*4 ; 
              return ERROR_ISP_PROG_CFG_WORD;
         } 
-        buf += (part->size) * 4;    
+        buf += part->size;    
     }    
     return ERROR_SUCCESS;        
 }
@@ -385,9 +385,9 @@ static error_t isp_prog_read_config(uint32_t addr,  uint8_t *buf, uint32_t size)
     {
         part = &info_part_map[i];     
     
-        if( isp_read_config(part->addr, (uint32_t*)buf, part->size) != TRUE)
+        if( isp_read_config(part->addr, (uint32_t*)buf, part->size/4) != TRUE)
             return ERROR_ISP_READ_CFG_WORD;  
-        buf += (part->size) * 4;    
+        buf += part->size;    
     }   
     
     return ERROR_SUCCESS;        

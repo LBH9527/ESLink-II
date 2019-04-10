@@ -8,13 +8,15 @@ struct info_part_map
     uint32_t size;
 };  
 
-//1.芯片信息根据芯片手动调整的数据信息     //根据IDE Space 修改
-#define CHIP_CHIPID                 0xC40            
-#define CHIP_CHECKSUM_ADDR          0x7C0  
-#define CHIP_CFG_GBRDP_ADDR         0x800   
+//1.芯片信息根据芯片手动调整的数据信息               //根据IDE Space 修改
+#define CHIP_CHIPID                 0xC40
+#define CHIP_CHECKSUM_ADDR          0x7C0
+#define CHIP_CHECKSUMN_ADDR         0x7C8
 
+#define CHIP_CFG_GBRDP_ADDR         0x800           //加密字地址
+#define CHIP_CFG_GBRDP_OFFSET       120             //加密字在配置字中的偏移
 //2.CHIP INFO的信息需要根据芯片的xml文件来确认 
-#define CHIP_CFG_GBRDP_OFFSET       120  
+
 #define CHIP_INFO_PART1_ADDR        0x400
 #define CHIP_INFO_PART1_SIZE        56    //14---->56         
 
@@ -23,7 +25,7 @@ struct info_part_map
 
 //RTC INFO 地址
 #define CHIP_RTC_INFO_ADDR          0x1000    
-#define CHIP_RTC_INFO_SIZE          64    //16---->64         //16个字长
+#define CHIP_RTC_INFO_SIZE          64    //16---->64               //16个字长
 #define CHIP_RTC_INFO_OFFSET        152   //38---->152              //rtcinfo 在配置字中的偏移量
 
 

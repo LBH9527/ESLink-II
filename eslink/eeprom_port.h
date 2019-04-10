@@ -1,5 +1,5 @@
 #ifndef _EEPROM_PORT_H
-#define _EEPROM_PORT_H   
+#define _EEPROM_PORT_H
 
 #include "errno.h"
 

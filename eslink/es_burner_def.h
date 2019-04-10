@@ -1,34 +1,35 @@
 #ifndef __BURNER_DEF_H__
-#define __BURNER_DEF_H__  
+#define __BURNER_DEF_H__
 
 
 //编程接口定义
-typedef enum 
+typedef enum
 {
-    PRG_INTF_ISP = 0x52000000 ,         //isp烧录
-    PRG_INTF_SWD = 0x52000001 ,         //swd烧录
-    PRG_INTF_BOOTISP = 0x52000002,          //bootisp烧录
-} prog_intf_type_t;   
+  PRG_INTF_ISP = 0x52000000,          //isp烧录
+  PRG_INTF_SWD = 0x52000001,          //swd烧录
+  PRG_INTF_BOOTISP = 0x52000002,          //bootisp烧录
+} prog_intf_type_t;
 
 
 //芯片擦除模式
 #define FULL_ERASE      0         //全擦
 #define PAGE_EARSE      1         //页擦
-                                  //二次开发擦除
+//二次开发擦除
 //通信协议中的数据长度，每帧数据长度位0x03e8 = 1000
 #define  BLOCK_DATE_SIZE   1000
-typedef struct {    
-    uint32_t satrt_addr;        //起始地址
-    uint32_t size;              //数据长度
-    uint32_t buf[BLOCK_DATE_SIZE-8];  //数据
+typedef struct
+{
+  uint32_t satrt_addr;        //起始地址
+  uint32_t size;              //数据长度
+  uint32_t buf[BLOCK_DATE_SIZE - 8]; //数据
 } block_date_t;
 
 /*******************************************************************************
     通信协议相关宏定义
 *******************************************************************************/
 //通信协议常量定义
-#define ESLINKII_DEVICE_TYPE                    0x52   
-#define PROG_FRAME_HEAD                         0xBADCCDAB  
+#define ESLINKII_DEVICE_TYPE                    0x52
+#define PROG_FRAME_HEAD                         0xBADCCDAB
 #define PROG_FRAME_MAX_SIZE                     0x400               //帧长度 1024 
 #define PROG_DATA_OFFSET              0x08                //数据区在buffer中的偏移
 #define FRAME_HEADER_LEN                        8                   //协议头长度 
@@ -45,7 +46,7 @@ typedef struct {
 #define ID_DL_SERIAL_NUMBER                 0xDF    //下载产品序列号
 
 //#define ID_DL_TIMING                        0x19    //时序下载(1024)
-//#define ID_DL_TIMING_START                  0x1B    //时序下载开始    
+//#define ID_DL_TIMING_START                  0x1B    //时序下载开始
 //#define ID_DL_TIMING_END                    0x1C  //时序下载结束
 #define ID_READ_TIMING_INFO                 0x28    //读芯片信息
 #define ID_DL_TIMING_INFO                   0x27    //下载芯片信息
