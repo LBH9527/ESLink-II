@@ -120,7 +120,6 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGUARM</Key>
-          <Name>?Kw黿B黿B/鴣S</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -157,34 +156,34 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>226</LineNumber>
+          <LineNumber>846</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>109330</Address>
+          <Address>99426</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\source\es-rtc\M939_RTC\rtc_calibrate.c</Filename>
+          <Filename>..\source\swd\M939_SWD\swd_prog_intf.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\output\../source/es-rtc/M939_RTC/rtc_calibrate.c\226</Expression>
+          <Expression>\\output\../source/swd/M939_SWD/swd_prog_intf.c\846</Expression>
         </Bp>
         <Bp>
           <Number>1</Number>
           <Type>0</Type>
-          <LineNumber>251</LineNumber>
+          <LineNumber>197</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>108426</Address>
+          <Address>90130</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\source\es-rtc\M939_RTC\rtc_calibrate.c</Filename>
+          <Filename>..\..\..\eslink\offline\offline_app.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\output\../source/es-rtc/M939_RTC/rtc_calibrate.c\251</Expression>
+          <Expression>\\output\../../../eslink/offline/offline_app.c\197</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -202,6 +201,21 @@
           <count>2</count>
           <WinNumber>1</WinNumber>
           <ItemText>current_time</ItemText>
+        </Ww>
+        <Ww>
+          <count>3</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>ofl_prj_info</ItemText>
+        </Ww>
+        <Ww>
+          <count>4</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>data</ItemText>
+        </Ww>
+        <Ww>
+          <count>5</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>failed_addr</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>
@@ -586,7 +600,7 @@
 
   <Group>
     <GroupName>offline</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -630,7 +644,7 @@
 
   <Group>
     <GroupName>cmsis-dap</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>

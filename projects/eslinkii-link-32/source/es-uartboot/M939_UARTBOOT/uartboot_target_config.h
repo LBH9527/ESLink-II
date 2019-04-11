@@ -1,5 +1,5 @@
 #ifndef _BOOTISP_TARGET_CONFIG_H_
-#define _BOOTISP_TARGET_CONFIG_H_   
+#define _BOOTISP_TARGET_CONFIG_H_
 
 #include "es_common.h"
 
@@ -12,7 +12,7 @@
 #define CMD_WR_MEMORY                   0xB1    /* 写数据*/
 #define CMD_ERASE                       0xC4        /* 擦除一个到全部falsh */
 #define CMD_GET_CRC                     0xD0    /* 读取若干字节的CRC32 */
-#define CMD_CHECK_EMPTY                 0xD1    /* 查空 */    
+#define CMD_CHECK_EMPTY                 0xD1    /* 查空 */
 #define CHIP_INFO1_INDEX            0x0101      //info1 索引值
 
 /******************************************************************************/
@@ -25,21 +25,21 @@
 /******************************************************************************/
 ////info区信息。参考《BootROM应用笔记》
 ////info区最大数量，暂定为4
-//#define CHIP_INFO_LEN_MAX       4   
+//#define CHIP_INFO_LEN_MAX       4
 ////info区属性
 //#define INFO_ATTR_NONE          0   //无属性
 //#define INFO_ATTR_RDP           1   //info区包含全加密字
-//#define INFO_ATTR_CPROP         2   //info区包含私有代码保护配置字  
+//#define INFO_ATTR_CPROP         2   //info区包含私有代码保护配置字
 
 ////芯片info区信息
-//typedef struct 
+//typedef struct
 //{
-//    const uint32_t start;       //info起始地址   
+//    const uint32_t start;       //info起始地址
 //    const uint32_t size;        //info区大小
 //    const uint32_t index;       //info区索引值
 //    const uint32_t attr;        //info区属性
-//}chip_info_t;  
- 
+//}chip_info_t;
+
 
 #endif
 

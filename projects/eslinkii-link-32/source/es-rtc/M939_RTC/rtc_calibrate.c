@@ -30,16 +30,10 @@
 //RTC_OUT   pwm输出，接校准台
 //CLK_IN    timer 时钟输入
 
-/*******************************************************************************
- * Definitions
- ******************************************************************************/
-/* The Flextimer base address/channel used for board */
 #define FTM_BASEADDR FTM1
 #define FTM_IRQ_NUM FTM1_IRQn
 //输入捕获
-/* FTM channel used for input capture */
 #define FTM_INPUT_CAPTURE_CHANNEL kFTM_Chnl_1
-/* Interrupt to enable and flag to read */
 #define FTM_CHANNEL_INTERRUPT_ENABLE kFTM_Chnl1InterruptEnable
 
 //RTC调校状态
@@ -62,6 +56,11 @@ static uint32_t time_over_cnt;          //溢出计数
 static uint32_t trig_count;              //捕获触发计数
 static uint32_t capture_cnt[9];         //目标芯片RTC 1Hz时钟脉冲计数 数组
 
+static struct es_prog_ops *rtc_prog_intf;   //脱机编程接口
+
+
+#define RTC_OUT_TOGGLE() \
+  PIN_RTC_OUT_GPIO->PTOR = 1 << PIN_RTC_OUT_BIT               //翻转
 
 static void rtc_gpio_init(void)
 {
@@ -71,9 +70,7 @@ static void rtc_gpio_init(void)
 static void rtc_gpio_uninit(void)
 {
   PIN_RTC_OUT_GPIO->PDDR &= ~(1 << PIN_RTC_OUT_BIT);            /* Input */
-}
-#define RTC_OUT_TOGGLE() \
-  PIN_RTC_OUT_GPIO->PTOR = 1 << PIN_RTC_OUT_BIT               //翻转
+}  
 //开始自校正脉冲
 static void start_self_cali(void)
 {
@@ -86,8 +83,8 @@ static void stop_self_cali(void)
 }
 
 /*******************************************************************************
-* 函 数 名:
-* 功能说明:
+* 函 数 名: RTC_Init_FTM
+* 功能说明: rtc 初始化
 * 形    参:
 * 返 回 值: 错误类型
 *******************************************************************************/
@@ -133,8 +130,6 @@ static void RTC_close_FTM(void)
   DisableIRQ(FTM_IRQ_NUM);
   FTM_StopTimer(FTM_BASEADDR);
 }
-
-
 /*******************************************************************************
 * 函 数 名: rtc_Init
 * 功能说明: 初始化
@@ -229,17 +224,17 @@ static error_t rtc_calibration_start(void)
 
   //1、烧录RTC调校程序。
   //ISP编程
-  ret = isp_prog_intf.prog_init();
+  ret = rtc_prog_intf->prog_init();
 
   if (ERROR_SUCCESS != ret)
     return ret;
 
-  ret = isp_prog_intf.erase_chip(0);
+  ret = rtc_prog_intf->erase_chip(0);
 
   if (ERROR_SUCCESS != ret)
     return ret;
 
-  ret = isp_prog_intf.check_empty(&failaddr, &faildata);
+  ret = rtc_prog_intf->check_empty(&failaddr, &faildata);
 
   if (ERROR_SUCCESS != ret)
     return ret;
@@ -373,12 +368,10 @@ static error_t rtc_calibration_end(void)
   uint32_t parabolic_vertex_temp_reg; //抛物线顶点温度寄存器
   float parabolic_vertex_temp;        //抛物线顶点温度
   uint32_t reg_temp[2] = {0xffffffff, 0xffffffff};    //寄存器临时变量
-  double temp;
+  float temp;
 //    uint32_t fail;
 
-  //ISP编程
-  ret = isp_prog_intf.prog_init();
-
+  ret = rtc_prog_intf->prog_init();  
   if (ERROR_SUCCESS != ret)
     return ret;
 
@@ -406,10 +399,10 @@ static error_t rtc_calibration_end(void)
   parabolic_open = (float)parabolic_open_reg / 524288;       //2^19
   parabolic_vertex_temp = (float)parabolic_vertex_temp_reg / 256;  //2^8
 
-  temp = (double)current_temp / 256 - parabolic_vertex_temp; //T-T1
+  temp = (float)current_temp / 256 - parabolic_vertex_temp; //T-T1
   temp *= temp;   //(T-T1)^2
   temp *= parabolic_open;  //a(T - T1)^2
-  parabolic_vertex_ppm =  target_freq_ppm + (float)temp ; //y0 = y + a(T - T1)^2 ;
+  parabolic_vertex_ppm =  target_freq_ppm + temp ; //y0 = y + a(T - T1)^2 ;
 
   //保存计算结果到RTC info
   parabolic_vertex_ppm *= 256  ;

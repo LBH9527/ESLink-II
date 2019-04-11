@@ -183,7 +183,7 @@ static error_t es_swd_erase_chip(uint8_t para)
 
   status = es_swd_chipid_check();
 
-  
+
   if ((ERROR_SUCCESS != status) && (ERROR_LV2_ENCRYPT != status))
     return status;
 
@@ -283,10 +283,13 @@ static error_t es_swd_read_checksum(uint8_t *buf)
   }
 
   //参考上位机校验和取数据方式来返回数据
-  *buf++ = checksum_l[0];
-  *buf++ = checksum_l[1];
-  *buf++ = checksum_h[0];
-  *buf++ = checksum_h[1];
+  if (buf)
+  {
+    *buf++ = checksum_l[0];
+    *buf++ = checksum_l[1];
+    *buf++ = checksum_h[0];
+    *buf++ = checksum_h[1];
+  }
 
   return ERROR_SUCCESS;
 }
@@ -313,10 +316,10 @@ static error_t es_swd_program_flash(uint32_t addr, uint8_t *buf, uint32_t size, 
 }
 
 /*******************************************************************************
-*	函 数 名: es_swd_read_flash
-*	功能说明: 读flash
-*	形    参:  
-*	返 回 值: 错误类型
+* 函 数 名: es_swd_read_flash
+* 功能说明: 读flash
+* 形    参:
+* 返 回 值: 错误类型
 *******************************************************************************/
 static error_t es_swd_read_flash(uint32_t addr, uint8_t *buf, uint32_t size)
 {
@@ -329,10 +332,10 @@ static error_t es_swd_read_flash(uint32_t addr, uint8_t *buf, uint32_t size)
 }
 
 /*******************************************************************************
-*	函 数 名: es_swd_verify_flash
-*	功能说明: flash校验
-*	形    参:  
-*	返 回 值: 错误类型
+* 函 数 名: es_swd_verify_flash
+* 功能说明: flash校验
+* 形    参:
+* 返 回 值: 错误类型
 *******************************************************************************/
 static error_t es_swd_verify_flash(uint32_t addr,  uint8_t *data, uint32_t size, uint32_t *failed_addr, uint32_t *failed_data)
 {
@@ -356,11 +359,17 @@ static error_t es_swd_verify_flash(uint32_t addr,  uint8_t *data, uint32_t size,
     {
       if (data[i] != read_buf[i])
       {
-        *failed_addr = addr + ROUND_DOWN(i, 4)  ;
-        *failed_data |= (read_buf[*failed_addr] << 0) ;
-        *failed_data |= (read_buf[*failed_addr + 1] << 8) ;
-        *failed_data |= (read_buf[*failed_addr + 2] << 16) ;
-        *failed_data |= (read_buf[*failed_addr + 3] << 24) ;
+        if (failed_addr)
+          *failed_addr = addr + ROUND_DOWN(i, 4)  ;
+
+        if (failed_data)
+        {
+          *failed_data |= (read_buf[*failed_addr] << 0) ;
+          *failed_data |= (read_buf[*failed_addr + 1] << 8) ;
+          *failed_data |= (read_buf[*failed_addr + 2] << 16) ;
+          *failed_data |= (read_buf[*failed_addr + 3] << 24) ;
+        }
+
         return ERROR_SWD_VERIFY;
       }
     }
@@ -491,11 +500,17 @@ static error_t es_swd_verify_config(uint32_t addr,  uint8_t *buf, uint32_t size,
       {
         if (*buf++ != read_buf[i])
         {
-          *failed_addr = addr + ROUND_DOWN(i, 4)  ;
-          *failed_data |= (read_buf[*failed_addr] << 0) ;
-          *failed_data |= (read_buf[*failed_addr + 1] << 8) ;
-          *failed_data |= (read_buf[*failed_addr + 2] << 16) ;
-          *failed_data |= (read_buf[*failed_addr + 3] << 24) ;
+          if (failed_addr)
+            *failed_addr = addr + ROUND_DOWN(i, 4)  ;
+
+          if (failed_data)
+          {
+            *failed_data |= (read_buf[*failed_addr] << 0) ;
+            *failed_data |= (read_buf[*failed_addr + 1] << 8) ;
+            *failed_data |= (read_buf[*failed_addr + 2] << 16) ;
+            *failed_data |= (read_buf[*failed_addr + 3] << 24) ;
+          }
+
           return ERROR_SWD_VERIFY;
         }
       }
@@ -587,11 +602,17 @@ error_t es_swd_check_empty(uint32_t *failed_addr, uint32_t *failed_data)
     {
       if (read_buf[i] != 0xFF)
       {
-        *failed_addr = code_addr + ROUND_DOWN(i, 4)  ;
-        *failed_data |= (read_buf[*failed_addr] << 0) ;
-        *failed_data |= (read_buf[*failed_addr + 1] << 8) ;
-        *failed_data |= (read_buf[*failed_addr + 2] << 16) ;
-        *failed_data |= (read_buf[*failed_addr + 3] << 24) ;
+        if (failed_addr)
+          *failed_addr = code_addr + ROUND_DOWN(i, 4)  ;
+
+        if (failed_data)
+        {
+          *failed_data |= (read_buf[*failed_addr] << 0) ;
+          *failed_data |= (read_buf[*failed_addr + 1] << 8) ;
+          *failed_data |= (read_buf[*failed_addr + 2] << 16) ;
+          *failed_data |= (read_buf[*failed_addr + 3] << 24) ;
+        }
+
         return ERROR_SWD_FLASH_CHECK_EMPTY;
       }
     }
@@ -627,11 +648,17 @@ error_t es_swd_check_empty(uint32_t *failed_addr, uint32_t *failed_data)
       {
         if (read_buf[i] != 0xFF)
         {
-          *failed_addr = code_addr + ROUND_DOWN(i, 4)  ;
-          *failed_data |= (read_buf[*failed_addr] << 0) ;
-          *failed_data |= (read_buf[*failed_addr + 1] << 8) ;
-          *failed_data |= (read_buf[*failed_addr + 2] << 16) ;
-          *failed_data |= (read_buf[*failed_addr + 3] << 24) ;
+          if (failed_addr)
+            *failed_addr = code_addr + ROUND_DOWN(i, 4)  ;
+
+          if (failed_data)
+          {
+            *failed_data |= (read_buf[*failed_addr] << 0) ;
+            *failed_data |= (read_buf[*failed_addr + 1] << 8) ;
+            *failed_data |= (read_buf[*failed_addr + 2] << 16) ;
+            *failed_data |= (read_buf[*failed_addr + 3] << 24) ;
+          }
+
           return ERROR_SWD_CFG_WORD_CHECK_EMPTY;
         }
       }

@@ -23,7 +23,7 @@
 
 
 static es_target_cfg es_target_device;      //目标芯片信息
-static struct es_prog_ops *online_prog_intf;
+struct es_prog_ops *online_prog_intf;
 typedef enum
 {
   STATE_DISABLE,  //失能
@@ -88,6 +88,12 @@ error_t es_prog_set_intf(prog_intf_type_t type)
 
   return ERROR_SUCCESS;
 }
+/*******************************************************************************
+*	函 数 名: es_prog_get_intf
+*	功能说明: 获取烧录接口
+*	形    参:  
+*	返 回 值: 错误类型
+*******************************************************************************/
 static error_t es_prog_get_intf(uint8_t *data)
 {
   prog_intf_type_t type;

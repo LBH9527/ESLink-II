@@ -199,7 +199,7 @@ ofl_error_t ofl_prog(void)
         if (ret != ERROR_SUCCESS)
           return OFL_ERR_ENTRY_MODE;
 
-        ret = ofl_prog_intf->erase_chip(0);    
+        ret = ofl_prog_intf->erase_chip(0);
 
         if (ret != ERROR_SUCCESS)
           return  OFL_ERR_ERASE;
@@ -270,7 +270,7 @@ ofl_error_t ofl_prog(void)
 
         if (ret != ERROR_SUCCESS)
         {
-          return  OFL_ERR_ENCRYPT;
+          return  OFL_ERR_RTC_CALI;
         }
 
         break;
@@ -280,7 +280,7 @@ ofl_error_t ofl_prog(void)
 
         if (ret != ERROR_SUCCESS)
         {
-          return  OFL_ERR_ENCRYPT;
+          return  OFL_ERR_RTC_VERIFY;
         }
 
         break;
@@ -290,14 +290,17 @@ ofl_error_t ofl_prog(void)
         break;
     }
   }
+#ifdef M610   //M610没有做防误差，需要在编程后判断ID是否被误擦
+  ret = ofl_prog_intf->prog_init();
+
+  if (ret != ERROR_SUCCESS)
+    return OFL_ERR_ENTRY_MODE;
 
   ret = ofl_prog_intf->chipid_check();
 
   if (ret != ERROR_SUCCESS)
-  {
     return  OFL_ERR_CHIPID_CHECK;
-  }
-
+#endif
   //编程成功
   sn_info.success_count ++;       //烧录成功+1
 
