@@ -12,25 +12,25 @@
   *
   **************************************************************************************
   */
-#include "es_common.h " 
+#include "es_common.h "
 #include "cortex_m.h"
 #include "clock_config.h"
 #include "systick.h"
 
-__IO uint32_t run_time = 0;
+__IO int32_t run_time = 0;
 static volatile uint32_t delay_count = 0;
-static volatile uint8_t time_out_flag = 0;  
+static volatile uint8_t time_out_flag = 0;
 
 /*******************************************************************************
-*  函 数 名: 
+*  函 数 名:
 *  功能说明: 配置systick中断，并初始化软件定时器变量
 *  形    参:  无
 *  返 回 值: 无
 *******************************************************************************/
 void bsp_init_systick(void)
-{  
+{
   SysTick_Config(SystemCoreClock / 1000);             //1ms
-}  
+}
 /*******************************************************************************
 *    函 数 名: bsp_delay_us
 *    功能说明: us级延迟。 必须在systick定时器启动后才能调用此函数。
@@ -39,41 +39,43 @@ void bsp_init_systick(void)
 *******************************************************************************/
 void bsp_delay_us(uint32_t n)
 {
-    uint32_t ticks;
-    uint32_t told;
-    uint32_t tnow;
-    uint32_t tcnt = 0;
-    uint32_t reload;
+  uint32_t ticks;
+  uint32_t told;
+  uint32_t tnow;
+  uint32_t tcnt = 0;
+  uint32_t reload;
 
-    reload = SysTick->LOAD;
-    ticks = n * (SystemCoreClock / 1000000);  /* 需要的节拍数 */
-    tcnt = 0;
-    told = SysTick->VAL;                        /* 刚进入时的计数器值 */
+  reload = SysTick->LOAD;
+  ticks = n * (SystemCoreClock / 1000000);  /* 需要的节拍数 */
+  tcnt = 0;
+  told = SysTick->VAL;                        /* 刚进入时的计数器值 */
 
-    while (1)
+  while (1)
+  {
+    tnow = SysTick->VAL;
+
+    if (tnow != told)
     {
-        tnow = SysTick->VAL;
-        if (tnow != told)
-        {
-            /* SYSTICK是一个递减的计数器 */
-            if (tnow < told)
-            {
-                tcnt += told - tnow;
-            }
-            /* 重新装载递减 */
-            else
-            {
-                tcnt += reload - tnow + told;
-            }
-            told = tnow;
+      /* SYSTICK是一个递减的计数器 */
+      if (tnow < told)
+      {
+        tcnt += told - tnow;
+      }
+      /* 重新装载递减 */
+      else
+      {
+        tcnt += reload - tnow + told;
+      }
 
-            /* 时间超过/等于要延迟的时间,则退出 */
-            if (tcnt >= ticks)
-            {
-              break;
-            }
-        }
+      told = tnow;
+
+      /* 时间超过/等于要延迟的时间,则退出 */
+      if (tcnt >= ticks)
+      {
+        break;
+      }
     }
+  }
 }
 
 /*******************************************************************************
@@ -87,25 +89,26 @@ extern void main_10ms_task(void);
 void SysTick_Handler(void)
 {
   static uint8_t count = 0;
-    
-    run_time++;
+
+  if (run_time++ == 0x7FFFFFFF)
+  {
+    run_time = 0;
+  }
   if (delay_count > 0)
   {
     if (--delay_count == 0)
     {
       time_out_flag = 1;
     }
-  } 
+  }
 
   if (++count >= 10)
   {
-    count = 0;   
-    main_10ms_task();  
+    count = 0;
+    main_10ms_task();
   }
-    
+
 }
-
-
 
 /*******************************************************************************
 *  函 数 名: bsp_DelayMS
@@ -113,7 +116,7 @@ void SysTick_Handler(void)
 *  形    参:  n : 延迟长度，单位1 ms。 n 应大于2
 *  返 回 值: 无
 *******************************************************************************/
-void bsp_delay_ms( uint32_t Delay)
+void bsp_delay_ms(uint32_t Delay)
 {
   if (Delay == 0)
   {
@@ -147,19 +150,42 @@ void bsp_delay_ms( uint32_t Delay)
 }
 
 
-uint32_t bsp_time_get(void)
+int32_t bsp_time_get(void)
 {
   int32_t runtime;
 
-  DISABLE_INT();    
+  DISABLE_INT();
 
-  runtime = run_time;  
+  runtime = run_time;
 
-  ENABLE_INT();      
+  ENABLE_INT();
 
   return runtime;
 }
 
+
+int32_t bsp_check_run_time(int32_t last_time)
+{
+  int32_t now_time;
+  int32_t time_diff;
+
+  DISABLE_INT();        /* 关中断 */
+
+  now_time = run_time;  /* 这个变量在Systick中断中被改写，因此需要关中断进行保护 */
+
+  ENABLE_INT();         /* 开中断 */
+
+  if (now_time >= last_time)
+  {
+    time_diff = now_time - last_time;
+  }
+  else
+  {
+    time_diff = 0x7FFFFFFF - last_time + now_time;
+  }
+
+  return time_diff;
+}
 
 
 

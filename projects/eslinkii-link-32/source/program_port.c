@@ -1,9 +1,12 @@
 #include "eslink.h"
 #include "program_port.h"
-/*
- * ¸üÐÂÐòÁÐºÅµ½ÓÃ»§HEXÖÐ
- * sn: ÐòÁÐºÅ  addr£ºÌîÈëÐòÁÐºÅµÄµØÖ·   data£º HEXÊý¾Ý   size£ºhex´óÐ¡
- */
+
+/*******************************************************************************
+*	å‡½ æ•° å: serial_number_intercept_write
+*	åŠŸèƒ½è¯´æ˜Ž: æ›´æ–°åºåˆ—å·åˆ°ç”¨æˆ·HEXä¸­
+*	å½¢    å‚: sn: åºåˆ—å·  addrï¼šå¡«å…¥åºåˆ—å·çš„åœ°å€   dataï¼š HEXæ•°æ®   sizeï¼šhexå¤§å°
+*	è¿” å›ž å€¼: é”™è¯¯ç±»åž‹
+*******************************************************************************/
 void serial_number_intercept_write(serial_number_t *sn, uint32_t addr, uint8_t *data, uint32_t size)
 {        
     if( (sn->addr >= addr) &  ((sn->addr + sn->size) <= addr+size) )
@@ -36,10 +39,14 @@ void eslink_set_target_reset_run(uint8_t delay_ms)
 }
 void eslink_set_target_power_reset(uint8_t delay_ms)
 {
-    PIN_RST_OUT(1) ;  
+    //é˜²æ­¢sck  sdaç®¡è„šç”µæµå€’çŒ
+    PIN_ISPCLK_CLR();
+    PIN_ISPSDA_CLR();
+    PIN_RST_OUT(0) ;  
     es_set_trget_power(TRGET_POWER_DISABLE);
     es_delay_ms(delay_ms);
     es_set_trget_power(TRGET_POWER_ENABLE); 
+    PIN_RST_OUT(1) ;  
 }
 
 

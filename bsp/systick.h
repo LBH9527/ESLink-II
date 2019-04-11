@@ -15,7 +15,7 @@
 void bsp_init_systick(void);    
 void bsp_delay_ms( uint32_t Delay);
 void bsp_delay_us(uint32_t n);  
-uint32_t bsp_time_get(void);
-
+int32_t bsp_time_get(void);
+int32_t bsp_check_run_time(int32_t last_time);
 #endif
 

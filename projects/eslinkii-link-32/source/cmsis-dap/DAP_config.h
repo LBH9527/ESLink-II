@@ -460,11 +460,6 @@ static inline void DAP_SETUP(void)
             PORT_PCR_PS_MASK;   /* Pull-up */
     PIN_nRESET_I_GPIO->PDDR &= ~(1 << PIN_nRESET_I_BIT);             /* Input */
     
-    /* Configure LED */
-//    LED_CONNECTED_PORT->PCR[LED_CONNECTED_BIT] = PORT_PCR_MUX(1)  |  /* GPIO */
-//            PORT_PCR_ODE_MASK;  /* Open-drain */
-//    LED_CONNECTED_GPIO->PCOR  = 1 << LED_CONNECTED_BIT;              /* Turned on */
-//    LED_CONNECTED_GPIO->PDDR |= 1 << LED_CONNECTED_BIT;              /* Output */
 }
 
 /** Reset Target Device with custom specific I/O pin or command sequence.

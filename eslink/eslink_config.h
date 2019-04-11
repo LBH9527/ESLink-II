@@ -38,7 +38,7 @@ static inline void PORT_ISP_OFF(void)
   PIN_ISPSDA_NOE_GPIO->PSOR = 1 << PIN_ISPSDA_NOE_BIT;
   PIN_ISPSCK_NOE_GPIO->PSOR = 1 << PIN_ISPSCK_NOE_BIT;
 //    PIN_RST_O_GPIO->PSOR    = 1 << PIN_RST_O_BIT;
-  PIN_RST_O_GPIO->PDDR &= ~PIN_RST_O; //input
+//  PIN_RST_O_GPIO->PDDR &= ~PIN_RST_O; //input
 //    PIN_RST_O_PORT->PCR[PIN_RST_O_BIT] |= PORT_PCR_ISF_MASK;
 //    PIN_RST_O_PORT->PCR[PIN_RST_O_BIT] = PORT_PCR_PS_MASK | PORT_PCR_PE_MASK | PORT_PCR_PFE_MASK | PORT_PCR_MUX(1);
 }
@@ -209,11 +209,6 @@ static inline void ISP_SETUP(void)
                                          PORT_PCR_PS_MASK;   /* Pull-up */
   PIN_RST_I_GPIO->PDDR &= ~(1 << PIN_RST_I_BIT);             /* Input */
 
-//    /* Configure LED */
-//    LED_CONNECTED_PORT->PCR[LED_CONNECTED_BIT] = PORT_PCR_MUX(1)  |  /* GPIO */
-//            PORT_PCR_ODE_MASK;  /* Open-drain */
-//    LED_CONNECTED_GPIO->PCOR  = 1 << LED_CONNECTED_BIT;              /* Turned on */
-//    LED_CONNECTED_GPIO->PDDR |= 1 << LED_CONNECTED_BIT;              /* Output */
 }
 
 #ifdef __cplusplus

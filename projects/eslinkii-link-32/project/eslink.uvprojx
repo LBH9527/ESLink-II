@@ -600,6 +600,13 @@
         </Group>
         <Group>
           <GroupName>es-rtc</GroupName>
+          <Files>
+            <File>
+              <FileName>rtc_calibrate.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\es-rtc\M939_RTC\rtc_calibrate.c</FilePath>
+            </File>
+          </Files>
         </Group>
         <Group>
           <GroupName>es-swd</GroupName>

@@ -105,7 +105,7 @@ static error_t es_prog_get_intf(uint8_t *data)
 
 #endif
 #if ESLINK_BOOTISP_ENABLE
-  else if (online_prog_intf ==  &isp_prog_intf)
+  else if (online_prog_intf ==  &uartboot_prog_intf)
   {
     type = PRG_INTF_BOOTISP;
   }

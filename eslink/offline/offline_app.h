@@ -3,28 +3,30 @@
 
 
 //脱机编程状态
-typedef enum  {
-    IN_MODE_CHECK = 0,
-    OFL_PROG_ING,
-    OUT_MODE_CHECK,
+typedef enum
+{
+  IN_MODE_CHECK = 0,
+  OFL_PROG_ING,
+  OUT_MODE_CHECK,
 } ofl_prog_state_t;
 
 //编程错误状态
-typedef enum{
-    OFL_SUCCESS,
-    
-    OFL_ERR_ENTRY_MODE,         //进模式失败
-    OFL_ERR_CHIPID_CHECK,       //ID检测失败
-    OFL_ERR_ERASE,              //擦除失败
-    OFL_ERR_CHECK_EMPTY,        //查空
-    OFL_ERR_PROG,               //编程失败
-    OFL_ERR_VERIFY,             //校验
-    OFL_ERR_ENCRYPT,            //加密
-    OFL_ERR_COUNT_FULL,         //烧录计数溢出
-    OFL_ERR_PROG_INTF,          //编程接口设置失败
-    OFL_ERR_RTC_CALI,           //RTC调校
-    OFL_ERR_RTC_VERIFY,         //RTC校验
-    
+typedef enum
+{
+  OFL_SUCCESS,
+
+  OFL_ERR_ENTRY_MODE,         //进模式失败
+  OFL_ERR_CHIPID_CHECK,       //ID检测失败
+  OFL_ERR_ERASE,              //擦除失败
+  OFL_ERR_CHECK_EMPTY,        //查空
+  OFL_ERR_PROG,               //编程失败
+  OFL_ERR_VERIFY,             //校验
+  OFL_ERR_ENCRYPT,            //加密
+  OFL_ERR_COUNT_FULL,         //烧录计数溢出
+  OFL_ERR_PROG_INTF,          //编程接口设置失败
+  OFL_ERR_RTC_CALI,           //RTC调校
+  OFL_ERR_RTC_VERIFY,         //RTC校验
+
 } ofl_error_t ;
 
 #define OFFLINE_PROG_PLUS_MODE          0x00    //

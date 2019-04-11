@@ -1,5 +1,5 @@
 #ifndef __RTC_TARGET_H__
-#define __RTC_TARGET_H__  
+#define __RTC_TARGET_H__
 
 
 
@@ -23,13 +23,13 @@
 
 //硬件补偿低温二次项系数地址
 #define RTC_LTCCR_OFFSET                6
-//硬件补偿高温四次项系数地址  
-#define RTC_HTCAR_OFFSET                8 
-//硬件补偿高温二次项系数地址  
+//硬件补偿高温四次项系数地址
+#define RTC_HTCAR_OFFSET                8
+//硬件补偿高温二次项系数地址
 #define RTC_HTCCR_OFFSET                10
 //温感标定点温度提取值寄存器
-#define RTC_TEMP_TCALBDR_OFFSET         22 
-#define RTC_TEMP_TCALBDR_INV_OFFSET     23 
+#define RTC_TEMP_TCALBDR_OFFSET         22
+#define RTC_TEMP_TCALBDR_INV_OFFSET     23
 
 
 #define INFO_TEMPT_ADDR                     0x0348
@@ -38,8 +38,4 @@
 
 #endif
 
-        
-  
 
-
-  

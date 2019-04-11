@@ -228,15 +228,25 @@ static error_t uartboot_chipid_check(void)
 static error_t uartboot_prog_read_checksum(uint8_t *buf)
 {
   error_t ret;
-
+  uint8_t checksum_h[4], checksum_l[4];
+  
   ret = uartboot_chipid_check();
 
   if (ERROR_SUCCESS != ret)
     return ret;
 
-  if (uartboot_read_memory(CHIP_INFO_FLASH_OFFSET + CHIP_CHECKSUM_ADDR, buf, 4) != TRUE)
+  if (uartboot_read_memory(CHIP_INFO_FLASH_OFFSET + CHIP_CHECKSUM_ADDR, checksum_l, 4) != TRUE)
     return ERROR_UARTBOOT_READ;
-
+  
+  if (uartboot_read_memory(CHIP_INFO_FLASH_OFFSET + CHIP_CHECKSUMN_ADDR, checksum_h, 4) != TRUE)
+    return ERROR_UARTBOOT_READ;
+  
+   //参考上位机校验和取数据方式来返回数据
+  *buf++ = checksum_l[0];
+  *buf++ = checksum_l[1];
+  *buf++ = checksum_h[0];
+  *buf++ = checksum_h[1];
+  
   return ERROR_SUCCESS;
 }
 /*******************************************************************************
@@ -466,7 +476,7 @@ static error_t uartboot_prog_verify_flash(uint32_t addr,  uint8_t *data, uint32_
         *failed_data |= (read_buf[*failed_addr + 1] << 8) ;
         *failed_data |= (read_buf[*failed_addr + 2] << 16) ;
         *failed_data |= (read_buf[*failed_addr + 3] << 24) ;
-        return ERROR_SWD_VERIFY;
+        return ERROR_UARTBOOT_VERIFY;
       }
     }
 
