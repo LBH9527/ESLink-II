@@ -23,10 +23,9 @@ struct info_part_map
 #define CHIP_INFO_PART2_ADDR        0x7C0
 #define CHIP_INFO_PART2_SIZE        96    //24--->96        
 
-//RTC INFO 地址
-#define CHIP_RTC_INFO_ADDR          0x1000    
-#define CHIP_RTC_INFO_SIZE          64    //16---->64               //16个字长
-#define CHIP_RTC_INFO_OFFSET        152   //38---->152              //rtcinfo 在配置字中的偏移量
+//配置字中RTC INFO 地址  
+#define CHIP_RTC_INFO_PART_OFFSET  (CHIP_INFO_PART1_SIZE + CHIP_INFO_PART2_SIZE)        //rtcinfo 在配置字中的偏移量 
+#define CHIP_RTC_INFO_PART_SIZE     64    //16---->64   //16个字长,XML中下发数据长度
 
 
 static const struct info_part_map info_part_map[] =
@@ -43,10 +42,15 @@ static const struct info_part_map info_part_map[] =
 #define M939_RTC_CONFIG_DEFAULT_L       0xF0FE0F01
 
 //4.SWD\UARTBoot编程信息，根据IDE SPEC确认  
-#define CHIP_INFO_FLASH_OFFSET          0x40000           //INFO区在flash中的绝对地址
+#define CHIP_INFO_FLASH_BASE              0x40000           //INFO区在flash中的绝对地址
+#define CHIP_INFO_SIZE                    (0x400)
 
-#define CHIP_INFO1_OFFSET                (0x400)
-#define CHIP_INFO1_ADDR                  (CHIP_INFO_FLASH_OFFSET + CHIP_INFO1_OFFSET)
-#define CHIP_INFO1_SIZE                  (0x400)
+#define CHIP_INFO1_OFFSET                 (0x400) 
+#define CHIP_INFO1_ADDR                   (CHIP_INFO_FLASH_BASE + CHIP_INFO1_OFFSET)
 
+#define CHIP_INFO2_OFFSET                 (0x800)
+#define CHIP_INFO2_ADDR                   (CHIP_INFO_FLASH_BASE + CHIP_INFO2_OFFSET)
+
+#define CHIP_RTC_INFO_OFFSET              (0x1000) 
+#define CHIP_RTC_INFO_ADDR                (CHIP_INFO_FLASH_BASE + CHIP_RTC_INFO_OFFSET)
 #endif

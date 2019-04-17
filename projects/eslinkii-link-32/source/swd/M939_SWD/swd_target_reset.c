@@ -18,15 +18,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+//以下接口 每个芯片可以单独配置
 #include "swd_target_reset.h"
 #include "swd_host.h"
+#include "eslink.h"
 
+//目标芯片 SWD SCLK IO配置为输出
 void target_before_init_debug(void)
 {
   // any target specific sequences needed before attaching
   //  to the DAP across JTAG or SWD
-//    swd_set_target_reset(1);
+  swd_set_target_reset(1);
+  
+  es_delay_ms(10);
+  
   return;
 }
 

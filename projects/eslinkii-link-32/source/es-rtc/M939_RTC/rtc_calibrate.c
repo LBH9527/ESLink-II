@@ -21,6 +21,7 @@
 #include "eeprom_port.h"
 #include "program_port.h"
 #include "isp_prog_intf.h"
+#include "swd_prog_intf.h"
 #include "rtc_target.h"
 #include "rtc_calibrate.h"
 #include "target_config.h"
@@ -56,7 +57,16 @@ static uint32_t time_over_cnt;          //溢出计数
 static uint32_t trig_count;              //捕获触发计数
 static uint32_t capture_cnt[9];         //目标芯片RTC 1Hz时钟脉冲计数 数组
 
-static struct es_prog_ops *rtc_prog_intf;   //脱机编程接口
+volatile static prog_intf_type_t prog_intf_type = PRG_INTF_ISP;
+//编程操作接口
+struct rtc_prog_ops
+{
+  struct es_prog_ops *prog_intf;
+  error_t (*read_info)(uint32_t addr, uint32_t *buf, uint32_t size);
+  error_t (*program_info)(uint32_t addr, uint32_t *buf, uint32_t size);
+  error_t (*erase_rtc_info)(void);
+  error_t (*program_rtc_flash_info)(void);
+} rtc_handler ;
 
 
 #define RTC_OUT_TOGGLE() \
@@ -70,7 +80,7 @@ static void rtc_gpio_init(void)
 static void rtc_gpio_uninit(void)
 {
   PIN_RTC_OUT_GPIO->PDDR &= ~(1 << PIN_RTC_OUT_BIT);            /* Input */
-}  
+}
 //开始自校正脉冲
 static void start_self_cali(void)
 {
@@ -141,7 +151,6 @@ void rtc_Init(void)
   RTC_Init_FTM();
   rtc_gpio_uninit();
   stop_self_cali();
-//    rtc_self_cali_freq =  9999853;
 }
 
 /*******************************************************************************
@@ -206,6 +215,54 @@ static uint32_t abs_diff(uint32_t x1, uint32_t x2)
   }
 }
 
+static error_t rtc_calibration_set_intf(prog_intf_type_t type)
+{
+  if (PRG_INTF_ISP == type)
+  {
+    rtc_handler.prog_intf = &isp_prog_intf;
+    rtc_handler.program_info = isp_program_rtc_info;
+    rtc_handler.read_info = isp_read_rtc_info;
+    rtc_handler.erase_rtc_info = isp_erase_rtc_info;
+    rtc_handler.program_rtc_flash_info = isp_program_rtc_flash_info;
+  }
+
+#if ESLINK_SWD_ENABLE
+  else if (PRG_INTF_SWD ==  type)
+  {
+    rtc_handler.prog_intf = &swd_prog_intf;
+    rtc_handler.program_info = swd_program_rtc_info;
+    rtc_handler.read_info = swd_read_rtc_info;
+    rtc_handler.erase_rtc_info = swd_erase_rtc_info;
+    rtc_handler.program_rtc_flash_info = swd_program_rtc_flash_info;
+  }
+
+#endif
+  else
+  {
+    return ERROR_PROG_INTF;
+  }
+
+  return ERROR_SUCCESS;
+}
+/*******************************************************************************
+* 函 数 名: rtc_calibration_set_intf
+* 功能说明: rtc调校接口设置
+* 形    参: type:编程接口
+* 返 回 值: 错误类型
+*******************************************************************************/
+error_t rtc_calibration_set(prog_intf_type_t type)
+{
+  error_t ret = ERROR_SUCCESS;
+
+  prog_intf_type = type;
+  ret = rtc_calibration_set_intf(prog_intf_type);
+
+  if (ERROR_SUCCESS != ret)
+    return ret;
+
+  return ret;
+}
+
 /*******************************************************************************
 * 函 数 名: rtc_calibration_start
 * 功能说明: rtc调校开始 .烧录RTC调校程序。
@@ -215,39 +272,23 @@ static uint32_t abs_diff(uint32_t x1, uint32_t x2)
 static error_t rtc_calibration_start(void)
 {
   error_t ret = ERROR_SUCCESS;
-  uint32_t failaddr;
-  uint32_t faildata;
-  uint8_t result;
-  uint32_t reg_temp[6] = {0x00};    //寄存器临时变量
-  uint32_t rtc_info_reg[RTC_INFO_SIZE];          //rtc info寄存器值
+//  uint32_t failaddr;
+//  uint32_t faildata;
+
+  uint32_t reg_temp[6] = {0x00};                  //寄存器临时变量
+  uint32_t rtc_info_reg[RTC_INFO_DATA_SIZE];           //rtc info寄存器值
 //    uint32_t temp1, temp2;
 
   //1、烧录RTC调校程序。
-  //ISP编程
-  ret = rtc_prog_intf->prog_init();
+  ret = rtc_handler.program_rtc_flash_info();
 
   if (ERROR_SUCCESS != ret)
     return ret;
 
-  ret = rtc_prog_intf->erase_chip(0);
+  ret = rtc_handler.read_info(INFO0_TEMPT_ADDR, reg_temp, sizeof(reg_temp) / sizeof(uint32_t));
 
   if (ERROR_SUCCESS != ret)
     return ret;
-
-  ret = rtc_prog_intf->check_empty(&failaddr, &faildata);
-
-  if (ERROR_SUCCESS != ret)
-    return ret;
-
-  ret = isp_prog_intf.program_private(NULL);
-
-  if (ERROR_SUCCESS != ret)
-    return ret;
-
-  result = isp_read_config(INFO_TEMPT_ADDR, reg_temp, 6);
-
-  if (result != TRUE)
-    return ERROR_RTC_CALI_START;
 
   //判断温感标定温度值是否正确
 #if 0
@@ -263,17 +304,26 @@ static error_t rtc_calibration_start(void)
 #endif
   //调教前写入数据
   //读info寄存器
-  result = isp_read_config(RTC_INFO_BASC_ADDR, rtc_info_reg, RTC_INFO_SIZE);
+  ret = rtc_handler.read_info(RTC_INFO_BASE_ADDR, rtc_info_reg, RTC_INFO_DATA_SIZE);
+
+  if (ERROR_SUCCESS != ret)
+    return ret;
+
   rtc_info_reg[RTC_TEMP_TBDR_OFFSET] = reg_temp[0];
   rtc_info_reg[RTC_TEMP_TCALBDR_OFFSET] = reg_temp[2];
   rtc_info_reg[RTC_TEMP_TCALBDR_INV_OFFSET] = reg_temp[4];
-  result = rtc_info_erase();
-  result = isp_program_config(RTC_INFO_BASC_ADDR, rtc_info_reg, 24,  &failaddr);
 
-  if (result != TRUE)
-    return ERROR_RTC_CALI_START;
+  ret = rtc_handler.erase_rtc_info();
 
-  return ret;
+  if (ERROR_SUCCESS != ret)
+    return ret;
+
+  ret = rtc_handler.program_info(RTC_INFO_BASE_ADDR, rtc_info_reg, RTC_INFO_PROG_DATA_SIZE);
+
+  if (ERROR_SUCCESS != ret)
+    return ret;
+
+  return ERROR_SUCCESS;
 }
 /*******************************************************************************
 * 函 数 名: rtc_calibration
@@ -356,9 +406,8 @@ static error_t rtc_calibration(void)
 */
 static error_t rtc_calibration_end(void)
 {
-  uint8_t result;
   error_t ret = ERROR_SUCCESS;
-  uint32_t rtc_info_reg[RTC_INFO_SIZE];          //rtc info寄存器值
+  uint32_t rtc_info_reg[RTC_INFO_DATA_SIZE];          //rtc info寄存器值
   uint32_t current_temp;              //当前温度
   float parabolic_vertex_ppm;         //顶点频率偏差
   int32_t parabolic_vertex_ppm_reg;
@@ -371,18 +420,22 @@ static error_t rtc_calibration_end(void)
   float temp;
 //    uint32_t fail;
 
-  ret = rtc_prog_intf->prog_init();  
+  ret = rtc_handler.prog_intf->prog_init();
+
   if (ERROR_SUCCESS != ret)
     return ret;
 
   //当前温度
-  isp_read_code(RTC_TEMP_BEFORE_CALI_ADDR, reg_temp, 2);
+  rtc_handler.prog_intf->read_flash(RTC_TEMP_BEFORE_CALI_ADDR, (uint8_t *)reg_temp, sizeof(reg_temp) / sizeof(uint8_t));
 //    if((reg_temp[0] + reg_temp[1]) != 0xFFFFFFFF)
 //         return ERROR_RTC_DATA_FORMAT;
   current_temp =  reg_temp[0];
 
-  //读info寄存器
-  isp_read_config(RTC_INFO_BASC_ADDR, rtc_info_reg, RTC_INFO_SIZE);
+  ret = rtc_handler.read_info(RTC_INFO_BASE_ADDR, rtc_info_reg, RTC_INFO_DATA_SIZE);
+
+  if (ERROR_SUCCESS != ret)
+    return ret;
+
   rtc_temp_bdr = (float)(rtc_info_reg[RTC_TEMPBDR_OFFSET] & 0x0000ffff) ;
 
   if (current_temp >=  rtc_temp_bdr)
@@ -416,26 +469,25 @@ static error_t rtc_calibration_end(void)
 //    rtc_info_reg[22] = 0xFFFEE0B6 ;               //温感标定点温度提取值寄存器
 //    rtc_info_reg[23] = 0x00011F49 ;               //温感标定点温度提取值寄存器反码
 
-  result = rtc_info_erase();
+  ret = rtc_handler.erase_rtc_info();
 
-  if (result != TRUE)
-    return ERROR_RTC_CALI_PROG ;
+  if (ERROR_SUCCESS != ret)
+    return ret;
 
-  result = isp_program_config(RTC_INFO_BASC_ADDR, rtc_info_reg, RTC_INFO_SIZE,  NULL);
+  ret = rtc_handler.program_info(RTC_INFO_BASE_ADDR, rtc_info_reg, RTC_INFO_DATA_SIZE);
 
-  if (result != TRUE)
-    return ERROR_RTC_CALI_PROG ;
+  if (ERROR_SUCCESS != ret)
+    return ret;
 
   //写调校后标志
   reg_temp[0] =  RTC_TEMP_CALI_FLAG;
   reg_temp[1] = 0xffffffff;
-  result = isp_program_code(RTC_TEMP_CALI_FLAG_ADDR, reg_temp, 2, NULL);
+  ret = rtc_handler.prog_intf->program_flash(RTC_TEMP_CALI_FLAG_ADDR, (uint8_t *)reg_temp, sizeof(reg_temp) / sizeof(uint8_t), NULL);
 
-  if (result != TRUE)
-    return ERROR_RTC_CALI_PROG ;
+  if (ERROR_SUCCESS != ret)
+    return ret;
 
   eslink_set_target_reset_run(20);
-
   return ret;
 }
 
@@ -469,8 +521,8 @@ error_t rtc_calibration_handler(void)
   if (STATE_CALI_ING ==  state)
   {
     eslink_set_target_power_reset(40);
-    RTC_setup_FTM();
     es_delay_ms(5000);   //延时等待芯片正常工作并输出脉冲。
+    RTC_setup_FTM();
     ret = rtc_calibration();
     RTC_close_FTM();
 
@@ -497,8 +549,7 @@ error_t rtc_calibration_handler(void)
 error_t rtc_calibration_verify(uint8_t *data)
 {
   error_t ret = ERROR_SUCCESS;
-  uint8_t result;
-  uint32_t rtc_info_reg[RTC_INFO_SIZE];          //rtc info寄存器值
+  uint32_t rtc_info_reg[RTC_INFO_DATA_SIZE];          //rtc info寄存器值
   uint32_t reg_temp[2] = {0xffffffff, 0xffffffff};    //寄存器临时变量
 //    uint32_t fail_temp;
 
@@ -511,8 +562,8 @@ error_t rtc_calibration_verify(uint8_t *data)
   //2、复位目标芯片
   eslink_set_target_power_reset(40);
   //3、计算调校后偏差
-  RTC_setup_FTM();
   es_delay_ms(5000);  //延时等待芯片正常工作并输出脉冲。
+  RTC_setup_FTM();
   ret = rtc_calibration();
   RTC_close_FTM();
 
@@ -520,27 +571,41 @@ error_t rtc_calibration_verify(uint8_t *data)
     return ret;
 
   //4、写调校后温度
-  ret = isp_prog_intf.prog_init();
+  ret = rtc_calibration_set_intf(prog_intf_type);
+
+  if (ERROR_SUCCESS != ret)
+    return ret;
+
+  ret = rtc_handler.prog_intf->prog_init();
 
   if (ERROR_SUCCESS != ret)
     return ret;
 
   //写调校后温度
-  isp_read_code(RTC_TEMP_AFTER_CALI_ADDR, reg_temp, 2);
+  ret = rtc_handler.prog_intf->read_flash(RTC_TEMP_AFTER_CALI_ADDR, (uint8_t *)reg_temp, sizeof(reg_temp) / sizeof(uint8_t));
+
+  if (ERROR_SUCCESS != ret)
+    return ret;
+
 //    if((reg_temp[0] + reg_temp[1]) != 0xffffffff)
 //        return ERROR_RTC_DATA_FORMAT;
   //读info寄存器
-  isp_read_config(RTC_INFO_BASC_ADDR, rtc_info_reg, RTC_INFO_SIZE);
+  ret = rtc_handler.read_info(RTC_INFO_BASE_ADDR, rtc_info_reg, RTC_INFO_DATA_SIZE);
+
+  if (ERROR_SUCCESS != ret)
+    return ret;
+
   rtc_info_reg[21] =  reg_temp[0];
-  result = rtc_info_erase();
 
-  if (result != TRUE)
-    return ERROR_RTC_CALI_PROG ;
+  ret = rtc_handler.erase_rtc_info();
 
-  result = isp_program_config(RTC_INFO_BASC_ADDR, rtc_info_reg, RTC_INFO_SIZE,  NULL);
+  if (ERROR_SUCCESS != ret)
+    return ret;
 
-  if (result != TRUE)
-    return ERROR_RTC_CALI_PROG ;
+  ret = rtc_handler.program_info(RTC_INFO_BASE_ADDR, rtc_info_reg, RTC_INFO_DATA_SIZE);
+
+  if (ERROR_SUCCESS != ret)
+    return ret;
 
   //5、计算平率偏差值是否在范围内
   //频率偏差是否在范围内都要写调校后温度

@@ -5,7 +5,7 @@
 
 static void uartboot_delay(uint32_t n)
 {
-  es_delay_ms(1);
+  es_delay_ms(n);
 }
 
 //异或校验
@@ -52,7 +52,7 @@ static uint8_t read_data(uint8_t *rd_data, uint8_t rd_size, uint8_t delay_ms)
 //读数据并判断应答
 static uint8_t read_cmd_and_check(uint8_t ack,  uint8_t delay_ms)
 {
-  uint32_t i = 0, timeout = 100 + delay_ms;
+  uint32_t i = 0, timeout = delay_ms;
   uint8_t rd_data;
 
   for (i = 0; i < timeout; i++)
@@ -117,9 +117,26 @@ static uint8_t write_cmd_and_check(uint8_t *cmd, uint8_t size)
   if (write_data(cmd, size) != TRUE)
     return FALSE;
 
-  if (read_cmd_and_check(BOOTISP_ACK, BOOTISP_DEFAULT_TIME) != TRUE)
+  if (read_cmd_and_check(BOOTISP_ACK, 4) != TRUE)
     return FALSE;
 
+  return TRUE;
+}
+
+#define MAX_UARTBOOT_RETRY    10
+static uint8_t write_cmd_and_check_retry(uint8_t *cmd, uint8_t size)
+{
+  uint8_t *p_cmd = cmd;
+  uint32_t i;
+  
+  for(i=0; i<MAX_UARTBOOT_RETRY; i++)
+  {
+    p_cmd = cmd;
+    if (write_cmd_and_check(p_cmd, size) != FALSE)
+      break;  
+  }
+  if(i>= MAX_UARTBOOT_RETRY)
+    return FALSE;
   return TRUE;
 }
 
@@ -135,7 +152,7 @@ uint8_t uartboot_start(void)
   UART_Config.FlowControl = UART_FLOW_CONTROL_NONE;
   uart_set_configuration(&UART_Config);
 
-  if (write_cmd_and_check(&start, 1) != TRUE)
+  if (write_cmd_and_check_retry(&start, 1) != TRUE)
     return FALSE;
 
   return TRUE;
@@ -150,7 +167,7 @@ uint8_t uartboot_extended_erase(uint8_t *data, uint8_t size)
   uint8_t cmd_buf[2] = {CMD_ERASE, 0xFF - CMD_ERASE};
 
   //send cmd
-  if (write_cmd_and_check(cmd_buf, 2) != TRUE)
+  if (write_cmd_and_check_retry(cmd_buf, 2) != TRUE)
     return FALSE;
 
   //send data
@@ -185,7 +202,7 @@ uint8_t uartboot_check_empty(uint32_t addr, uint32_t size)
     return FALSE;
 
   //send cmd
-  write_cmd_and_check(cmd_buf, 2);
+  write_cmd_and_check_retry(cmd_buf, 2);
 
   //send addr
   wr_buf[0] = (addr & 0xff000000) >> 24;
@@ -231,7 +248,7 @@ static uint8_t uartboot_read_block(uint32_t addr, uint8_t *data, uint32_t size)
   if (size > BOOTSIP_DATA_SIZE)
     return FALSE;
 
-  if (write_cmd_and_check(cmd_buf, 2) != TRUE)
+  if (write_cmd_and_check_retry(cmd_buf, 2) != TRUE)
     return FALSE;
 
   wr_buf[0] = (addr & 0xff000000) >> 24;
@@ -319,7 +336,7 @@ static uint8_t uartboot_write_block(uint32_t addr,  uint8_t *data, uint32_t size
     return FALSE;
 
   //send cmd and chack ack
-  if (write_cmd_and_check(cmd_buf, 2) != TRUE)
+  if (write_cmd_and_check_retry(cmd_buf, 2) != TRUE)
     return FALSE;
 
   //write addr
@@ -401,7 +418,7 @@ static uint8_t uartboot_get_crc32_cmd(uint32_t addr, uint32_t size, uint32_t *cr
     return FALSE;
 
   //send cmd and chack ack
-  if (write_cmd_and_check(cmd_buf, 2) != TRUE)
+  if (write_cmd_and_check_retry(cmd_buf, 2) != TRUE)
     return FALSE;
 
   //write addr
@@ -410,7 +427,7 @@ static uint8_t uartboot_get_crc32_cmd(uint32_t addr, uint32_t size, uint32_t *cr
   wr_buf[2] = (addr & 0x0000ff00) >> 8;
   wr_buf[3] = (addr & 0x000000ff);
 
-  if (write_data_oxr(wr_buf, 4) != TRUE)
+  if (write_data_oxr(wr_buf, sizeof(wr_buf)/sizeof(uint8_t)) != TRUE)
     return FALSE;
 
   //check ack
@@ -443,7 +460,7 @@ uint8_t uartboot_go_cmd(uint32_t addr)
   uint8_t cmd_buf[2] = {CMD_GO, 0xFF - CMD_GO};
   uint8_t wr_buf[4];
 
-  if (write_cmd_and_check(cmd_buf, 2) != TRUE)
+  if (write_cmd_and_check_retry(cmd_buf, 2) != TRUE)
     return FALSE;
 
   wr_buf[0] = (addr & 0xff000000) >> 24;

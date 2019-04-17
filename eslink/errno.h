@@ -62,7 +62,7 @@ typedef enum
   ERROR_ISP_READ_CFG_WORD = 0x48,             //ISP配置字读失败
   //"ISP verify command FAILURE",
   ERROR_ISP_VERIFY        = 0x49,             //ISP code校验失败
-  ERROR_ISP_CFG_WORD_VERIFY = 0x4A,           //isp 配置字校验失败
+  ERROR_ISP_CFG_WORD_VERIFY = 0x4A,           //isp 配置字校验失败 ___NONE
   //"ISP encrypt command FAILURE",
   ERROR_ISP_ENCRYPT       = 0x4B,             //ISP加密失败
   ERROR_OUT_ISP_MODE       = 0x4C,
@@ -71,7 +71,7 @@ typedef enum
   ERROR_SWD_CHECK_EMPTY   = 0x51,             //SWD查空失败
   ERROR_SWD_PROG          = 0x52,             //swd编程失败
   ERROR_SWD_PROG_CFG_WORD = 0x53,             //swd配置字编程失败
-  ERROR_SWD_VERIFY        = 0x54,             //swd校验失败
+  ERROR_SWD_VERIFY        = 0x54,             //swd校验失败       ___NONE
   ERROR_SWD_READ          = 0x55,             //swd读失败
   ERROR_SWD_FLASH_CHECK_EMPTY   = 0x56,       //swd FLASH查空失败
   ERROR_SWD_CFG_WORD_CHECK_EMPTY   = 0x57,    //swd 配置字查空失败
@@ -113,9 +113,9 @@ typedef enum
   ERROR_OFL_TYPE = 0x8A,                      //不支持此设备类型__NEW
   //RTC
 
-  ERROR_RTC_CALI_START = 0x90,                //调教前编程失败
+  ERROR_RTC_INFO_ERASE = 0x90,                //RTC擦除失败
   ERROR_RTC_CALI_TIMEOUT = 0x91,              //调教超时，没有符合要求得脉冲
-  ERROR_RTC_CALI_PROG = 0x92,                 //RTC编程失败
+  ERROR_RTC_INFO_PROG = 0x92,                 //RTC编程失败
   ERROR_RTC_CALI_VERIFY = 0x93,               //RTC验证失败
   ERROR_RTC_SELF_CAIL = 0X94,                 //rtc未自校正
   ERROR_RTC_DATA_FORMAT = 0X95,               //rtc数据格式错误

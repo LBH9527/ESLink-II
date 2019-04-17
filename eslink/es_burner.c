@@ -85,6 +85,9 @@ error_t es_prog_set_intf(prog_intf_type_t type)
   {
     return ERROR_PROG_INTF;
   }
+#if ESLINK_RTC_ENABLE
+  rtc_calibration_set(type);
+#endif
 
   return ERROR_SUCCESS;
 }

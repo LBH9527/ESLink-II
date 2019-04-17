@@ -657,7 +657,7 @@ uint8_t isp_erase_chip(void)
     return TRUE;
 }
 
-uint8_t rtc_info_erase(void)
+uint8_t isp_rtc_info_erase(void)
 {
     uint8_t result;  
     

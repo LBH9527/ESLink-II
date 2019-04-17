@@ -21,7 +21,7 @@ uint8_t isp_program_config(uint32_t addr, uint32_t *data, uint32_t size,uint32_t
 uint8_t isp_program_code(uint32_t addr, uint32_t *data, uint32_t size,uint32_t *failed_offset)  ; 
 uint8_t isp_read_code(uint32_t addr, uint32_t *data, uint32_t size); 
 
-uint8_t rtc_info_erase(void);
+uint8_t isp_rtc_info_erase(void);
 
 
 

@@ -14,11 +14,11 @@
 #define CMD_GET_CRC                     0xD0    /* 读取若干字节的CRC32 */
 #define CMD_CHECK_EMPTY                 0xD1    /* 查空 */
 #define CHIP_INFO1_INDEX            0x0101      //info1 索引值
-
+#define CHIP_INFO2_INDEX            0x0102      //info1 索引值
 /******************************************************************************/
 //写入的最大数据块长度
 #define BOOTSIP_DATA_SIZE               0x80                //packet_size   
-#define BOOTISP_DEFAULT_BAUDRATE        115200              //默认波特率 
+#define BOOTISP_DEFAULT_BAUDRATE        256000 //115200 ---->256000  默认波特率 
 #define BOOTISP_DEFAULT_TIME            100                  //默认等待时间 
 #define BOOTISP_WRITE_PAGE_TIME         200                  //写一页时间  
 

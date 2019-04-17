@@ -11,8 +11,9 @@
 #define RTC_TEMP_CALI_FLAG_ADDR         0x20800
 #define RTC_TEMP_CALI_FLAG              0x12345678
 
-#define RTC_INFO_BASC_ADDR              0X1000
-#define RTC_INFO_SIZE                   32
+#define RTC_INFO_BASE_ADDR              0X1000
+#define RTC_INFO_DATA_SIZE              32
+#define RTC_INFO_PROG_DATA_SIZE         24
 #define RTC_TEMP_TBDR_ADDR              0x100C
 //硬件补偿温度边界值寄存器
 #define RTC_TEMPBDR_OFFSET              0x02
@@ -32,7 +33,7 @@
 #define RTC_TEMP_TCALBDR_INV_OFFSET     23
 
 
-#define INFO_TEMPT_ADDR                     0x0348
+#define INFO0_TEMPT_ADDR                     0x0348
 #define RTC_TEMP_TCALBDR_ADDR               0x1058
 
 

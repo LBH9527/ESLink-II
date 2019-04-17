@@ -26,8 +26,16 @@ enum
   DETECT_NO_CHIP,     //未检测到芯片
 } target_state_t;
 
+//编程启动方式
 typedef uint8_t (* program_start)(void);
 program_start  ofl_prog_start;
+//更新序列号
+typedef error_t (*update_serial_number)(uint64_t sn_data, uint8_t *buf, uint8_t size);
+update_serial_number update_sn;
+
+//获取序列号
+typedef error_t (*get_serial_number)(uint64_t *sn_data, uint8_t *buf, uint8_t size);
+get_serial_number get_sn;
 
 static struct es_prog_ops *ofl_prog_intf;   //脱机编程接口
 static es_target_cfg ofl_target_device;     //目标芯片信息
@@ -92,6 +100,10 @@ ofl_error_t ofl_prog_init(uint8_t mode)
   //烧录接口初始化
   ofl_prog_intf->init(&ofl_target_device);
 
+#if ESLINK_RTC_ENABLE
+  rtc_calibration_set(type);
+#endif
+
   //启动烧写的方式
   if (mode == OFFLINE_PROG_PLUS_MODE)
   {
@@ -107,10 +119,27 @@ ofl_error_t ofl_prog_init(uint8_t mode)
     ofl_prog_start = ofl_auto_check_start;
   }
 
+  //获取序列号方式
+  if (sn_info.read_mode  == OFL_SERIALNUM_READ_USE_IAP)   //32位机 IAP方式
+  {
+    update_sn = update_serial_number_32bit;
+    get_sn = get_serial_number_32bit;
+  }
+  else
+  {
+    update_sn = update_serial_number_8bit;
+    get_sn = get_serial_number_8bit;
+  }
+
   return ret;
 }
 
-//脱机启动信号 ----外部机台触发
+/*******************************************************************************
+* 函 数 名: ofl_machine_start
+* 功能说明: 脱机启动信号 ----外部机台触发
+* 形    参:
+* 返 回 值: 错误类型
+*******************************************************************************/
 uint8_t ofl_machine_start(void)
 {
   if (gpio_start_in_low())
@@ -123,10 +152,15 @@ uint8_t ofl_machine_start(void)
     }
   }
 
-  return DETECT_NO_CHIP;
-
+  return DETECT_NO_CHIP;  
 }
-//脱机启动信号 ----自动检测
+
+/*******************************************************************************
+* 函 数 名: ofl_auto_check_start
+* 功能说明: 脱机启动信号 ----自动检测
+* 形    参:
+* 返 回 值: 错误类型
+*******************************************************************************/
 uint8_t ofl_auto_check_start(void)
 {
   uint8_t i, check_time = 0;
@@ -290,6 +324,7 @@ ofl_error_t ofl_prog(void)
         break;
     }
   }
+
 #ifdef M610   //M610没有做防误差，需要在编程后判断ID是否被误擦
   ret = ofl_prog_intf->prog_init();
 
@@ -300,6 +335,7 @@ ofl_error_t ofl_prog(void)
 
   if (ret != ERROR_SUCCESS)
     return  OFL_ERR_CHIPID_CHECK;
+
 #endif
   //编程成功
   sn_info.success_count ++;       //烧录成功+1
@@ -308,25 +344,21 @@ ofl_error_t ofl_prog(void)
   {
     uint64_t data = 0;
 
-    if (sn_info.read_mode  == OFL_SERIALNUM_READ_USE_IAP)   //32位机 IAP方式
-    {
-      get_serial_number_32bit(&data, sn_info.sn.data, sn_info.sn.size);
-      data += sn_info.sn_step;
-      update_serial_number_32bit(data, sn_info.sn.data, sn_info.sn.size);
-    }
-    else    //8位机返回指令
-    {
-      get_serial_number_8bit(&data, sn_info.sn.data, sn_info.sn.size);
-      data += sn_info.sn_step;
-      update_serial_number_8bit(data, sn_info.sn.data, sn_info.sn.size);
-    }
+    get_sn(&data, sn_info.sn.data, sn_info.sn.size);
+    data += sn_info.sn_step;
+    update_sn(data, sn_info.sn.data, sn_info.sn.size);
   }
 
   //更新序列号
   set_offline_serial_number((uint8_t *) &sn_info, sizeof(ofl_serial_number_t));
   return OFL_SUCCESS;
 }
-
+/*******************************************************************************
+* 函 数 名: ofl_prog_handle
+* 功能说明:
+* 形    参:
+* 返 回 值: 错误类型
+*******************************************************************************/
 void ofl_prog_handle(void)
 {
   uint8_t menu_msg = MSG_NULL;
@@ -444,7 +476,12 @@ void ofl_prog_handle(void)
   gui_msg_write_data(&menu_msg) ;
   gui_refresh();
 }
-
+/*******************************************************************************
+* 函 数 名: mini_ofl_prog_handle
+* 功能说明:
+* 形    参:
+* 返 回 值: 错误类型
+*******************************************************************************/
 void mini_ofl_prog_handle(void)
 {
   static  ofl_prog_state_t state = IN_MODE_CHECK;
@@ -552,8 +589,12 @@ ofl_error_t ofl_mini_prog(void)
   return  OFL_SUCCESS;
 }
 
-
-//获取8位芯片的序列号
+/*******************************************************************************
+* 函 数 名:  get_serial_number_8bit
+* 功能说明: 获取8位芯片的序列号
+* 形    参:
+* 返 回 值: 错误类型
+*******************************************************************************/
 static error_t  get_serial_number_8bit(uint64_t *sn_data, uint8_t *buf, uint8_t size)
 {
   uint8_t i;
@@ -573,7 +614,13 @@ static error_t  get_serial_number_8bit(uint64_t *sn_data, uint8_t *buf, uint8_t 
 
   return  ERROR_SUCCESS;
 }
-//更新序列号
+
+/*******************************************************************************
+* 函 数 名: update_serial_number_8bit
+* 功能说明: 更新8位机序列号
+* 形    参:
+* 返 回 值: 错误类型
+*******************************************************************************/
 static error_t  update_serial_number_8bit(uint64_t sn_data, uint8_t *buf, uint8_t size)
 {
   uint8_t i;
@@ -593,7 +640,13 @@ static error_t  update_serial_number_8bit(uint64_t sn_data, uint8_t *buf, uint8_
 
   return  ERROR_SUCCESS;
 }
-//获取32位芯片的序列号
+
+/*******************************************************************************
+* 函 数 名: get_serial_number_32bit
+* 功能说明: 获取32位芯片的序列号
+* 形    参:
+* 返 回 值: 错误类型
+*******************************************************************************/
 static error_t  get_serial_number_32bit(uint64_t *sn_data, uint8_t *buf, uint8_t size)
 {
   uint8_t i;
@@ -617,7 +670,13 @@ static error_t  get_serial_number_32bit(uint64_t *sn_data, uint8_t *buf, uint8_t
 
   return  ERROR_SUCCESS;
 }
-//更新32位芯片序列号
+
+/*******************************************************************************
+* 函 数 名:  update_serial_number_32bit
+* 功能说明: 更新32位芯片序列号
+* 形    参:
+* 返 回 值: 错误类型
+*******************************************************************************/
 static error_t  update_serial_number_32bit(uint64_t sn_data, uint8_t *buf, uint8_t size)
 {
   uint8_t i;
@@ -642,8 +701,12 @@ static error_t  update_serial_number_32bit(uint64_t sn_data, uint8_t *buf, uint8
   return  ERROR_SUCCESS;
 }
 
-
-//退出脱机模式时，更新脱机序列号信息
+/*******************************************************************************
+* 函 数 名: update_ofl_serial_number
+* 功能说明: 退出脱机模式时，更新脱机序列号信息
+* 形    参:
+* 返 回 值: 错误类型
+*******************************************************************************/
 ofl_error_t update_ofl_serial_number(void)
 {
 //    error_t ret = ERROR_SUCCESS;

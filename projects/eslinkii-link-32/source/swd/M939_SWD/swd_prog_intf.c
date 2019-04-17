@@ -85,7 +85,10 @@ static error_t swd_program_flash(uint8_t area, uint32_t addr, uint8_t *buf, uint
   if (area == FLASH_AREA)
     entry = flash->program_page;
   else if (area == INFO_AREA)
-    entry = flash->program_info_page;
+  {
+    entry = flash->info_program_page;
+    addr += CHIP_INFO_FLASH_BASE;
+  }
   else
     entry = 0;
 
@@ -113,6 +116,44 @@ static error_t swd_program_flash(uint8_t area, uint32_t addr, uint8_t *buf, uint
     addr += write_size;
     buf += write_size;
     size -= write_size;
+  }
+
+  return ERROR_SUCCESS;
+}
+
+static error_t swd_read_flash(uint8_t area, uint32_t addr, uint8_t *buf, uint32_t size)
+{
+  if (area == INFO_AREA)
+    addr += CHIP_INFO_FLASH_BASE;
+
+  if (!swd_read_memory(addr, buf, size))
+  {
+    return ERROR_SWD_READ;
+  }
+
+  return ERROR_SUCCESS;
+}
+static error_t swd_erase_flash(void)
+{
+  const program_target_t *const flash = swd_target_device.flash_algo;
+
+  if (0 == swd_flash_syscall_exec(&flash->sys_call_s, flash->erase_chip, 0, 0, 0, 0))
+  {
+    return ERROR_SWD_ERASE;
+  }
+  return ERROR_SUCCESS;
+}
+
+static error_t swd_erase_info(uint32_t addr)
+{
+  const program_target_t *const flash = swd_target_device.flash_algo;
+
+  addr += CHIP_INFO_FLASH_BASE;
+
+
+  if (0 == swd_flash_syscall_exec(&flash->sys_call_s, flash->info_erase_page, addr, 0, 0, 0))
+  {
+    return ERROR_SWD_ERASE;
   }
 
   return ERROR_SUCCESS;
@@ -178,34 +219,37 @@ static error_t es_swd_uninit(void)
 *******************************************************************************/
 static error_t es_swd_erase_chip(uint8_t para)
 {
-  error_t status = ERROR_SUCCESS;
-  const program_target_t *const flash = swd_target_device.flash_algo;
+  error_t ret = ERROR_SUCCESS;
 
-  status = es_swd_chipid_check();
+  ret = es_swd_chipid_check();
 
-
-  if ((ERROR_SUCCESS != status) && (ERROR_LV2_ENCRYPT != status))
-    return status;
+  if ((ERROR_SUCCESS != ret) && (ERROR_LV2_ENCRYPT != ret))
+    return ret;
 
   //擦除flash
-  if (0 == swd_flash_syscall_exec(&flash->sys_call_s, flash->erase_chip, 0, 0, 0, 0))
-  {
-    return ERROR_SWD_ERASE;
-  }
+  ret = swd_erase_flash() ;
 
-  //擦除info
-  if (0 == swd_flash_syscall_exec(&flash->sys_call_s, flash->erase_info, 0, 0, 0, 0))
-  {
-    return ERROR_SWD_ERASE;
-  }
+  if (ERROR_SUCCESS != ret)
+    return ret; 
 
-  // Reset and re-initialize the target after the erase if required
-  if (swd_target_device.erase_reset)
-  {
-    status = es_swd_init();
-  }
+  //擦除info1
+  ret = swd_erase_info(CHIP_INFO1_OFFSET);
 
-  return status;
+  if (ERROR_SUCCESS != ret)
+    return ret;
+
+  //擦除info2
+  ret = swd_erase_info(CHIP_INFO2_OFFSET);
+
+  if (ERROR_SUCCESS != ret)
+    return ret;
+
+//  ret = swd_erase_info(CHIP_RTC_INFO_OFFSET);
+
+//  if (ERROR_SUCCESS != ret)
+//    return ret;
+
+  return ERROR_SUCCESS;
 }
 
 /*******************************************************************************
@@ -216,12 +260,11 @@ static error_t es_swd_erase_chip(uint8_t para)
 *******************************************************************************/
 static error_t es_swd_read_chipid(uint8_t *buf)
 {
-  if (!swd_read_memory(CHIP_INFO_FLASH_OFFSET + target_dev->chipid_addr, buf, 4))
-  {
-    return ERROR_SWD_READ;
-  }
+  error_t ret = ERROR_SUCCESS;
 
-  return ERROR_SUCCESS;
+  ret = swd_read_flash(INFO_AREA, target_dev->chipid_addr, buf, 4);
+
+  return ret;
 }
 
 /*******************************************************************************
@@ -232,20 +275,21 @@ static error_t es_swd_read_chipid(uint8_t *buf)
 *******************************************************************************/
 static error_t es_swd_chipid_check(void)
 {
+  error_t ret = ERROR_SUCCESS;
   uint32_t chipid = 0;
   uint32_t reg_data ;
 
-  if (!swd_read_memory(CHIP_INFO_FLASH_OFFSET + target_dev->chipid_addr, (uint8_t *)&chipid, 4))
-  {
-    return ERROR_SWD_READ;
-  }
+  ret = swd_read_flash(INFO_AREA, target_dev->chipid_addr, (uint8_t *)&chipid, 4);
+
+  if (ERROR_SUCCESS != ret)
+    return ret;
 
   if (chipid != target_dev->chipid_value)
   {
-    if (!swd_read_memory(CHIP_INFO_FLASH_OFFSET + CHIP_CFG_GBRDP_ADDR, (uint8_t *)&reg_data, 4))
-    {
-      return ERROR_SWD_READ;
-    }
+    ret = swd_read_flash(INFO_AREA, CHIP_CFG_GBRDP_ADDR, (uint8_t *)&reg_data, 4);
+
+    if (ERROR_SUCCESS != ret)
+      return ret;
 
     if ((chipid == 0x00000000) && (reg_data == 0x00000000))
       return  ERROR_LV2_ENCRYPT;
@@ -272,15 +316,15 @@ static error_t es_swd_read_checksum(uint8_t *buf)
   if (ERROR_SUCCESS != ret)
     return ret;
 
-  if (!swd_read_memory(CHIP_INFO_FLASH_OFFSET + CHIP_CHECKSUM_ADDR, checksum_l, 4))
-  {
-    return ERROR_SWD_READ;
-  }
+  ret = swd_read_flash(INFO_AREA, CHIP_CHECKSUM_ADDR, checksum_l, 4);
 
-  if (!swd_read_memory(CHIP_INFO_FLASH_OFFSET + CHIP_CHECKSUMN_ADDR, checksum_h, 4))
-  {
-    return ERROR_SWD_READ;
-  }
+  if (ERROR_SUCCESS != ret)
+    return ret;
+
+  ret = swd_read_flash(INFO_AREA, CHIP_CHECKSUMN_ADDR, checksum_h, 4);
+
+  if (ERROR_SUCCESS != ret)
+    return ret;
 
   //参考上位机校验和取数据方式来返回数据
   if (buf)
@@ -323,10 +367,11 @@ static error_t es_swd_program_flash(uint32_t addr, uint8_t *buf, uint32_t size, 
 *******************************************************************************/
 static error_t es_swd_read_flash(uint32_t addr, uint8_t *buf, uint32_t size)
 {
-  if (!swd_read_memory(addr, buf, size))
-  {
-    return ERROR_SWD_READ;
-  }
+  error_t ret = ERROR_SUCCESS ;
+  ret = swd_read_flash(FLASH_AREA, addr, buf, size);
+
+  if (ERROR_SUCCESS != ret)
+    return ret;
 
   return ERROR_SUCCESS;
 }
@@ -339,6 +384,7 @@ static error_t es_swd_read_flash(uint32_t addr, uint8_t *buf, uint32_t size)
 *******************************************************************************/
 static error_t es_swd_verify_flash(uint32_t addr,  uint8_t *data, uint32_t size, uint32_t *failed_addr, uint32_t *failed_data)
 {
+  error_t ret = ERROR_SUCCESS ;
   uint32_t i;
   uint8_t read_buf[SWD_PRG_SIZE];
   uint32_t verify_size;
@@ -350,10 +396,10 @@ static error_t es_swd_verify_flash(uint32_t addr,  uint8_t *data, uint32_t size,
   {
     verify_size = MIN(size, sizeof(read_buf));
 
-    if (!swd_read_memory(addr, read_buf, verify_size))
-    {
-      return ERROR_SWD_READ;
-    }
+    ret = swd_read_flash(FLASH_AREA, addr, read_buf, verify_size);
+
+    if (ERROR_SUCCESS != ret)
+      return ret;
 
     for (i = 0; i < verify_size; i++)
     {
@@ -364,10 +410,10 @@ static error_t es_swd_verify_flash(uint32_t addr,  uint8_t *data, uint32_t size,
 
         if (failed_data)
         {
-          *failed_data |= (read_buf[*failed_addr] << 0) ;
-          *failed_data |= (read_buf[*failed_addr + 1] << 8) ;
-          *failed_data |= (read_buf[*failed_addr + 2] << 16) ;
-          *failed_data |= (read_buf[*failed_addr + 3] << 24) ;
+          *failed_data |= (read_buf[ROUND_DOWN(i, 4)] << 0) ;
+          *failed_data |= (read_buf[ROUND_DOWN(i, 4) + 1] << 8) ;
+          *failed_data |= (read_buf[ROUND_DOWN(i, 4) + 2] << 16) ;
+          *failed_data |= (read_buf[ROUND_DOWN(i, 4) + 3] << 24) ;
         }
 
         return ERROR_SWD_VERIFY;
@@ -407,7 +453,7 @@ static error_t es_swd_program_config(uint32_t addr, uint8_t *buf, uint32_t size,
   {
     part = &info_part_map[i];
 
-    prog_addr = CHIP_INFO_FLASH_OFFSET + part->addr;
+    prog_addr = part->addr;
     prog_size = part->size ;
     ret = swd_program_flash(INFO_AREA, prog_addr, buf, prog_size);
 
@@ -450,15 +496,24 @@ static error_t es_swd_read_config(uint32_t addr,  uint8_t *buf, uint32_t size)
   for (i = 0; i < ITEM_NUM(info_part_map); i++)
   {
     part = &info_part_map[i];
-    read_addr = CHIP_INFO_FLASH_OFFSET + part->addr;
+    read_addr = part->addr;
     read_size = part->size ;
 
-    if (!swd_read_memory(read_addr, buf, read_size))
-      return ERROR_SWD_READ;
+    ret = swd_read_flash(INFO_AREA, read_addr, buf, read_size);
+
+    if (ERROR_SUCCESS != ret)
+      return ret;
 
     buf += read_size;
   }
 
+#if ESLINK_RTC_ENABLE
+  ret = swd_read_flash(INFO_AREA, CHIP_RTC_INFO_OFFSET, buf, CHIP_RTC_INFO_PART_SIZE);
+
+  if (ERROR_SUCCESS != ret)
+    return ret;
+
+#endif
   return ERROR_SUCCESS;
 }
 
@@ -470,6 +525,7 @@ static error_t es_swd_read_config(uint32_t addr,  uint8_t *buf, uint32_t size)
 *******************************************************************************/
 static error_t es_swd_verify_config(uint32_t addr,  uint8_t *buf, uint32_t size, uint32_t *failed_addr, uint32_t *failed_data)
 {
+  error_t ret = ERROR_SUCCESS;
   uint32_t i;
   uint8_t read_buf[SWD_PRG_SIZE];
   uint32_t verify_size;
@@ -484,17 +540,17 @@ static error_t es_swd_verify_config(uint32_t addr,  uint8_t *buf, uint32_t size,
   for (item_num = 0; item_num < ITEM_NUM(info_part_map); item_num++)
   {
     part = &info_part_map[item_num];
-    read_addr = CHIP_INFO_FLASH_OFFSET + part->addr;
+    read_addr = part->addr;
     read_size = part->size;
 
     while (read_size > 0)
     {
       verify_size = MIN(read_size, sizeof(read_buf));
 
-      if (!swd_read_memory(read_addr, read_buf, verify_size))
-      {
-        return ERROR_SWD_READ;
-      }
+      ret = swd_read_flash(INFO_AREA, read_addr, read_buf, verify_size);
+
+      if (ERROR_SUCCESS != ret)
+        return ret;
 
       for (i = 0; i < verify_size; i++)
       {
@@ -505,10 +561,10 @@ static error_t es_swd_verify_config(uint32_t addr,  uint8_t *buf, uint32_t size,
 
           if (failed_data)
           {
-            *failed_data |= (read_buf[*failed_addr] << 0) ;
-            *failed_data |= (read_buf[*failed_addr + 1] << 8) ;
-            *failed_data |= (read_buf[*failed_addr + 2] << 16) ;
-            *failed_data |= (read_buf[*failed_addr + 3] << 24) ;
+            *failed_data |= (read_buf[ROUND_DOWN(i, 4)] << 0) ;
+            *failed_data |= (read_buf[ROUND_DOWN(i, 4) + 1] << 8) ;
+            *failed_data |= (read_buf[ROUND_DOWN(i, 4) + 2] << 16) ;
+            *failed_data |= (read_buf[ROUND_DOWN(i, 4) + 3] << 24) ;
           }
 
           return ERROR_SWD_VERIFY;
@@ -546,7 +602,7 @@ static error_t es_swd_encrypt_chip(void)
   if (ret !=  ERROR_SUCCESS)
     return ret;
 
-  ret = swd_program_flash(INFO_AREA, CHIP_INFO_FLASH_OFFSET + CHIP_CFG_GBRDP_ADDR, reg_data,  sizeof(reg_data) / sizeof(uint8_t));
+  ret = swd_program_flash(INFO_AREA, CHIP_CFG_GBRDP_ADDR, reg_data,  sizeof(reg_data) / sizeof(uint8_t));
 
   if (ret != ERROR_SUCCESS)
   {
@@ -568,7 +624,7 @@ static error_t es_swd_encrypt_chip(void)
 *******************************************************************************/
 error_t es_swd_check_empty(uint32_t *failed_addr, uint32_t *failed_data)
 {
-  error_t status = ERROR_SUCCESS;
+  error_t ret = ERROR_SUCCESS;
   uint32_t i;
   uint32_t code_addr;
   uint32_t code_size;
@@ -580,10 +636,10 @@ error_t es_swd_check_empty(uint32_t *failed_addr, uint32_t *failed_data)
   const struct info_part_map *part;
   uint32_t item_num;
 
-  status = es_swd_chipid_check();
+  ret = es_swd_chipid_check();
 
-  if (ERROR_SUCCESS != status)
-    return status;
+  if (ERROR_SUCCESS != ret)
+    return ret;
 
   //flash查空
   code_addr =  target_dev->code_start ;
@@ -593,10 +649,10 @@ error_t es_swd_check_empty(uint32_t *failed_addr, uint32_t *failed_data)
   {
     copy_size = MIN(code_size, sizeof(read_buf));
 
-    if (!swd_read_memory(code_addr, read_buf, copy_size))
-    {
-      return ERROR_SWD_READ;
-    }
+    ret = swd_read_flash(FLASH_AREA, code_addr, read_buf, copy_size);
+
+    if (ret != ERROR_SUCCESS)
+      return ret;
 
     for (i = 0; i < copy_size; i++)
     {
@@ -632,17 +688,17 @@ error_t es_swd_check_empty(uint32_t *failed_addr, uint32_t *failed_data)
   for (item_num = 0; item_num < ITEM_NUM(info_part_map); item_num++)
   {
     part = &info_part_map[item_num];
-    cfg_word_addr =  CHIP_INFO_FLASH_OFFSET + part->addr;
+    cfg_word_addr =  part->addr;
     cfg_word_size =  part->size ;     //字节长度
 
     while (true)
     {
       copy_size = MIN(cfg_word_size, sizeof(read_buf));
 
-      if (!swd_read_memory(cfg_word_addr, read_buf, copy_size))
-      {
-        return ERROR_SWD_READ;
-      }
+      ret = swd_read_flash(INFO_AREA, cfg_word_addr, read_buf, copy_size);
+
+      if (ret != ERROR_SUCCESS)
+        return ret;
 
       for (i = 0; i < copy_size; i++)
       {
@@ -934,4 +990,221 @@ static error_t  swd_target_verify_all(uint8_t sn_enable, serial_number_t *sn, ui
   return  ret;
 }
 
+#if ESLINK_RTC_ENABLE
+/*******************************************************************************
+* 函 数 名: swd_read_rtc_info
+* 功能说明: 读rtc info
+* 形    参:
+* 返 回 值: 错误类型
+*******************************************************************************/
+error_t swd_read_rtc_info(uint32_t addr,  uint32_t *buf, uint32_t size)
+{
+  error_t ret = ERROR_SUCCESS;
+  uint8_t *p_buff = (uint8_t *)buf;
+  uint32_t len = size * 4;
+
+  ret = swd_read_flash(INFO_AREA, addr, p_buff, len);
+  return ret;
+}
+
+/*******************************************************************************
+* 函 数 名: swd_program_rtc_info
+* 功能说明: rtc info 编程
+* 形    参:
+* 返 回 值: 错误类型
+*******************************************************************************/
+error_t swd_program_rtc_info(uint32_t addr,  uint32_t *buf, uint32_t size)
+{
+  error_t ret;
+  uint8_t *p_buff = (uint8_t *)buf;
+  uint32_t len = size * 4;
+
+  ret = swd_program_flash(INFO_AREA, addr, p_buff, len);
+
+  return ret;
+}
+/*******************************************************************************
+* 函 数 名: swd_erase_rtc_info
+* 功能说明: rtc info擦除
+* 形    参:
+* 返 回 值: 错误类型
+*******************************************************************************/
+error_t swd_erase_rtc_info(void)
+{
+  const program_target_t *const flash = swd_target_device.flash_algo;
+
+  if (0 == swd_flash_syscall_exec(&flash->sys_call_s, flash->info_erase_page, CHIP_RTC_INFO_ADDR, 0, 0, 0))
+  {
+    return ERROR_SWD_ERASE;
+  }
+
+  return ERROR_SUCCESS;
+}
+/*******************************************************************************
+* 函 数 名: swd_program_rtc_flash_info
+* 功能说明: rtc 程序编程呢
+* 形    参:
+* 返 回 值: 错误类型
+*******************************************************************************/
+error_t swd_program_rtc_flash_info(void)
+{
+  error_t ret = ERROR_SUCCESS;
+  uint32_t code_addr;
+  uint32_t code_size;
+  uint32_t cfg_word_addr;
+  uint32_t size;
+  uint32_t read_addr;
+  uint8_t buf[SWD_PRG_SIZE];
+  uint8_t rd_buf[CHIP_RTC_INFO_PART_SIZE];
+  uint32_t checksum = 0;
+  uint32_t sf_checksum = 0;   //spi保存的校验和
+  uint32_t i;
+  uint32_t config_word[2];
+
+  ret = es_swd_init();
+
+  if (ERROR_SUCCESS != ret)
+    return ret;
+
+  ret = es_swd_erase_chip(0);
+
+  if (ERROR_SUCCESS != ret)
+    return ret;
+
+  ret = es_swd_chipid_check();
+
+  if (ERROR_SUCCESS != ret)
+    return ret;
+
+  //1、flash编程
+  code_addr =  target_dev->code_start;
+  code_size =  target_dev->code_size;
+  read_addr =  0;
+
+  while (true)
+  {
+    size = MIN(code_size, sizeof(buf));
+    ret = swd_prog_intf.cb(RTC_HEX, read_addr, buf, size);
+
+    if (ERROR_SUCCESS != ret)
+      return ret;
+
+    for (i = 0; i < size; i++)
+    {
+      if (buf[i] != 0xFF)
+        break;
+    }
+
+    if (i < size)     //数据段都为0xFF,不进行编程
+    {
+      ret = es_swd_program_flash(code_addr, buf, size, NULL);
+
+      if (ret !=  ERROR_SUCCESS)   //编程失败，返回编程失败地址
+        return ret;
+    }
+
+    // Update variables
+    code_addr  += size;
+    code_size  -= size;
+    read_addr += size;
+
+    // Check for end
+    if (code_size <= 0)
+      break;
+  }
+
+  //2、flash校验
+  code_addr =  target_dev->code_start;
+  code_size =  target_dev->code_size;
+  read_addr = 0;
+
+  while (true)
+  {
+    size = MIN(code_size, sizeof(buf));
+
+    ret = swd_prog_intf.cb(RTC_HEX, read_addr, buf, size);
+
+    if (ret !=  ERROR_SUCCESS)
+      return ret;
+
+    checksum += check_sum(size, buf);     //计算原始数据校验和
+    ret = es_swd_verify_flash(code_addr, buf, size, NULL, NULL);
+
+    if (ret !=  ERROR_SUCCESS)
+      return ret;
+
+    // Update variables
+    code_addr  += size;
+    code_size  -= size;
+    read_addr += size;
+
+    // Check for end
+    if (code_size <= 0)
+      break;
+  }
+
+  ret = swd_prog_intf.cb(RTC_HEX_CHECKSUM, 0, (uint8_t *)&sf_checksum, 4);
+
+  if ((sf_checksum & 0x0000ffff) != (checksum & 0x0000ffff))
+  {
+    ret = ERROR_USER_HEX_CHECKSUM;
+    return  ret;
+  }
+
+  //3、默认配置字编程
+  cfg_word_addr =  CHIP_INFO1_OFFSET;  //info1的偏移地址
+  config_word[0] = M939_RTC_CONFIG_DEFAULT_L;
+  config_word[1] = M939_RTC_CONFIG_DEFAULT_H;
+  ret = swd_program_flash(INFO_AREA, cfg_word_addr, (uint8_t *)config_word, sizeof(config_word) / sizeof(uint8_t));
+
+  if (ret != ERROR_SUCCESS)
+    return ret;
+
+  //4、默认配置字校验
+  config_word[0] = 0x0;
+  config_word[1] = 0x0;
+
+  ret = swd_read_flash(INFO_AREA, cfg_word_addr, (uint8_t *)config_word, sizeof(config_word) / sizeof(uint8_t));
+
+  if (ret != ERROR_SUCCESS)
+    return ret;
+
+  if ((config_word[0] != M939_RTC_CONFIG_DEFAULT_L) |                         \
+      (config_word[1] != M939_RTC_CONFIG_DEFAULT_H))
+    return  ERROR_SWD_VERIFY;
+
+  //5、rtc info编程
+  read_addr = CHIP_RTC_INFO_PART_OFFSET ;
+  size = CHIP_RTC_INFO_PART_SIZE;
+  ret = swd_prog_intf.cb(CFG_WORD, read_addr, buf, size);
+
+  if (ERROR_SUCCESS != ret)
+    return ret;
+
+  ret = swd_erase_rtc_info();
+
+  if (ERROR_SUCCESS != ret)
+    return ret;
+
+  ret = swd_program_rtc_info(CHIP_RTC_INFO_OFFSET, (uint32_t *)buf, size / 4);
+
+  if (ERROR_SUCCESS != ret)
+    return ret;
+
+  //info校验
+  ret = swd_read_rtc_info(CHIP_RTC_INFO_OFFSET, (uint32_t *)rd_buf, size / 4);
+
+  if (ERROR_SUCCESS != ret)
+    return ret;
+
+  for (i = 0; i < size; i++)
+  {
+    if (buf[i] != rd_buf[i])
+      return  ERROR_SWD_VERIFY;
+  }
+
+  return ret;
+}
+
+#endif
 
